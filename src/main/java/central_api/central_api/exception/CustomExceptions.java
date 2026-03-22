@@ -50,7 +50,7 @@ public class CustomExceptions {
         }
     }
 
-    // ✅ BadRequestException for 400 Bad Request errors
+    // ✅ ADD THIS CLASS
     public static class BadRequestException extends RuntimeException {
         public BadRequestException(String message) {
             super(message);

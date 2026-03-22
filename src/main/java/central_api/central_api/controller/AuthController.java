@@ -1,10 +1,14 @@
 package central_api.central_api.controller;
 
+import central_api.central_api.client.AuthApiClient;
 import central_api.central_api.dto.request.LoginRequest;
 import central_api.central_api.dto.request.RegisterAirlineRequest;
 import central_api.central_api.dto.request.RegisterRequest;
 import central_api.central_api.dto.response.AuthResponse;
+import central_api.central_api.dto.response.ValidateTokenResponse;
 import central_api.central_api.service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthService authService;  // Still needed for registration
+    private final AuthApiClient authApiClient;  // For validation
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -31,31 +36,95 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
-        return ResponseEntity.ok(authService.login(request));
+    public ResponseEntity<Map<String, Object>> login(
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response) {
+
+        // ✅ Call Auth API for login
+        AuthResponse authResponse = authService.login(request);
+
+        // ✅ Create HTTP-Only Cookie for JWT token
+        Cookie tokenCookie = new Cookie("token", authResponse.getToken());
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setSecure(true);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(24 * 60 * 60);
+        tokenCookie.setAttribute("SameSite", "Strict");
+
+        response.addCookie(tokenCookie);
+
+        // ✅ Also store refresh token if needed
+        if (authResponse.getRefreshToken() != null) {
+            Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
+            refreshCookie.setHttpOnly(true);
+            refreshCookie.setSecure(true);
+            refreshCookie.setPath("/");
+            refreshCookie.setMaxAge(7 * 24 * 60 * 60);
+            refreshCookie.setAttribute("SameSite", "Strict");
+            response.addCookie(refreshCookie);
+        }
+
+        // ✅ Return user info (without token) to frontend
+        Map<String, Object> responseBody = new HashMap<>();
+        responseBody.put("id", authResponse.getId());
+        responseBody.put("email", authResponse.getEmail());
+        responseBody.put("fullName", authResponse.getFullName());
+        responseBody.put("role", authResponse.getRole());
+        responseBody.put("airlineId", authResponse.getAirlineId());
+        responseBody.put("status", authResponse.getStatus());
+        responseBody.put("message", "Login successful");
+
+        return ResponseEntity.ok(responseBody);
     }
 
-    // ✅ ADD THIS ENDPOINT
-    @PostMapping("/forgot-password")
-    public ResponseEntity<Map<String, String>> forgotPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        authService.forgotPassword(email);
+    @PostMapping("/logout")
+    public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
+        // ✅ Clear the token cookie
+        Cookie tokenCookie = new Cookie("token", null);
+        tokenCookie.setHttpOnly(true);
+        tokenCookie.setSecure(true);
+        tokenCookie.setPath("/");
+        tokenCookie.setMaxAge(0);
+        tokenCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(tokenCookie);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "If your email is registered, you will receive an OTP shortly.");
-        return ResponseEntity.ok(response);
+        // ✅ Clear refresh token cookie
+        Cookie refreshCookie = new Cookie("refreshToken", null);
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);
+        refreshCookie.setPath("/");
+        refreshCookie.setMaxAge(0);
+        refreshCookie.setAttribute("SameSite", "Strict");
+        response.addCookie(refreshCookie);
+
+        Map<String, String> responseBody = new HashMap<>();
+        responseBody.put("message", "Logged out successfully");
+        return ResponseEntity.ok(responseBody);
     }
 
-    // ✅ ADD THIS ENDPOINT
-    @PostMapping("/reset-password")
-    public ResponseEntity<Map<String, String>> resetPassword(@RequestBody Map<String, String> request) {
-        String email = request.get("email");
-        String newPassword = request.get("newPassword");
+    @GetMapping("/me")
+    public ResponseEntity<Map<String, Object>> getCurrentUser(@CookieValue(name = "token", required = false) String token) {
+        if (token == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
+        }
 
-        authService.resetPassword(email, newPassword);
+        // ✅ Validate with Auth API
+        try {
+            ValidateTokenResponse validation = authApiClient.validateToken("Bearer " + token);
 
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Password reset successfully!");
-        return ResponseEntity.ok(response);
+            if (validation.isValid()) {
+                Map<String, Object> userInfo = new HashMap<>();
+                userInfo.put("id", validation.getUserId());
+                userInfo.put("email", validation.getEmail());
+                userInfo.put("role", validation.getRole());
+                userInfo.put("airlineId", validation.getAirlineId());
+                userInfo.put("status", validation.getStatus());
+                return ResponseEntity.ok(userInfo);
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
+        }
+
+        return ResponseEntity.status(401).body(Map.of("error", "Invalid token"));
     }
 }

@@ -45,4 +45,9 @@ public class PageController {
         return "system-dashboard";
     }
 
+    @GetMapping("/airline-dashboard")
+    public String airlineDashboard() {
+        return "airline-dashboard";
+    }
+
 }

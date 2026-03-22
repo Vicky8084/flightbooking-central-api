@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class AuthResponse {
     private String token;
+    private String refreshToken;  // ✅ ADD THIS FIELD
     private String type = "Bearer";
     private Long id;
     private String email;

@@ -573,114 +573,95 @@
     let selectedRole = 'CUSTOMER';
 
     // Set role function
-    window.setRole = function(role) {
-        selectedRole = role;
+window.setRole = function(role) {
+    selectedRole = role;
 
-        const userBtn = document.getElementById('userRoleBtn');
-        const adminBtn = document.getElementById('adminRoleBtn');
+    const userBtn = document.getElementById('userRoleBtn');
+    const adminBtn = document.getElementById('adminRoleBtn');
 
-        if (role === 'CUSTOMER') {
-            userBtn.classList.add('active');
-            adminBtn.classList.remove('active');
+    if (role === 'CUSTOMER') {
+        userBtn.classList.add('active');
+        adminBtn.classList.remove('active');
+    } else {
+        adminBtn.classList.add('active');
+        userBtn.classList.remove('active');
+    }
+
+    console.log('Selected role:', role);
+};
+
+ window.handleLogin = async function(event) {
+    event.preventDefault();
+
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errorMsg = document.getElementById('errorMessage');
+    const successMsg = document.getElementById('successMessage');
+    const loginBtn = document.getElementById('loginBtn');
+
+    errorMsg.style.display = 'none';
+    successMsg.style.display = 'none';
+
+    if (!email || !password) {
+        errorMsg.textContent = 'Email and password are required';
+        errorMsg.style.display = 'block';
+        return;
+    }
+
+    const originalText = loginBtn.innerHTML;
+    loginBtn.innerHTML = '<span class="spinner"></span> Signing In...';
+    loginBtn.disabled = true;
+
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // ✅ Token is automatically stored in HTTP-Only Cookie by server
+            // ✅ Store user info in sessionStorage (not localStorage)
+            sessionStorage.setItem('user', JSON.stringify({
+                id: data.id,
+                email: data.email,
+                fullName: data.fullName,
+                role: data.role,
+                airlineId: data.airlineId,
+                status: data.status
+            }));
+
+            successMsg.textContent = 'Login successful! Redirecting...';
+            successMsg.style.display = 'block';
+
+            // Redirect based on role
+            setTimeout(() => {
+                if (data.role === 'CUSTOMER') {
+                    window.location.href = '/user-dashboard';
+                } else if (data.role === 'AIRLINE_ADMIN') {
+                    window.location.href = '/airline-dashboard';
+                } else if (data.role === 'SYSTEM_ADMIN') {
+                    window.location.href = '/system-dashboard';
+                } else {
+                    window.location.href = '/';
+                }
+            }, 1000);
+
         } else {
-            adminBtn.classList.add('active');
-            userBtn.classList.remove('active');
-        }
-
-        console.log('Selected role:', role);
-    };
-
-    // Handle Login - Call Auth API
-    window.handleLogin = async function(event) {
-        event.preventDefault();
-
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value;
-        const errorMsg = document.getElementById('errorMessage');
-        const successMsg = document.getElementById('successMessage');
-        const loginBtn = document.getElementById('loginBtn');
-
-        // Hide previous messages
-        errorMsg.style.display = 'none';
-        successMsg.style.display = 'none';
-
-        // Validation
-        if (!email) {
-            errorMsg.textContent = 'Email is required';
+            errorMsg.textContent = data.message || 'Invalid email or password';
             errorMsg.style.display = 'block';
-            return;
         }
-
-        if (!password) {
-            errorMsg.textContent = 'Password is required';
-            errorMsg.style.display = 'block';
-            return;
-        }
-
-        // Show loading state
-        const originalText = loginBtn.innerHTML;
-        loginBtn.innerHTML = '<span class="spinner"></span> Signing In...';
-        loginBtn.disabled = true;
-
-        try {
-            // Call Central API Login Endpoint
-            const response = await fetch(API_BASE_URL + '/api/auth/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                // Check if role matches selected role
-                if (data.role !== selectedRole) {
-                    errorMsg.textContent = `This account is for ${data.role}. Please select correct role.`;
-                    errorMsg.style.display = 'block';
-                    return;
-                }
-
-                // Store token and user data
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data));
-
-                if (document.getElementById('rememberMe').checked) {
-                    localStorage.setItem('rememberedEmail', email);
-                }
-
-                successMsg.textContent = 'Login successful! Redirecting...';
-                successMsg.style.display = 'block';
-
-                // Redirect based on role
-                setTimeout(() => {
-                    if (data.role === 'CUSTOMER') {
-                        window.location.href = '/user-dashboard';
-                    } else if (data.role === 'AIRLINE_ADMIN') {
-                        window.location.href = '/airline-dashboard';
-                    } else {
-                        window.location.href = '/';
-                    }
-                }, 1500);
-
-            } else {
-                errorMsg.textContent = data.message || 'Invalid email or password';
-                errorMsg.style.display = 'block';
-            }
-
-        } catch (error) {
-            console.error('Login error:', error);
-            errorMsg.textContent = 'Network error. Please check if server is running.';
-            errorMsg.style.display = 'block';
-        } finally {
-            loginBtn.innerHTML = originalText;
-            loginBtn.disabled = false;
-        }
-    };
+    } catch (error) {
+        console.error('Login error:', error);
+        errorMsg.textContent = 'Network error. Please check if server is running.';
+        errorMsg.style.display = 'block';
+    } finally {
+        loginBtn.innerHTML = originalText;
+        loginBtn.disabled = false;
+    }
+};
 
     // System Admin Redirect
     window.redirectToSystemAdmin = function() {

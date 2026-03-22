@@ -9,14 +9,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse {
-    private Long id;
+public class ValidateTokenResponse {
+    private boolean valid;
+    private Long userId;
     private String email;
-    private String fullName;
-    private String phoneNumber;
     private String role;
-    private Long airlineId;
-    private String airlineName;
     private String status;
-    private boolean isActive;
+    private Long airlineId;
+    private String message;
 }

@@ -21,10 +21,13 @@ import java.util.Map;
 public class AuthService {
 
     private final DbApiClient dbApiClient;
-    private final NotificationApiClient notificationApiClient;  // ✅ ADD THIS
+    private final NotificationApiClient notificationApiClient;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+    /**
+     * ✅ USER REGISTRATION - CUSTOMER gets ACTIVE immediately
+     */
     public AuthResponse register(RegisterRequest request) {
         System.out.println("🔵 REGISTER CALLED with email: " + request.getEmail());
 
@@ -43,50 +46,35 @@ public class AuthService {
             System.out.println("User not found, proceeding with registration");
         }
 
-        // Create user in DB API
+        // Create user - CUSTOMER gets ACTIVE status immediately
         Map<String, Object> userMap = new HashMap<>();
         userMap.put("email", request.getEmail());
         userMap.put("password", passwordEncoder.encode(request.getPassword()));
         userMap.put("fullName", request.getFullName());
         userMap.put("phoneNumber", request.getPhoneNumber());
         userMap.put("role", request.getRole());
+        userMap.put("status", "ACTIVE");  // ✅ Customer is ACTIVE immediately
 
         System.out.println("Sending to DB API: " + userMap);
 
         Map<String, Object> response = dbApiClient.createUser(userMap);
         System.out.println("DB API Response: " + response);
 
-        // ✅ Safely convert userId from Integer to Long
-        Object userIdObj = response.get("userId");
-        Long userId;
+        Long userId = convertToLong(response.get("userId"));
 
-        if (userIdObj instanceof Integer) {
-            userId = ((Integer) userIdObj).longValue();
-        } else if (userIdObj instanceof Long) {
-            userId = (Long) userIdObj;
-        } else if (userIdObj instanceof Number) {
-            userId = ((Number) userIdObj).longValue();
-        } else {
-            userId = null;
-        }
-
-        // ✅ SEND WELCOME EMAIL via Notification API
+        // Send welcome email
         try {
-            Map<String, Object> emailResponse = notificationApiClient.sendWelcomeEmail(
-                    request.getEmail(),
-                    request.getFullName()
-            );
-            System.out.println("✅ Welcome email sent: " + emailResponse);
+            notificationApiClient.sendWelcomeEmail(request.getEmail(), request.getFullName());
+            System.out.println("✅ Welcome email sent to: " + request.getEmail());
         } catch (Exception e) {
             System.out.println("❌ Failed to send welcome email: " + e.getMessage());
-            // Don't fail registration if email fails
         }
 
         // Generate JWT token
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        claims.put("role", response.get("role"));
-        claims.put("status", response.get("status"));
+        claims.put("role", request.getRole());
+        claims.put("status", "ACTIVE");
 
         String token = jwtUtil.generateToken(request.getEmail(), claims);
 
@@ -96,12 +84,17 @@ public class AuthService {
                 .email(request.getEmail())
                 .fullName(request.getFullName())
                 .role(request.getRole())
-                .status((String) response.get("status"))
+                .status("ACTIVE")
                 .build();
     }
 
+    /**
+     * ✅ AIRLINE REGISTRATION - User gets PENDING status until airline is approved
+     */
     public AuthResponse registerAirline(RegisterAirlineRequest request) {
-        // 1. Create airline in DB API
+        System.out.println("🔵 AIRLINE REGISTER CALLED for: " + request.getAirline().getName());
+
+        // 1. Create airline with PENDING status
         Map<String, Object> airlineMap = new HashMap<>();
         airlineMap.put("name", request.getAirline().getName());
         airlineMap.put("code", request.getAirline().getCode());
@@ -110,29 +103,25 @@ public class AuthService {
         airlineMap.put("contactPhone", request.getAirline().getContactPhone());
         airlineMap.put("address", request.getAirline().getAddress());
         airlineMap.put("website", request.getAirline().getWebsite());
+        airlineMap.put("status", "PENDING");  // ✅ Airline starts as PENDING
 
         Map<String, Object> airlineResponse = dbApiClient.createAirline(airlineMap);
+        Long airlineId = convertToLong(airlineResponse.get("airlineId"));
 
-        // Safely convert airlineId
-        Object airlineIdObj = airlineResponse.get("airlineId");
-        Long airlineId = convertToLong(airlineIdObj);
-
-        // 2. Create admin user linked to airline
+        // 2. Create admin user with PENDING status (NOT ACTIVE!)
         Map<String, Object> adminMap = new HashMap<>();
         adminMap.put("email", request.getAdmin().getEmail());
         adminMap.put("password", passwordEncoder.encode(request.getAdmin().getPassword()));
         adminMap.put("fullName", request.getAdmin().getFullName());
         adminMap.put("phoneNumber", request.getAdmin().getPhone());
         adminMap.put("role", "AIRLINE_ADMIN");
-
-        Map<String, Object> airline = new HashMap<>();
-        airline.put("id", airlineId);
-        adminMap.put("airline", airline);
+        adminMap.put("status", "PENDING");  // ✅ ✅ ✅ CRITICAL: User status is PENDING until approval
+        adminMap.put("airline", Map.of("id", airlineId));
 
         Map<String, Object> adminResponse = dbApiClient.createUser(adminMap);
         Long userId = convertToLong(adminResponse.get("userId"));
 
-        // ✅ 3. Prepare data for emails
+        // 3. Prepare data for emails
         Map<String, Object> airlineData = new HashMap<>();
         airlineData.put("airlineName", request.getAirline().getName());
         airlineData.put("airlineCode", request.getAirline().getCode());
@@ -147,7 +136,7 @@ public class AuthService {
         airlineData.put("designation", request.getAdmin().getDesignation());
         airlineData.put("department", request.getAdmin().getDepartment());
 
-        // ✅ 4. Send welcome email to AIRLINE_ADMIN (pending status)
+        // 4. Send welcome email to airline admin (pending status)
         try {
             notificationApiClient.sendAirlineWelcomeEmail(request.getAdmin().getEmail(), airlineData);
             System.out.println("✅ Welcome email sent to airline admin: " + request.getAdmin().getEmail());
@@ -155,10 +144,9 @@ public class AuthService {
             System.out.println("❌ Failed to send welcome email: " + e.getMessage());
         }
 
-        // ✅ 5. Send pending notification to SYSTEM_ADMIN
+        // 5. Send pending notification to SYSTEM_ADMIN
         try {
             Map<String, Object> pendingData = new HashMap<>(airlineData);
-            // Add URLs for approval/rejection
             pendingData.put("approveUrl", "http://localhost:8081/api/admin/airlines/" + airlineId + "/approve?adminId=1");
             pendingData.put("rejectUrl", "http://localhost:8081/api/admin/airlines/" + airlineId + "/reject?adminId=1");
 
@@ -171,6 +159,9 @@ public class AuthService {
             System.out.println("❌ Failed to send pending notification: " + e.getMessage());
         }
 
+        // ❌ NO TOKEN GENERATED FOR PENDING USER
+        // User cannot login until approved
+
         return AuthResponse.builder()
                 .id(userId)
                 .email(request.getAdmin().getEmail())
@@ -178,11 +169,138 @@ public class AuthService {
                 .role("AIRLINE_ADMIN")
                 .airlineId(airlineId)
                 .status("PENDING")
-                .message("Registration successful! Awaiting admin approval. Check your email for confirmation.")
+                .message("Registration successful! Awaiting admin approval. You will receive an email when approved.")
                 .build();
     }
 
-    // Helper method for type conversion
+    /**
+     * ✅ LOGIN - Check if user is ACTIVE
+     */
+    public AuthResponse login(LoginRequest request) {
+        try {
+            // Get user from DB API
+            UserResponse user = dbApiClient.getUserByEmail(request.getEmail());
+
+            if (user == null) {
+                throw new CustomExceptions.InvalidCredentialsException("Invalid email or password");
+            }
+
+            // ✅ ✅ ✅ CRITICAL FIX: Check if user is ACTIVE
+            if (!"ACTIVE".equals(user.getStatus())) {
+                String message;
+                if ("PENDING".equals(user.getStatus())) {
+                    message = "Your account is pending approval. Please wait for admin approval.";
+                } else if ("REJECTED".equals(user.getStatus())) {
+                    message = "Your account has been rejected. Please contact support.";
+                } else if ("SUSPENDED".equals(user.getStatus())) {
+                    message = "Your account has been suspended. Please contact support.";
+                } else {
+                    message = "Account is not active. Status: " + user.getStatus();
+                }
+                throw new CustomExceptions.UnauthorizedException(message);
+            }
+
+            // Generate tokens
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("userId", user.getId());
+            claims.put("role", user.getRole());
+            claims.put("airlineId", user.getAirlineId());
+            claims.put("status", user.getStatus());
+
+            String token = jwtUtil.generateToken(user.getEmail(), claims);
+            String refreshToken = jwtUtil.generateRefreshToken(user.getId(), user.getEmail());
+
+            return AuthResponse.builder()
+                    .token(token)
+                    .refreshToken(refreshToken)
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .role(user.getRole())
+                    .airlineId(user.getAirlineId())
+                    .status(user.getStatus())
+                    .message("Login successful")
+                    .build();
+
+        } catch (CustomExceptions.UnauthorizedException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new CustomExceptions.InvalidCredentialsException("Invalid email or password");
+        }
+    }
+
+    /**
+     * ✅ GET USER FROM TOKEN
+     */
+    public Map<String, Object> getUserFromToken(String token) {
+        if (!jwtUtil.validateToken(token)) {
+            throw new CustomExceptions.InvalidCredentialsException("Invalid token");
+        }
+
+        Long userId = jwtUtil.extractUserId(token);
+        String email = jwtUtil.extractUsername(token);
+        String role = jwtUtil.extractRole(token);
+        Long airlineId = jwtUtil.extractAirlineId(token);
+        String status = jwtUtil.extractStatus(token);
+
+        Map<String, Object> userInfo = new HashMap<>();
+        userInfo.put("id", userId);
+        userInfo.put("email", email);
+        userInfo.put("role", role);
+        userInfo.put("airlineId", airlineId);
+        userInfo.put("status", status);
+
+        return userInfo;
+    }
+
+    /**
+     * ✅ FORGOT PASSWORD
+     */
+    public void forgotPassword(String email) {
+        try {
+            UserResponse user = dbApiClient.getUserByEmail(email);
+
+            if (user == null) {
+                System.out.println("Forgot password request for non-existent email: " + email);
+                return;
+            }
+
+            Map<String, Object> otpRequest = new HashMap<>();
+            otpRequest.put("email", email);
+            otpRequest.put("name", user.getFullName());
+            otpRequest.put("type", "PASSWORD_RESET");
+
+            notificationApiClient.generateOtp(otpRequest);
+            System.out.println("OTP sent to: " + email);
+
+        } catch (Exception e) {
+            System.out.println("Forgot password error: " + e.getMessage());
+        }
+    }
+
+    /**
+     * ✅ RESET PASSWORD
+     */
+    public void resetPassword(String email, String newPassword) {
+        try {
+            UserResponse user = dbApiClient.getUserByEmail(email);
+
+            if (user == null) {
+                throw new CustomExceptions.UserNotFoundException("User not found");
+            }
+
+            String encodedPassword = passwordEncoder.encode(newPassword);
+            dbApiClient.updatePassword(user.getId(), encodedPassword);
+
+            System.out.println("Password reset successful for: " + email);
+
+        } catch (Exception e) {
+            throw new CustomExceptions.BadRequestException("Unable to reset password");
+        }
+    }
+
+    // ========== HELPER METHODS ==========
+
     private Long convertToLong(Object obj) {
         if (obj instanceof Integer) {
             return ((Integer) obj).longValue();
@@ -194,89 +312,8 @@ public class AuthService {
         return null;
     }
 
-    public AuthResponse login(LoginRequest request) {
-        try {
-            UserResponse user = dbApiClient.getUserByEmail(request.getEmail());
-
-            Map<String, Object> claims = new HashMap<>();
-            claims.put("userId", user.getId());
-            claims.put("role", user.getRole());
-            claims.put("airlineId", user.getAirlineId());
-            claims.put("status", user.getStatus());
-
-            String token = jwtUtil.generateToken(user.getEmail(), claims);
-
-            return AuthResponse.builder()
-                    .token(token)
-                    .id(user.getId())
-                    .email(user.getEmail())
-                    .fullName(user.getFullName())
-                    .role(user.getRole())
-                    .airlineId(user.getAirlineId())
-                    .status(user.getStatus())
-                    .build();
-
-        } catch (Exception e) {
-            throw new CustomExceptions.InvalidCredentialsException("Invalid email or password");
-        }
-    }
-
     private boolean isValidEmail(String email) {
         String emailRegex = "^[A-Za-z0-9+_.-]+@(.+)$";
         return email.matches(emailRegex);
-    }
-
-    // Add this method if not present
-    public void forgotPassword(String email) {
-        try {
-            // Check if user exists in DB API
-            UserResponse user = dbApiClient.getUserByEmail(email);
-
-            if (user == null) {
-                // Don't reveal that user doesn't exist
-                System.out.println("Forgot password request for non-existent email: " + email);
-                return;
-            }
-
-            // Call Notification API to send OTP
-            Map<String, Object> otpRequest = new HashMap<>();
-            otpRequest.put("email", email);
-            otpRequest.put("name", user.getFullName());
-            otpRequest.put("type", "PASSWORD_RESET");
-
-            notificationApiClient.generateOtp(otpRequest);
-
-            System.out.println("OTP sent to: " + email);
-
-        } catch (Exception e) {
-            // Don't reveal if user exists or not
-            System.out.println("Forgot password error: " + e.getMessage());
-        }
-    }
-
-    public void resetPassword(String email, String newPassword) {
-        try {
-            // Get user by email
-            UserResponse user = dbApiClient.getUserByEmail(email);
-
-            if (user == null) {
-                throw new CustomExceptions.UserNotFoundException("User not found");
-            }
-
-            // Encode new password
-            String encodedPassword = passwordEncoder.encode(newPassword);
-
-            // Update password in DB API
-            Map<String, Object> updateRequest = new HashMap<>();
-            updateRequest.put("password", encodedPassword);
-
-            // Call DB API to update password
-            dbApiClient.updatePassword(user.getId(), encodedPassword);
-
-            System.out.println("Password reset successful for: " + email);
-
-        } catch (Exception e) {
-            throw new CustomExceptions.BadRequestException("Unable to reset password");
-        }
     }
 }

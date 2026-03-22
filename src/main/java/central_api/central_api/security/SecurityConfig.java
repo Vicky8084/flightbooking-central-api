@@ -23,18 +23,63 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ ALLOW ALL PUBLIC ENDPOINTS
+                        // ✅ PUBLIC PAGES - No authentication required
                         .requestMatchers(
-                                "/", "/home", "/signin", "/signup",
-                                "/flights/search", "/forgot-password",
-                                "/system-admin-login", "/system-dashboard",
+                                "/",
+                                "/home",
+                                "/signin",
+                                "/signup",
+                                "/forgot-password",
+                                "/system-admin-login",
+                                "/flights/search",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**",
+                                "/favicon.ico"
+                        ).permitAll()
+
+                        // ✅ PUBLIC API ENDPOINTS
+                        .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/register-airline",
-                                "/api/auth/forgot-password",      // ✅ ADD THIS
-                                "/api/auth/reset-password",       // ✅ ADD THIS
-                                "/css/**", "/js/**", "/images/**"
+                                "/api/auth/forgot-password",
+                                "/api/auth/reset-password",
+                                "/api/auth/logout",
+                                "/api/auth/me"
                         ).permitAll()
+
+                        // ✅ DB API PROXY ENDPOINTS - Allow authenticated access
+                        // These will be secured by the JWT filter
+                        .requestMatchers(
+                                "/api/db/**"
+                        ).authenticated()
+
+                        // ✅ USER DASHBOARD - Requires authentication (any role)
+                        .requestMatchers(
+                                "/user-dashboard",
+                                "/my-bookings",
+                                "/booking-details/**",
+                                "/flight-results",
+                                "/payment",
+                                "/submit-review"
+                        ).authenticated()
+
+                        // ✅ AIRLINE DASHBOARD - Requires AIRLINE_ADMIN role
+                        .requestMatchers(
+                                "/airline-dashboard",
+                                "/airline-flights",
+                                "/airline-aircraft",
+                                "/airline-bookings"
+                        ).hasRole("AIRLINE_ADMIN")
+
+                        // ✅ SYSTEM ADMIN DASHBOARD - Requires SYSTEM_ADMIN role
+                        .requestMatchers(
+                                "/system-dashboard",
+                                "/admin/airlines/**"
+                        ).hasRole("SYSTEM_ADMIN")
+
+                        // ✅ ALL OTHER API REQUESTS - Require authentication
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
