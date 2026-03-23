@@ -122,7 +122,7 @@
         .main-content {
             position: relative;
             z-index: 50;
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             padding: 30px 20px;
         }
@@ -232,6 +232,10 @@
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
             margin-bottom: 20px;
+        }
+
+        .form-group {
+            position: relative;
         }
 
         .form-group label {
@@ -460,6 +464,74 @@
             color: rgba(255,255,255,0.6);
         }
 
+        /* Fare Class Selection Section */
+        .fare-class-section {
+            margin: 15px 0;
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }
+
+        .fare-class-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .fare-class-options {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .fare-option {
+            flex: 1;
+            min-width: 100px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .fare-option:hover {
+            background: rgba(76, 175, 80, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .fare-option.selected {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(76, 175, 80, 0.1));
+            border-color: #4CAF50;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .fare-name {
+            font-weight: 700;
+            font-size: 14px;
+            color: white;
+        }
+
+        .fare-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4CAF50;
+            margin: 5px 0;
+        }
+
+        .fare-baggage {
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .fare-benefits {
+            font-size: 10px;
+            color: #ffd700;
+            margin-top: 5px;
+        }
+
         .flight-details {
             display: flex;
             justify-content: space-between;
@@ -471,16 +543,25 @@
             border-top: 1px solid rgba(255,255,255,0.1);
         }
 
-        .price {
-            font-size: 24px;
+        .selected-fare-info {
+            flex: 1;
+        }
+
+        .selected-fare-price {
+            font-size: 28px;
             font-weight: 700;
             color: #4CAF50;
+        }
+
+        .selected-fare-baggage {
+            font-size: 12px;
+            color: rgba(255,255,255,0.7);
         }
 
         .book-btn {
             background: linear-gradient(135deg, #4CAF50, #45a049);
             border: none;
-            padding: 10px 30px;
+            padding: 12px 35px;
             border-radius: 40px;
             color: white;
             font-weight: 600;
@@ -491,6 +572,12 @@
         .book-btn:hover {
             transform: scale(1.05);
             box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        .book-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
         }
 
         .no-flights {
@@ -558,37 +645,34 @@
             background: rgba(255,255,255,0.1);
         }
 
-        .airport-suggestions {
+        /* Airport Dropdown */
+        .airport-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: #1a1f3a;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            margin-top: 5px;
-            max-height: 200px;
+            max-height: 300px;
             overflow-y: auto;
-            display: none;
-            z-index: 10;
+            background: #1a1f3a;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            margin-top: 5px;
         }
 
-        .airport-suggestions.show { display: block; }
-
-        .suggestion-item {
-            padding: 10px 15px;
-            color: white;
+        .dropdown-item {
+            padding: 12px 16px;
             cursor: pointer;
-            transition: all 0.3s;
             border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: background 0.2s;
+            color: white;
         }
 
-        .suggestion-item:hover { background: rgba(255,255,255,0.1); }
-
-        .suggestion-code {
-            color: #4CAF50;
-            font-weight: 600;
-            margin-right: 10px;
+        .dropdown-item:hover {
+            background: rgba(76, 175, 80, 0.3);
+            border-left: 3px solid #4CAF50;
         }
 
         .loading-bar {
@@ -613,6 +697,7 @@
             .flight-line { width: 100%; margin: 10px 0; }
             .flight-details { flex-direction: column; text-align: center; }
             .form-grid { grid-template-columns: 1fr; }
+            .fare-class-options { flex-direction: column; }
         }
     </style>
 </head>
@@ -669,7 +754,6 @@
                     <input type="text" id="from" placeholder="Delhi (DEL)" required autocomplete="off">
                 </div>
                 <span class="field-purpose">Kahan se jana hai</span>
-                <div id="fromSuggestions" class="airport-suggestions"></div>
             </div>
 
             <div class="swap-btn">
@@ -683,7 +767,6 @@
                     <input type="text" id="to" placeholder="Mumbai (BOM)" required autocomplete="off">
                 </div>
                 <span class="field-purpose">Kahan jana hai</span>
-                <div id="toSuggestions" class="airport-suggestions"></div>
             </div>
         </div>
 
@@ -767,6 +850,604 @@
     </div>
 </div>
 
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const API_BASE = 'http://localhost:8081';
+    let airports = [];
+    let fareClasses = [];
+    let currentFlights = [];
 
+    // ============================================
+    // FETCH AIRPORTS FROM DB API
+    // ============================================
+    async function loadAirportsFromDB() {
+        try {
+            console.log('🔄 Loading airports from database...');
+            const response = await fetch(`${API_BASE}/api/db/airports`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                airports = await response.json();
+                console.log('✅ Loaded', airports.length, 'airports from database');
+            } else {
+                console.error('Failed to load airports:', response.status);
+                airports = [];
+            }
+        } catch (error) {
+            console.error('Error loading airports:', error);
+            airports = [];
+        }
+    }
+
+    // ============================================
+    // FETCH FARE CLASSES FROM DB API
+    // ============================================
+    async function loadFareClasses() {
+        try {
+            console.log('🔄 Loading fare classes from database...');
+            const response = await fetch(`${API_BASE}/api/db/fare-classes`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                fareClasses = await response.json();
+                console.log('✅ Loaded', fareClasses.length, 'fare classes from database');
+            } else {
+                console.error('Failed to load fare classes:', response.status);
+                // Fallback default fare classes if API fails
+                fareClasses = [
+                    { code: 'LITE', name: 'Economy Lite', priceMultiplier: 0.9, cabinBaggageKg: 7, checkInBaggageKg: 15, extraBaggageRatePerKg: 500, mealIncluded: false, cancellationFee: 0, changeFee: 0, seatSelectionFree: false },
+                    { code: 'STANDARD', name: 'Economy Standard', priceMultiplier: 1.1, cabinBaggageKg: 7, checkInBaggageKg: 23, extraBaggageRatePerKg: 400, mealIncluded: true, cancellationFee: 1000, changeFee: 500, seatSelectionFree: true },
+                    { code: 'FLEX', name: 'Economy Flex', priceMultiplier: 1.5, cabinBaggageKg: 7, checkInBaggageKg: 30, extraBaggageRatePerKg: 300, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true },
+                    { code: 'BUSINESS', name: 'Business Class', priceMultiplier: 2.5, cabinBaggageKg: 10, checkInBaggageKg: 40, extraBaggageRatePerKg: 200, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true },
+                    { code: 'FIRST', name: 'First Class', priceMultiplier: 4.0, cabinBaggageKg: 12, checkInBaggageKg: 50, extraBaggageRatePerKg: 150, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true }
+                ];
+            }
+        } catch (error) {
+            console.error('Error loading fare classes:', error);
+        }
+    }
+
+    // ============================================
+    // SHOW TOAST
+    // ============================================
+    function showToast(message, isError = false) {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.style.cssText = 'position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1001; max-width: 350px;';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = message;
+        toast.style.background = isError ? '#f44336' : '#4caf50';
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 4000);
+    }
+
+    // ============================================
+    // FILTER AIRPORTS
+    // ============================================
+    function filterAirports(searchTerm) {
+        if (!searchTerm || searchTerm.length < 1) return [];
+
+        const term = searchTerm.toLowerCase().trim();
+
+        const scored = airports.map(airport => {
+            let score = 0;
+            const code = (airport.code || '').toLowerCase();
+            const city = (airport.city || '').toLowerCase();
+            const name = (airport.name || '').toLowerCase();
+
+            if (code === term) score = 100;
+            else if (city === term) score = 90;
+            else if (name === term) score = 80;
+            else if (code.startsWith(term)) score = 70;
+            else if (city.startsWith(term)) score = 60;
+            else if (name.startsWith(term)) score = 50;
+            else if (code.includes(term)) score = 40;
+            else if (city.includes(term)) score = 30;
+            else if (name.includes(term)) score = 20;
+
+            return { airport, score };
+        });
+
+        const matched = scored.filter(item => item.score > 0);
+        matched.sort((a, b) => b.score - a.score);
+
+        return matched.slice(0, 8).map(item => item.airport);
+    }
+
+    // ============================================
+    // AIRPORT DROPDOWN FUNCTIONS
+    // ============================================
+    function createDropdown(inputElement, suggestions) {
+        const existingDropdown = document.getElementById(`dropdown-${inputElement.id}`);
+        if (existingDropdown) existingDropdown.remove();
+
+        if (!suggestions || suggestions.length === 0) return;
+
+        const dropdown = document.createElement('div');
+        dropdown.id = `dropdown-${inputElement.id}`;
+        dropdown.className = 'airport-dropdown';
+
+        suggestions.forEach((airport, index) => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.innerHTML = `
+                <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <span style="font-weight: 700; color: #ffd700;">${airport.code}</span>
+                    <span style="color: white;">${airport.city}</span>
+                </div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6);">${airport.name}</div>
+            `;
+            item.onclick = () => {
+                inputElement.value = `${airport.city} (${airport.code})`;
+                dropdown.remove();
+            };
+            dropdown.appendChild(item);
+        });
+
+        inputElement.parentNode.style.position = 'relative';
+        inputElement.parentNode.appendChild(dropdown);
+    }
+
+    function setupAirportInput(inputId) {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        let debounceTimer;
+        input.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const value = this.value;
+                const match = value.match(/^[^(]+/);
+                const searchTerm = match ? match[0].trim() : value.trim();
+                if (searchTerm.length >= 1) {
+                    const suggestions = filterAirports(searchTerm);
+                    createDropdown(input, suggestions);
+                } else {
+                    const dropdown = document.getElementById(`dropdown-${input.id}`);
+                    if (dropdown) dropdown.remove();
+                }
+            }, 200);
+        });
+    }
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function extractCode(input) {
+        const match = input.match(/\(([^)]+)\)/);
+        return match ? match[1] : input.trim();
+    }
+
+    function formatTime(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) { return 'N/A'; }
+    }
+
+    function formatDate(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch(e) { return 'N/A'; }
+    }
+
+    function showLoading() {
+        const container = document.getElementById('flightsList');
+        if (container) {
+            container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div><p>Searching flights...</p></div>';
+            document.getElementById('resultsSection').classList.add('show');
+        }
+    }
+
+    // ============================================
+    // GET PRICE BREAKDOWN FOR FLIGHT
+    // ============================================
+    async function getPriceBreakdown(flightId, seatClass, fareClassCode) {
+        try {
+            const response = await fetch(`${API_BASE}/api/db/flights/${flightId}/price-breakdown?seatClass=${seatClass}&fareClassCode=${fareClassCode}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            if (response.ok) {
+                return await response.json();
+            }
+        } catch (error) {
+            console.error('Error fetching price breakdown:', error);
+        }
+        return null;
+    }
+
+    // ============================================
+    // SEARCH FLIGHTS
+    // ============================================
+    window.searchFlights = async function() {
+        const from = document.getElementById('from').value.trim();
+        const to = document.getElementById('to').value.trim();
+        const departDate = document.getElementById('departDate').value;
+        const maxPrice = document.getElementById('maxPrice').value;
+        const travelClass = document.getElementById('class').value;
+        const includeConnecting = document.getElementById('connectingFlights').checked;
+
+        if (!from || !to || !departDate) {
+            showToast('❌ Please fill all mandatory fields!', true);
+            return;
+        }
+
+        const sourceCode = extractCode(from);
+        const destCode = extractCode(to);
+
+        if (sourceCode === destCode) {
+            showToast('❌ Source and Destination cannot be same!', true);
+            return;
+        }
+
+        if (!sourceCode || sourceCode.length !== 3 || !destCode || destCode.length !== 3) {
+            showToast('❌ Please select valid airports from suggestions!', true);
+            return;
+        }
+
+        const searchRequest = {
+            sourceCode: sourceCode,
+            destinationCode: destCode,
+            travelDate: departDate,
+            includeConnectingFlights: includeConnecting,
+            seatClass: travelClass
+        };
+        if (maxPrice) searchRequest.maxPrice = parseFloat(maxPrice);
+
+        console.log('🔍 Searching flights:', searchRequest);
+        showLoading();
+
+        try {
+            const response = await fetch(`${API_BASE}/api/db/flights/search`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(searchRequest)
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                currentFlights = data;
+                displayFlights(data);
+                saveRecentSearch(from, to, departDate);
+            } else {
+                document.getElementById('flightsList').innerHTML = `<div class="no-flights">❌ ${data.message || 'Search failed'}</div>`;
+            }
+        } catch (error) {
+            console.error('Search error:', error);
+            document.getElementById('flightsList').innerHTML = `<div class="no-flights">❌ Network error: ${error.message}</div>`;
+        }
+    };
+
+    // ============================================
+    // DISPLAY FLIGHTS WITH FARE CLASS SELECTION
+    // ============================================
+    function displayFlights(flights) {
+        const container = document.getElementById('flightsList');
+        if (!flights || flights.length === 0) {
+            container.innerHTML = '<div class="no-flights">✈️ No flights found for this route. Try different dates or destinations.</div>';
+            return;
+        }
+
+        container.innerHTML = flights.map((flight, index) => {
+            if (flight.flightNumber) {
+                const basePrice = flight.currentPriceEconomy || flight.basePriceEconomy || 0;
+                return `
+                    <div class="flight-card" data-flight-id="${flight.id}" data-base-price="${basePrice}">
+                        <div class="flight-header">
+                            <div class="flight-number">${flight.flightNumber}</div>
+                            <div class="airline-name">${flight.aircraft?.airline?.name || flight.airlineName || 'Airline'}</div>
+                        </div>
+                        <div class="flight-route">
+                            <div class="airport">
+                                <div class="airport-code">${flight.sourceAirport?.code || flight.sourceCode || 'N/A'}</div>
+                                <div class="airport-city">${flight.sourceAirport?.city || flight.sourceCity || 'Departure'}</div>
+                            </div>
+                            <div class="flight-line"></div>
+                            <div class="airport">
+                                <div class="airport-code">${flight.destinationAirport?.code || flight.destCode || 'N/A'}</div>
+                                <div class="airport-city">${flight.destinationAirport?.city || flight.destCity || 'Arrival'}</div>
+                            </div>
+                        </div>
+                        <div class="flight-time">
+                            <div class="time">${formatTime(flight.departureTime)} → ${formatTime(flight.arrivalTime)}</div>
+                            <div class="date">${formatDate(flight.departureTime)}</div>
+                        </div>
+
+                        <!-- Fare Class Selection -->
+                        <div class="fare-class-section" id="fare-section-${flight.id}">
+                            <div class="fare-class-title">🎫 Select Fare Class</div>
+                            <div class="fare-class-options" id="fare-options-${flight.id}">
+                                ${renderFareOptions(flight, basePrice)}
+                            </div>
+                        </div>
+
+                        <div class="flight-details">
+                            <div class="selected-fare-info" id="selected-info-${flight.id}">
+                                <div class="selected-fare-price">₹${Math.round(basePrice)}</div>
+                                <div class="selected-fare-baggage">🎒 7kg Cabin | 15kg Checked</div>
+                            </div>
+                            <button class="book-btn" id="book-btn-${flight.id}" onclick="bookFlight(${flight.id})">Book Now</button>
+                        </div>
+                    </div>
+                `;
+            }
+            return '';
+        }).join('');
+
+        // Attach fare selection handlers
+        fareClasses.forEach(fare => {
+            currentFlights.forEach(flight => {
+                const element = document.getElementById(`fare-${flight.id}-${fare.code}`);
+                if (element) {
+                    element.onclick = () => selectFareClass(flight.id, fare.code);
+                }
+            });
+        });
+    }
+
+    // ============================================
+    // RENDER FARE OPTIONS
+    // ============================================
+    function renderFareOptions(flight, basePrice) {
+        return fareClasses.map(fare => {
+            const finalPrice = Math.round(basePrice * fare.priceMultiplier);
+            return `
+                <div class="fare-option" id="fare-${flight.id}-${fare.code}" data-fare-code="${fare.code}" data-price="${finalPrice}">
+                    <div class="fare-name">${fare.name}</div>
+                    <div class="fare-price">₹${finalPrice}</div>
+                    <div class="fare-baggage">🎒 ${fare.cabinBaggageKg}kg | 🧳 ${fare.checkInBaggageKg}kg</div>
+                    <div class="fare-benefits">
+                        ${fare.mealIncluded ? '🍽️ Meal ' : ''}
+                        ${fare.seatSelectionFree ? '💺 Seat Selection ' : ''}
+                        ${fare.cancellationFee === 0 ? '✅ Free Cancellation' : `❌ ₹${fare.cancellationFee} Cancellation`}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // ============================================
+    // SELECT FARE CLASS
+    // ============================================
+    let selectedFares = {};
+
+    async function selectFareClass(flightId, fareCode) {
+        console.log(`Selecting fare ${fareCode} for flight ${flightId}`);
+
+        const seatClass = document.getElementById('class').value;
+
+        try {
+            // Fetch price breakdown from API
+            const breakdown = await getPriceBreakdown(flightId, seatClass, fareCode);
+
+            if (breakdown) {
+                // Update UI with breakdown data
+                const fareOption = document.getElementById(`fare-${flightId}-${fareCode}`);
+                if (fareOption) {
+                    // Remove selected class from all fare options for this flight
+                    document.querySelectorAll(`[id^="fare-${flightId}-"]`).forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    fareOption.classList.add('selected');
+                }
+
+                // Update selected fare info
+                const selectedInfo = document.getElementById(`selected-info-${flightId}`);
+                if (selectedInfo) {
+                    selectedInfo.innerHTML = `
+                        <div class="selected-fare-price">₹${breakdown.dynamicPrice || breakdown.fareClassPrice}</div>
+                        <div class="selected-fare-baggage">
+                            🎒 ${breakdown.baggageAllowance?.cabin || 7}kg Cabin |
+                            🧳 ${breakdown.baggageAllowance?.checked || 15}kg Checked
+                            ${breakdown.mealIncluded ? ' | 🍽️ Meal Included' : ''}
+                        </div>
+                        <div style="font-size: 11px; color: #ffd700; margin-top: 5px;">
+                            ${breakdown.cancellationFee === 0 ? '✅ Free Cancellation' : `❌ Cancellation Fee: ₹${breakdown.cancellationFee}`}
+                            ${breakdown.changeFee > 0 ? ` | Change Fee: ₹${breakdown.changeFee}` : ''}
+                        </div>
+                    `;
+                }
+
+                // Store selected fare for booking
+                selectedFares[flightId] = {
+                    fareCode: fareCode,
+                    fareClass: breakdown,
+                    finalPrice: breakdown.dynamicPrice || breakdown.fareClassPrice
+                };
+
+                // Enable book button if it was disabled
+                const bookBtn = document.getElementById(`book-btn-${flightId}`);
+                if (bookBtn) {
+                    bookBtn.disabled = false;
+                    bookBtn.style.opacity = '1';
+                }
+
+                showToast(`✅ ${breakdown.fareClassName || fareCode} selected! Price: ₹${breakdown.dynamicPrice || breakdown.fareClassPrice}`);
+            }
+        } catch (error) {
+            console.error('Error selecting fare class:', error);
+            showToast('Error loading fare details', true);
+        }
+    }
+
+    // ============================================
+    // BOOK FLIGHT
+    // ============================================
+    window.bookFlight = function(flightId) {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+        if (!token || !user.id) {
+            sessionStorage.setItem('redirectAfterLogin', `/booking?flightId=${flightId}&fareCode=${selectedFares[flightId]?.fareCode || 'STANDARD'}`);
+            window.location.href = '/signin';
+            return;
+        }
+
+        if (!selectedFares[flightId]) {
+            showToast('❌ Please select a fare class first!', true);
+            return;
+        }
+
+        // Store booking details in session for booking page
+        sessionStorage.setItem('bookingDetails', JSON.stringify({
+            flightId: flightId,
+            fareCode: selectedFares[flightId].fareCode,
+            fareDetails: selectedFares[flightId].fareClass,
+            totalPrice: selectedFares[flightId].finalPrice
+        }));
+
+        window.location.href = `/booking?flightId=${flightId}&fareCode=${selectedFares[flightId].fareCode}`;
+    };
+
+    // ============================================
+    // REDIRECT TO CONNECTING BOOKING
+    // ============================================
+    window.redirectToConnectingBooking = function(segments) {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        if (!token || !user.id) {
+            sessionStorage.setItem('redirectAfterLogin', `/booking?segments=${encodeURIComponent(JSON.stringify(segments))}`);
+            window.location.href = '/signin';
+        } else {
+            window.location.href = `/booking?segments=${encodeURIComponent(JSON.stringify(segments))}`;
+        }
+    };
+
+    // ============================================
+    // RECENT SEARCHES
+    // ============================================
+    function saveRecentSearch(from, to, date) {
+        const searches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        const newSearch = { from, to, date, timestamp: Date.now() };
+        const filtered = searches.filter(s => !(s.from === from && s.to === to));
+        filtered.unshift(newSearch);
+        while (filtered.length > 5) filtered.pop();
+        localStorage.setItem('recentSearches', JSON.stringify(filtered));
+        loadRecentSearches();
+    }
+
+    function loadRecentSearches() {
+        const searches = JSON.parse(localStorage.getItem('recentSearches') || '[]');
+        const container = document.getElementById('recentSearches');
+        if (!container) return;
+        if (searches.length === 0) {
+            container.innerHTML = '<div style="color: rgba(255,255,255,0.4); font-size: 12px;">No recent searches</div>';
+            return;
+        }
+        container.innerHTML = searches.map(search => `
+            <div class="recent-item" onclick="applyRecentSearch('${search.from.replace(/'/g, "\\'")}', '${search.to.replace(/'/g, "\\'")}', '${search.date}')">
+                ${search.from} → ${search.to} (${search.date})
+            </div>
+        `).join('');
+    }
+
+    window.applyRecentSearch = function(from, to, date) {
+        document.getElementById('from').value = from;
+        document.getElementById('to').value = to;
+        document.getElementById('departDate').value = date;
+        searchFlights();
+    };
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+    window.swapLocations = function() {
+        const from = document.getElementById('from');
+        const to = document.getElementById('to');
+        const temp = from.value;
+        from.value = to.value;
+        to.value = temp;
+    };
+
+    function setMinDates() {
+        const today = new Date().toISOString().split('T')[0];
+        const departDate = document.getElementById('departDate');
+        if (departDate) departDate.min = today;
+    }
+
+    // ============================================
+    // STARS & ANIMATIONS
+    // ============================================
+    function generateStars() {
+        const starsContainer = document.querySelector('.stars');
+        if (!starsContainer) return;
+        for (let i = 0; i < 200; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            const r = Math.random();
+            if (r > 0.7) star.classList.add('large');
+            else if (r > 0.3) star.classList.add('medium');
+            else star.classList.add('small');
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    }
+
+    function createShootingStars() {
+        setInterval(() => {
+            if (Math.random() > 0.6) {
+                const container = document.querySelector('.stars');
+                const shooting = document.createElement('div');
+                shooting.className = 'shooting-star';
+                shooting.style.left = Math.random() * 90 + '%';
+                shooting.style.top = Math.random() * 70 + '%';
+                container.appendChild(shooting);
+                setTimeout(() => shooting.classList.add('active'), 50);
+                setTimeout(() => shooting.remove(), 2500);
+            }
+        }, 2000);
+    }
+
+    function checkRedirectAfterLogin() {
+        const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
+        if (redirectUrl && !window.location.href.includes('signin')) {
+            sessionStorage.removeItem('redirectAfterLogin');
+            window.location.href = redirectUrl;
+        }
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    window.addEventListener('load', async function() {
+        console.log('🚀 Initializing search page...');
+        await Promise.all([loadAirportsFromDB(), loadFareClasses()]);
+        generateStars();
+        createShootingStars();
+        setMinDates();
+        setupAirportInput('from');
+        setupAirportInput('to');
+        loadRecentSearches();
+        checkRedirectAfterLogin();
+        document.body.classList.add('loaded');
+        console.log('✅ Initialization complete');
+        console.log('Fare classes loaded:', fareClasses.length);
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        const stars = document.querySelector('.stars');
+        if (stars) stars.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
 </body>
 </html>

@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>AirNova – My Dashboard</title>
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f1429 60%, #050810 100%);
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* Stars Background */
+        .stars, .twinkling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, #fff 0%, #e6f2ff 60%, transparent 100%);
+            border-radius: 50%;
+            animation: starTwinkle 4s infinite ease-in-out;
+        }
+
+        .star.small { width: 1px; height: 1px; }
+        .star.medium { width: 2.5px; height: 2.5px; }
+        .star.large { width: 3.5px; height: 3.5px; }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .flying-plane {
+            position: fixed;
+            font-size: 24px;
+            color: rgba(255,255,255,0.1);
+            z-index: 2;
+            animation: fly 20s linear infinite;
+            pointer-events: none;
+        }
+        .plane-1 { top: 20%; left: -10%; animation-delay: 0s; }
+        .plane-2 { top: 70%; left: -10%; animation-delay: 10s; }
+        .plane-3 { top: 40%; right: -10%; animation-direction: reverse; animation-delay: 5s; }
+
+        @keyframes fly {
+            0% { transform: translateX(-100px); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+        }
+
+        /* Dashboard Container */
+        .dashboard-container {
+            position: relative;
+            z-index: 50;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .dashboard-header {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px 30px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .user-name {
+            color: white;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid #ff4444;
+            padding: 8px 20px;
+            border-radius: 25px;
+            color: #ff4444;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,68,68,0.4);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: transform 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .stat-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
+        }
+
+        /* Section Cards */
+        .section-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        /* Pending Booking Card */
+        .pending-booking-card {
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.05));
+            border: 1px solid #4CAF50;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .pending-info h4 {
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+
+        .pending-info p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+        }
+
+        .continue-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .continue-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(76, 175, 80, 0.4);
+        }
+
+        /* Quick Search */
+        .quick-search {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .quick-search input, .quick-search select {
+            flex: 1;
+            min-width: 150px;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .quick-search button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border: none;
+            padding: 12px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .quick-search button:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Booking Tables */
+        .booking-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .booking-table th,
+        .booking-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .booking-table th {
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .booking-table tr:hover {
+            background: rgba(255,255,255,0.03);
+        }
+
+        .status-confirmed {
+            color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-cancelled {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .status-completed {
+            color: #2196F3;
+            background: rgba(33, 150, 243, 0.2);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: inline-block;
+        }
+
+        .btn-view {
+            background: rgba(33, 150, 243, 0.2);
+            border: 1px solid #2196F3;
+            padding: 5px 12px;
+            border-radius: 15px;
+            color: #2196F3;
+            cursor: pointer;
+            font-size: 12px;
+            margin-right: 5px;
+        }
+
+        .btn-cancel {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid #f44336;
+            padding: 5px 12px;
+            border-radius: 15px;
+            color: #f44336;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .btn-cancel:hover, .btn-view:hover {
+            transform: scale(1.05);
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: #1a1f3a;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: white;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #ffd700;
+        }
+
+        .modal-content textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .confirm-cancel {
+            background: #f44336;
+            color: white;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: white;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #4CAF50;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .booking-table {
+                display: block;
+                overflow-x: auto;
+            }
+            .quick-search {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<div class="flying-plane plane-1">✈️</div>
+<div class="flying-plane plane-2">✈️</div>
+<div class="flying-plane plane-3">✈️</div>
+
+<div class="dashboard-container">
+    <!-- Header -->
+    <div class="dashboard-header">
+        <div class="logo">✈️ AirNova | My Dashboard</div>
+        <div class="user-info">
+            <span class="user-name" id="userName">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+            <div class="stat-icon">✈️</div>
+            <div class="stat-value" id="totalBookings">0</div>
+            <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">🛫</div>
+            <div class="stat-value" id="upcomingTrips">0</div>
+            <div class="stat-label">Upcoming Trips</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">✅</div>
+            <div class="stat-value" id="completedTrips">0</div>
+            <div class="stat-label">Completed Trips</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon">❌</div>
+            <div class="stat-value" id="cancelledTrips">0</div>
+            <div class="stat-label">Cancelled</div>
+        </div>
+    </div>
+
+    <!-- Pending Booking Section -->
+    <div id="pendingBookingSection" style="display: none;">
+        <div class="section-card">
+            <div class="section-title"><i class="fas fa-clock"></i> Continue Your Booking</div>
+            <div class="pending-booking-card" id="pendingBookingCard"></div>
+        </div>
+    </div>
+
+    <!-- Quick Search -->
+    <div class="section-card">
+        <div class="section-title"><i class="fas fa-search"></i> Quick Flight Search</div>
+        <div class="quick-search">
+            <input type="text" id="quickFrom" placeholder="From (City or Airport)">
+            <input type="text" id="quickTo" placeholder="To (City or Airport)">
+            <input type="date" id="quickDate">
+            <button onclick="quickSearch()"><i class="fas fa-search"></i> Search</button>
+        </div>
+    </div>
+
+    <!-- Upcoming Trips -->
+    <div class="section-card">
+        <div class="section-title"><i class="fas fa-calendar-alt"></i> Upcoming Trips</div>
+        <div id="upcomingContainer">
+            <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+    </div>
+
+    <!-- Recent Bookings -->
+    <div class="section-card">
+        <div class="section-title"><i class="fas fa-history"></i> Recent Bookings</div>
+        <div id="recentContainer">
+            <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+    </div>
+
+    <!-- Cancelled Bookings -->
+    <div class="section-card">
+        <div class="section-title"><i class="fas fa-ban"></i> Cancelled Bookings</div>
+        <div id="cancelledContainer">
+            <div class="loading"><div class="spinner"></div> Loading...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Booking Details Modal -->
+<div id="bookingModal" class="modal">
+    <div class="modal-content" id="bookingModalContent">
+        <h3>Booking Details</h3>
+        <div id="modalBody">Loading...</div>
+        <div class="modal-buttons">
+            <button onclick="closeModal()">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Cancel Confirmation Modal -->
+<div id="cancelModal" class="modal">
+    <div class="modal-content">
+        <h3>❌ Cancel Booking</h3>
+        <p id="cancelInfo"></p>
+        <label>Reason (optional):</label>
+        <textarea id="cancelReason" rows="3" placeholder="Why are you cancelling?"></textarea>
+        <div class="modal-buttons">
+            <button onclick="closeCancelModal()">Close</button>
+            <button class="confirm-cancel" onclick="confirmCancel()">Confirm Cancel</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    const API_BASE = '';
+    let currentCancelBookingId = null;
+    let currentUser = null;
+
+    // ============================================
+    // TOAST NOTIFICATION
+    // ============================================
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 4000);
+    }
+
+    // ============================================
+    // LOGOUT
+    // ============================================
+    async function logout() {
+        try {
+            await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+        } catch (error) {}
+        sessionStorage.removeItem('user');
+        localStorage.removeItem('user');
+        window.location.href = '/signin';
+    }
+
+    // ============================================
+    // FETCH API WITH AUTH
+    // ============================================
+    async function fetchAPI(url, options = {}) {
+        try {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                }
+            });
+
+            if (response.status === 401) {
+                window.location.href = '/signin';
+                return null;
+            }
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `HTTP ${response.status}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            showToast(error.message, true);
+            throw error;
+        }
+    }
+
+    // ============================================
+    // LOAD USER PROFILE
+    // ============================================
+    async function loadUserProfile() {
+        try {
+            const data = await fetchAPI(`${API_BASE}/user/api/profile`);
+            if (data) {
+                currentUser = data;
+                document.getElementById('userName').textContent = `Welcome, ${data.fullName}`;
+                document.getElementById('totalBookings').textContent = data.totalBookings || 0;
+                document.getElementById('upcomingTrips').textContent = data.upcomingTrips || 0;
+                document.getElementById('completedTrips').textContent = data.completedTrips || 0;
+                document.getElementById('cancelledTrips').textContent = data.cancelledTrips || 0;
+            }
+        } catch (error) {
+            console.error('Error loading profile:', error);
+        }
+    }
+
+    // ============================================
+    // LOAD PENDING BOOKING FROM SESSION
+    // ============================================
+    function loadPendingBooking() {
+        const pending = sessionStorage.getItem('pendingBooking');
+        if (pending) {
+            const booking = JSON.parse(pending);
+            document.getElementById('pendingBookingSection').style.display = 'block';
+            document.getElementById('pendingBookingCard').innerHTML = `
+                <div class="pending-info">
+                    <h4>✈️ ${booking.searchParams?.from || 'N/A'} → ${booking.searchParams?.to || 'N/A'}</h4>
+                    <p>📅 ${booking.searchParams?.date || 'N/A'} | 🎫 ${booking.fareClass || 'STANDARD'} | 👥 ${booking.passengers || 1} Passenger(s)</p>
+                </div>
+                <button class="continue-btn" onclick="continueBooking()">Complete Booking →</button>
+            `;
+        }
+    }
+
+    // ============================================
+    // CONTINUE BOOKING
+    // ============================================
+    function continueBooking() {
+        window.location.href = '/flights/search';
+    }
+
+    // ============================================
+    // QUICK SEARCH
+    // ============================================
+    function quickSearch() {
+        const from = document.getElementById('quickFrom').value;
+        const to = document.getElementById('quickTo').value;
+        const date = document.getElementById('quickDate').value;
+
+        if (!from || !to || !date) {
+            showToast('Please fill all search fields', true);
+            return;
+        }
+
+        // Store search params for guest booking
+        sessionStorage.setItem('pendingBooking', JSON.stringify({
+            searchParams: { from, to, date },
+            passengers: 1,
+            fareClass: 'STANDARD'
+        }));
+
+        window.location.href = `/flights/search?from=${encodeURIComponent(from)}&to=${encodeURIComponent(to)}&date=${date}`;
+    }
+
+    // ============================================
+    // LOAD UPCOMING BOOKINGS
+    // ============================================
+    async function loadUpcomingBookings() {
+        try {
+            const bookings = await fetchAPI(`${API_BASE}/user/api/bookings/upcoming`);
+            const container = document.getElementById('upcomingContainer');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '<div class="no-data">✨ No upcoming trips. Start planning your next adventure!</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="booking-table">
+                    <thead>
+                        <tr><th>PNR</th><th>Flight</th><th>Route</th><th>Date</th><th>Fare</th><th>Status</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        ${bookings.map(b => `
+                            <tr>
+                                <td>${b.pnrNumber}</td>
+                                <td>${b.flightNumber}</td>
+                                <td>${b.sourceCode} → ${b.destinationCode}</td>
+                                <td>${formatDate(b.departureTime)}</td>
+                                <td>₹${Math.round(b.totalAmount)}</td>
+                                <td><span class="status-confirmed">${b.status}</span></td>
+                                <td>
+                                    <button class="btn-view" onclick="viewBooking(${b.bookingId})">View</button>
+                                    ${b.canCancel ? `<button class="btn-cancel" onclick="openCancelModal(${b.bookingId}, '${b.pnrNumber}', ${b.totalAmount})">Cancel</button>` : ''}
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (error) {
+            document.getElementById('upcomingContainer').innerHTML = '<div class="no-data">Failed to load bookings</div>';
+        }
+    }
+
+    // ============================================
+    // LOAD RECENT BOOKINGS
+    // ============================================
+    async function loadRecentBookings() {
+        try {
+            const bookings = await fetchAPI(`${API_BASE}/user/api/bookings/past`);
+            const container = document.getElementById('recentContainer');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '<div class="no-data">📋 No past bookings yet. Book your first flight!</div>';
+                return;
+            }
+
+            // Show last 5 only
+            const recent = bookings.slice(0, 5);
+
+            container.innerHTML = `
+                <table class="booking-table">
+                    <thead>
+                        <tr><th>PNR</th><th>Flight</th><th>Route</th><th>Date</th><th>Fare</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        ${recent.map(b => `
+                            <tr>
+                                <td>${b.pnrNumber}</td>
+                                <td>${b.flightNumber}</td>
+                                <td>${b.sourceCode} → ${b.destinationCode}</td>
+                                <td>${formatDate(b.departureTime)}</td>
+                                <td>₹${Math.round(b.totalAmount)}</td>
+                                <td><span class="status-${b.status.toLowerCase()}">${b.status}</span></td>
+                                <td>
+                                    <button class="btn-view" onclick="viewBooking(${b.bookingId})">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                ${bookings.length > 5 ? `<div style="text-align: center; margin-top: 15px;"><a href="/my-bookings" style="color: #ffd700;">View all ${bookings.length} bookings →</a></div>` : ''}
+            `;
+        } catch (error) {
+            document.getElementById('recentContainer').innerHTML = '<div class="no-data">Failed to load bookings</div>';
+        }
+    }
+
+    // ============================================
+    // LOAD CANCELLED BOOKINGS
+    // ============================================
+    async function loadCancelledBookings() {
+        try {
+            const bookings = await fetchAPI(`${API_BASE}/user/api/bookings/cancelled`);
+            const container = document.getElementById('cancelledContainer');
+
+            if (!bookings || bookings.length === 0) {
+                container.innerHTML = '<div class="no-data">No cancelled bookings.</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table class="booking-table">
+                    <thead>
+                        <tr><th>PNR</th><th>Flight</th><th>Route</th><th>Date</th><th>Fare</th><th>Status</th><th>Action</th></tr>
+                    </thead>
+                    <tbody>
+                        ${bookings.map(b => `
+                            <tr>
+                                <td>${b.pnrNumber}</td>
+                                <td>${b.flightNumber}</td>
+                                <td>${b.sourceCode} → ${b.destinationCode}</td>
+                                <td>${formatDate(b.departureTime)}</td>
+                                <td>₹${Math.round(b.totalAmount)}</td>
+                                <td><span class="status-cancelled">CANCELLED</span></td>
+                                <td>
+                                    <button class="btn-view" onclick="viewBooking(${b.bookingId})">View</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        } catch (error) {
+            document.getElementById('cancelledContainer').innerHTML = '<div class="no-data">Failed to load cancelled bookings</div>';
+        }
+    }
+
+    // ============================================
+    // VIEW BOOKING DETAILS
+    // ============================================
+    async function viewBooking(bookingId) {
+        try {
+            const booking = await fetchAPI(`${API_BASE}/user/api/bookings/${bookingId}`);
+            const modal = document.getElementById('bookingModal');
+            const modalBody = document.getElementById('modalBody');
+
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 15px;">
+                    <strong>PNR:</strong> ${booking.pnrNumber}<br>
+                    <strong>Status:</strong> <span class="status-${booking.status.toLowerCase()}">${booking.status}</span><br>
+                    <strong>Booking Date:</strong> ${new Date(booking.bookingTime).toLocaleString()}
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <strong>✈️ Flight Information</strong><br>
+                    ${booking.flightNumber} | ${booking.airlineName}<br>
+                    ${booking.sourceCode} (${booking.sourceCity}) → ${booking.destinationCode} (${booking.destinationCity})<br>
+                    Departure: ${formatDateTime(booking.departureTime)}<br>
+                    Arrival: ${formatDateTime(booking.arrivalTime)}<br>
+                    Duration: ${booking.duration} minutes
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <strong>🎫 Fare Details</strong><br>
+                    Fare Class: ${booking.fareClassName} (${booking.fareClassCode})<br>
+                    Base Price: ₹${Math.round(booking.basePrice)}<br>
+                    Fare Multiplier: ${booking.fareMultiplier}x<br>
+                    Dynamic Pricing: ${booking.timeMultiplier.toFixed(2)} × ${booking.demandMultiplier.toFixed(2)} × ${booking.dayMultiplier.toFixed(2)}<br>
+                    <strong>Total: ₹${Math.round(booking.finalPrice)}</strong>
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <strong>🧳 Baggage Allowance</strong><br>
+                    Cabin: ${booking.cabinBaggageKg}kg | Checked: ${booking.checkInBaggageKg}kg<br>
+                    Extra Baggage Rate: ₹${booking.extraBaggageRatePerKg}/kg
+                </div>
+                <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.05); border-radius: 10px;">
+                    <strong>✨ Benefits</strong><br>
+                    ${booking.mealIncluded ? '🍽️ Meal Included | ' : ''}
+                    ${booking.seatSelectionFree ? '💺 Free Seat Selection | ' : ''}
+                    ${booking.priorityCheckin ? '⚡ Priority Check-in | ' : ''}
+                    ${booking.priorityBoarding ? '🛫 Priority Boarding | ' : ''}
+                    ${booking.loungeAccess ? '🍸 Lounge Access' : ''}
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>👥 Passengers (${booking.passengers.length})</strong><br>
+                    ${booking.passengers.map(p => `
+                        <div style="margin-left: 10px;">
+                            • ${p.fullName} ${p.age ? `(${p.age} yrs)` : ''} - Seat ${p.seatNumber}
+                            ${p.mealPreference ? ` | 🍽️ ${p.mealPreference}` : ''}
+                            ${p.extraBaggageKg > 0 ? ` | 🧳 +${p.extraBaggageKg}kg (₹${p.extraBaggagePrice})` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+                ${booking.cancellationFee > 0 ? `
+                <div style="margin-top: 15px; padding: 10px; background: rgba(244,67,54,0.1); border-radius: 10px;">
+                    <strong>⚠️ Cancellation Policy</strong><br>
+                    Cancellation Fee: ₹${booking.cancellationFee}<br>
+                    Change Fee: ₹${booking.changeFee}<br>
+                    Refund Policy: ${booking.cancellationPolicy}
+                </div>
+                ` : ''}
+            `;
+
+            modal.style.display = 'flex';
+        } catch (error) {
+            showToast('Failed to load booking details', true);
+        }
+    }
+
+    // ============================================
+    // OPEN CANCEL MODAL
+    // ============================================
+    function openCancelModal(bookingId, pnr, amount) {
+        currentCancelBookingId = bookingId;
+        document.getElementById('cancelInfo').innerHTML = `
+            Are you sure you want to cancel booking <strong>${pnr}</strong>?<br>
+            Total Amount: ₹${Math.round(amount)}<br>
+            <span style="color: #ffd700;">Refund will be calculated based on cancellation policy.</span>
+        `;
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    // ============================================
+    // CONFIRM CANCEL
+    // ============================================
+    async function confirmCancel() {
+        if (!currentCancelBookingId) return;
+
+        const reason = document.getElementById('cancelReason').value;
+
+        try {
+            const result = await fetchAPI(`${API_BASE}/user/api/bookings/${currentCancelBookingId}/cancel`, {
+                method: 'POST',
+                body: JSON.stringify({ reason })
+            });
+
+            showToast(`✅ Booking cancelled! Refund: ₹${Math.round(result.refundAmount || 0)}`);
+            closeCancelModal();
+
+            // Reload all sections
+            loadUserProfile();
+            loadUpcomingBookings();
+            loadRecentBookings();
+            loadCancelledBookings();
+        } catch (error) {
+            showToast('Failed to cancel booking', true);
+        }
+    }
+
+    // ============================================
+    // CLOSE MODALS
+    // ============================================
+    function closeModal() {
+        document.getElementById('bookingModal').style.display = 'none';
+    }
+
+    function closeCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+        currentCancelBookingId = null;
+        document.getElementById('cancelReason').value = '';
+    }
+
+    // ============================================
+    // FORMAT DATE
+    // ============================================
+    function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch(e) {
+            return dateStr;
+        }
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        } catch(e) {
+            return dateStr;
+        }
+    }
+
+    // ============================================
+    // INITIALIZE
+    // ============================================
+    async function init() {
+        // Check if user is logged in
+        try {
+            const profile = await fetchAPI(`${API_BASE}/user/api/profile`);
+            if (!profile) {
+                window.location.href = '/signin';
+                return;
+            }
+        } catch (error) {
+            window.location.href = '/signin';
+            return;
+        }
+
+        await loadUserProfile();
+        loadPendingBooking();
+        await loadUpcomingBookings();
+        await loadRecentBookings();
+        await loadCancelledBookings();
+
+        // Set default date for quick search
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('quickDate').value = today;
+
+        // Set quick search from session if exists
+        const pending = sessionStorage.getItem('pendingBooking');
+        if (pending) {
+            const booking = JSON.parse(pending);
+            if (booking.searchParams) {
+                document.getElementById('quickFrom').value = booking.searchParams.from || '';
+                document.getElementById('quickTo').value = booking.searchParams.to || '';
+                document.getElementById('quickDate').value = booking.searchParams.date || today;
+            }
+        }
+    }
+
+    // Generate stars
+    function generateStars() {
+        const starsContainer = document.querySelector('.stars');
+        if (!starsContainer) return;
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            const r = Math.random();
+            if (r > 0.7) star.classList.add('large');
+            else if (r > 0.3) star.classList.add('medium');
+            else star.classList.add('small');
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    }
+
+    window.addEventListener('load', () => {
+        generateStars();
+        init();
+    });
+
+    // Parallax effect
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        const stars = document.querySelector('.stars');
+        if (stars) stars.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
+</body>
+</html>

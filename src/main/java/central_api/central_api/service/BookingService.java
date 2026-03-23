@@ -5,6 +5,7 @@ import central_api.central_api.dto.request.BookingRequest;
 import central_api.central_api.exception.CustomExceptions;
 import central_api.central_api.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class BookingService {
 
     private final DbApiClient dbApiClient;
@@ -78,9 +80,25 @@ public class BookingService {
         }
     }
 
+    // ✅ FIXED: getUserBookings now returns Map and extracts list
     public List<Map<String, Object>> getUserBookings(String token) {
-        Long userId = jwtUtil.extractUserId(token.substring(7));
-        return dbApiClient.getUserBookings(userId);
+        try {
+            Long userId = jwtUtil.extractUserId(token.substring(7));
+            Map<String, Object> response = dbApiClient.getUserBookings(userId);
+
+            // Extract bookings list from response
+            List<Map<String, Object>> bookings = new ArrayList<>();
+            if (response != null && response.get("bookings") != null) {
+                bookings = (List<Map<String, Object>>) response.get("bookings");
+            }
+
+            log.debug("Fetched {} bookings for user: {}", bookings.size(), userId);
+            return bookings;
+
+        } catch (Exception e) {
+            log.error("Error fetching user bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public Map<String, Object> cancelBooking(Long bookingId) {

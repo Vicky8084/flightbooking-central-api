@@ -1,6 +1,6 @@
 package central_api.central_api.client;
 
-import central_api.central_api.dto.response.UserResponse;
+import central_api.central_api.dto.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,7 +11,6 @@ import java.util.Map;
 public interface DbApiClient {
 
     // ========== USER ENDPOINTS ==========
-
     @PostMapping("/users")
     Map<String, Object> createUser(@RequestBody Map<String, Object> user);
 
@@ -21,14 +20,17 @@ public interface DbApiClient {
     @GetMapping("/users/{id}")
     UserResponse getUserById(@PathVariable("id") Long id);
 
+
     @GetMapping("/users/role/{role}")
     List<UserResponse> getUsersByRole(@PathVariable("role") String role);
 
     @PutMapping("/users/{userId}/password")
     Void updatePassword(@PathVariable("userId") Long userId, @RequestParam("password") String password);
 
-    // ========== AIRLINE ENDPOINTS ==========
+    @PutMapping("/users/{userId}")
+    Map<String, Object> updateUser(@PathVariable("userId") Long userId, @RequestBody Map<String, Object> userDetails);
 
+    // ========== AIRLINE ENDPOINTS ==========
     @PostMapping("/airlines")
     Map<String, Object> createAirline(@RequestBody Map<String, Object> airline);
 
@@ -50,7 +52,6 @@ public interface DbApiClient {
                                       @RequestParam(value = "reason", required = false) String reason);
 
     // ========== AIRCRAFT ENDPOINTS ==========
-
     @GetMapping("/aircrafts/airline/{airlineId}")
     List<Map<String, Object>> getAircraftsByAirline(@PathVariable("airlineId") Long airlineId);
 
@@ -58,12 +59,10 @@ public interface DbApiClient {
     Map<String, Object> createAircraft(@RequestBody Map<String, Object> aircraft);
 
     // ========== AIRPORT ENDPOINTS ==========
-
     @GetMapping("/airports")
     List<Map<String, Object>> getAllAirports();
 
     // ========== FLIGHT ENDPOINTS ==========
-
     @PostMapping("/flights")
     Map<String, Object> createFlight(@RequestBody Map<String, Object> flight);
 
@@ -90,22 +89,56 @@ public interface DbApiClient {
     @PutMapping("/flights/{flightId}/cancel")
     Map<String, Object> cancelFlight(@PathVariable("flightId") Long flightId);
 
-    // ========== REVIEW ENDPOINTS ==========
+    // ========== FARE CLASS ENDPOINTS ==========
+    @GetMapping("/fare-classes")
+    List<FareClassDTO> getFareClasses();
 
+    @GetMapping("/fare-classes/{code}")
+    FareClassDTO getFareClassByCode(@PathVariable("code") String code);
+
+    @GetMapping("/flights/{flightId}/price-breakdown")
+    Map<String, Object> getPriceBreakdown(@PathVariable("flightId") Long flightId,
+                                          @RequestParam("seatClass") String seatClass,
+                                          @RequestParam("fareClassCode") String fareClassCode);
+
+    // ✅ NEW: Get upcoming bookings
+
+    // ========== REVIEW ENDPOINTS ==========
     @GetMapping("/reviews/airline/{airlineId}")
     Map<String, Object> getAirlineReviews(@PathVariable("airlineId") Long airlineId);
 
-    // ========== BOOKING ENDPOINTS ==========
+    @PostMapping("/reviews/flight")
+    Map<String, Object> createFlightReview(@RequestBody Map<String, Object> review);
 
+    @GetMapping("/users/{id}/profile")
+    Map<String, Object> getUserProfile(@PathVariable("id") Long id);
+
+    // ========== BOOKING ENDPOINTS ==========
     @PostMapping("/bookings")
     Map<String, Object> createBooking(@RequestBody Map<String, Object> bookingRequest);
 
     @GetMapping("/bookings/pnr/{pnr}")
     Map<String, Object> getBookingByPNR(@PathVariable("pnr") String pnr);
 
+    // ✅ FIX: Return type Map, not List
     @GetMapping("/bookings/user/{userId}")
-    List<Map<String, Object>> getUserBookings(@PathVariable("userId") Long userId);
+    Map<String, Object> getUserBookings(@PathVariable("userId") Long userId);
+
+    @GetMapping("/bookings/{bookingId}")
+    Map<String, Object> getBookingById(@PathVariable("bookingId") Long bookingId);
 
     @PutMapping("/bookings/{bookingId}/cancel")
     Map<String, Object> cancelBooking(@PathVariable("bookingId") Long bookingId);
+
+    // ✅ FIX: Return type Map
+    @GetMapping("/bookings/user/{userId}/upcoming")
+    Map<String, Object> getUserUpcomingBookings(@PathVariable("userId") Long userId);
+
+    // ✅ FIX: Return type Map
+    @GetMapping("/bookings/user/{userId}/past")
+    Map<String, Object> getUserPastBookings(@PathVariable("userId") Long userId);
+
+    // ✅ FIX: Return type Map
+    @GetMapping("/bookings/user/{userId}/cancelled")
+    Map<String, Object> getUserCancelledBookings(@PathVariable("userId") Long userId);
 }

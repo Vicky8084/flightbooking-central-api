@@ -1,26 +1,29 @@
 package central_api.central_api.controller;
 
 import central_api.central_api.client.DbApiClient;
+import central_api.central_api.dto.response.FareClassDTO;
 import central_api.central_api.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/db")
 @RequiredArgsConstructor
+@Slf4j
 public class DbProxyController {
 
     private final DbApiClient dbApiClient;
 
     // ========== FLIGHT ENDPOINTS ==========
-
     @GetMapping("/flights/airline/{airlineId}")
     public ResponseEntity<List<Map<String, Object>>> getFlightsByAirline(@PathVariable Long airlineId) {
         return ResponseEntity.ok(dbApiClient.getFlightsByAirline(airlineId));
@@ -42,7 +45,6 @@ public class DbProxyController {
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime newDepartureTime,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime newArrivalTime) {
 
-        // Convert LocalDateTime to String for Feign client
         DateTimeFormatter formatter = DateTimeFormatter.ISO_DATE_TIME;
         String departureStr = newDepartureTime.format(formatter);
         String arrivalStr = newArrivalTime.format(formatter);
@@ -65,8 +67,26 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.searchFlights(searchRequest));
     }
 
-    // ========== AIRCRAFT ENDPOINTS ==========
+    // ========== FARE CLASS ENDPOINTS ==========
+    @GetMapping("/fare-classes")
+    public ResponseEntity<List<FareClassDTO>> getFareClasses() {
+        return ResponseEntity.ok(dbApiClient.getFareClasses());
+    }
 
+    @GetMapping("/fare-classes/{code}")
+    public ResponseEntity<FareClassDTO> getFareClassByCode(@PathVariable String code) {
+        return ResponseEntity.ok(dbApiClient.getFareClassByCode(code));
+    }
+
+    @GetMapping("/flights/{flightId}/price-breakdown")
+    public ResponseEntity<Map<String, Object>> getPriceBreakdown(
+            @PathVariable Long flightId,
+            @RequestParam String seatClass,
+            @RequestParam String fareClassCode) {
+        return ResponseEntity.ok(dbApiClient.getPriceBreakdown(flightId, seatClass, fareClassCode));
+    }
+
+    // ========== AIRCRAFT ENDPOINTS ==========
     @GetMapping("/aircrafts/airline/{airlineId}")
     public ResponseEntity<List<Map<String, Object>>> getAircraftsByAirline(@PathVariable Long airlineId) {
         return ResponseEntity.ok(dbApiClient.getAircraftsByAirline(airlineId));
@@ -78,7 +98,6 @@ public class DbProxyController {
     }
 
     // ========== AIRPORT ENDPOINTS ==========
-
     @GetMapping("/airports")
     public ResponseEntity<List<Map<String, Object>>> getAllAirports() {
         return ResponseEntity.ok(dbApiClient.getAllAirports());
@@ -86,9 +105,23 @@ public class DbProxyController {
 
     // ========== BOOKING ENDPOINTS ==========
 
+    // ✅ FIXED: Return Map instead of List
     @GetMapping("/bookings/user/{userId}")
-    public ResponseEntity<List<Map<String, Object>>> getUserBookings(@PathVariable Long userId) {
+    public ResponseEntity<Map<String, Object>> getUserBookings(@PathVariable Long userId) {
         return ResponseEntity.ok(dbApiClient.getUserBookings(userId));
+    }
+
+    // ✅ NEW: Endpoint to get bookings list (extracted from response)
+    @GetMapping("/bookings/user/{userId}/list")
+    public ResponseEntity<List<Map<String, Object>>> getUserBookingsList(@PathVariable Long userId) {
+        Map<String, Object> response = dbApiClient.getUserBookings(userId);
+        List<Map<String, Object>> bookings = new ArrayList<>();
+
+        if (response != null && response.get("bookings") != null) {
+            bookings = (List<Map<String, Object>>) response.get("bookings");
+        }
+
+        return ResponseEntity.ok(bookings);
     }
 
     @GetMapping("/bookings/pnr/{pnr}")
@@ -106,15 +139,19 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.cancelBooking(bookingId));
     }
 
-    // ========== REVIEW ENDPOINTS ==========
+    // ✅ NEW: Get booking by ID
+    @GetMapping("/bookings/{bookingId}")
+    public ResponseEntity<Map<String, Object>> getBookingById(@PathVariable Long bookingId) {
+        return ResponseEntity.ok(dbApiClient.getBookingById(bookingId));
+    }
 
+    // ========== REVIEW ENDPOINTS ==========
     @GetMapping("/reviews/airline/{airlineId}")
     public ResponseEntity<Map<String, Object>> getAirlineReviews(@PathVariable Long airlineId) {
         return ResponseEntity.ok(dbApiClient.getAirlineReviews(airlineId));
     }
 
     // ========== AIRLINE ENDPOINTS ==========
-
     @GetMapping("/airlines/pending")
     public ResponseEntity<List<Map<String, Object>>> getPendingAirlines() {
         return ResponseEntity.ok(dbApiClient.getPendingAirlines());
@@ -144,7 +181,6 @@ public class DbProxyController {
     }
 
     // ========== USER ENDPOINTS ==========
-
     @GetMapping("/users/email/{email}")
     public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
         return ResponseEntity.ok(dbApiClient.getUserByEmail(email));
@@ -153,5 +189,11 @@ public class DbProxyController {
     @GetMapping("/users/{id}")
     public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
         return ResponseEntity.ok(dbApiClient.getUserById(id));
+    }
+
+    // ✅ NEW: Get user profile
+    @GetMapping("/users/{id}/profile")
+    public ResponseEntity<Map<String, Object>> getUserProfile(@PathVariable Long id) {
+        return ResponseEntity.ok(dbApiClient.getUserProfile(id));
     }
 }

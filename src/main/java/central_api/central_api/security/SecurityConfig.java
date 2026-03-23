@@ -23,7 +23,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ PUBLIC PAGES - No authentication required
+                        // ========== PUBLIC PAGES (No Auth Required) ==========
                         .requestMatchers(
                                 "/",
                                 "/home",
@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/favicon.ico"
                         ).permitAll()
 
-                        // ✅ PUBLIC API ENDPOINTS
+                        // ========== PUBLIC API ENDPOINTS (No Auth Required) ==========
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
@@ -46,26 +46,42 @@ public class SecurityConfig {
                                 "/api/auth/forgot-password",
                                 "/api/auth/reset-password",
                                 "/api/auth/logout",
-                                "/api/auth/me"
+                                "/api/auth/me",
+                                "/api/db/airports",
+                                "/api/db/flights/search",
+                                "/api/db/fare-classes",
+                                "/api/db/fare-classes/**",
+                                "/api/db/flights/*/price-breakdown"
                         ).permitAll()
 
-                        // ✅ DB API PROXY ENDPOINTS - Allow authenticated access
-                        // These will be secured by the JWT filter
-                        .requestMatchers(
-                                "/api/db/**"
-                        ).authenticated()
-
-                        // ✅ USER DASHBOARD - Requires authentication (any role)
+                        // ========== USER DASHBOARD PAGES (Authenticated Only) ==========
                         .requestMatchers(
                                 "/user-dashboard",
                                 "/my-bookings",
-                                "/booking-details/**",
-                                "/flight-results",
-                                "/payment",
-                                "/submit-review"
+                                "/booking-details",
+                                "/booking-details/**"
                         ).authenticated()
 
-                        // ✅ AIRLINE DASHBOARD - Requires AIRLINE_ADMIN role
+                        // ========== USER API ENDPOINTS (Authenticated Only) ==========
+                        .requestMatchers(
+                                "/user/api/profile",
+                                "/user/api/bookings",
+                                "/user/api/bookings/**",
+                                "/user/api/bookings/*/cancel"
+                        ).authenticated()
+
+                        // ========== DB API PROXY ENDPOINTS (Mix) ==========
+                        // Public DB endpoints
+                        .requestMatchers(
+                                "/api/db/airports",
+                                "/api/db/flights/search",
+                                "/api/db/fare-classes",
+                                "/api/db/fare-classes/**"
+                        ).permitAll()
+                        // Protected DB endpoints
+                        .requestMatchers("/api/db/**").authenticated()
+
+                        // ========== AIRLINE DASHBOARD ==========
                         .requestMatchers(
                                 "/airline-dashboard",
                                 "/airline-flights",
@@ -73,13 +89,13 @@ public class SecurityConfig {
                                 "/airline-bookings"
                         ).hasRole("AIRLINE_ADMIN")
 
-                        // ✅ SYSTEM ADMIN DASHBOARD - Requires SYSTEM_ADMIN role
+                        // ========== SYSTEM ADMIN DASHBOARD ==========
                         .requestMatchers(
                                 "/system-dashboard",
                                 "/admin/airlines/**"
                         ).hasRole("SYSTEM_ADMIN")
 
-                        // ✅ ALL OTHER API REQUESTS - Require authentication
+                        // ========== DEFAULT: All other requests need authentication ==========
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

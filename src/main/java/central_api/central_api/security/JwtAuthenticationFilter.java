@@ -123,6 +123,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/api/auth/forgot-password") ||
                 path.startsWith("/api/auth/reset-password") ||
                 path.startsWith("/api/auth/logout") ||
-                path.startsWith("/api/auth/me");
+                path.startsWith("/api/auth/me")||
+                path.equals("/api/db/airports") ||
+                path.equals("/api/db/flights/search");
     }
 }

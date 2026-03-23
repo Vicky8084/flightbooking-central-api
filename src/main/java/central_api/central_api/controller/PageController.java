@@ -3,10 +3,6 @@ package central_api.central_api.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-
 @Controller
 public class PageController {
 
@@ -27,7 +23,7 @@ public class PageController {
 
     @GetMapping("/flights/search")
     public String searchFlights() {
-        return "search-flights";  // search-flights.html
+        return "search-flights";
     }
 
     @GetMapping("/forgot-password")
@@ -37,7 +33,7 @@ public class PageController {
 
     @GetMapping("/system-admin-login")
     public String systemAdminLogin() {
-        return "system-admin-login";  // system-admin-login.html
+        return "system-admin-login";
     }
 
     @GetMapping("/system-dashboard")
@@ -50,4 +46,21 @@ public class PageController {
         return "airline-dashboard";
     }
 
+    // ✅ FIX: User Dashboard Page Mapping
+    @GetMapping("/user-dashboard")
+    public String userDashboard() {
+        return "user-dashboard";
+    }
+
+    // ✅ FIX: My Bookings Page
+    @GetMapping("/my-bookings")
+    public String myBookings() {
+        return "user-dashboard";  // Same page, different tab
+    }
+
+    // ✅ FIX: Booking Details Page
+    @GetMapping("/booking-details")
+    public String bookingDetails() {
+        return "user-dashboard";  // Opens modal on dashboard
+    }
 }

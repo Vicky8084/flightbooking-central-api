@@ -22,8 +22,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    private final AuthService authService;  // Still needed for registration
-    private final AuthApiClient authApiClient;  // For validation
+    private final AuthService authService;
+    private final AuthApiClient authApiClient;
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
@@ -40,20 +40,16 @@ public class AuthController {
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
 
-        // ✅ Call Auth API for login
         AuthResponse authResponse = authService.login(request);
 
-        // ✅ Create HTTP-Only Cookie for JWT token
         Cookie tokenCookie = new Cookie("token", authResponse.getToken());
         tokenCookie.setHttpOnly(true);
         tokenCookie.setSecure(true);
         tokenCookie.setPath("/");
         tokenCookie.setMaxAge(24 * 60 * 60);
         tokenCookie.setAttribute("SameSite", "Strict");
-
         response.addCookie(tokenCookie);
 
-        // ✅ Also store refresh token if needed
         if (authResponse.getRefreshToken() != null) {
             Cookie refreshCookie = new Cookie("refreshToken", authResponse.getRefreshToken());
             refreshCookie.setHttpOnly(true);
@@ -64,7 +60,6 @@ public class AuthController {
             response.addCookie(refreshCookie);
         }
 
-        // ✅ Return user info (without token) to frontend
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("id", authResponse.getId());
         responseBody.put("email", authResponse.getEmail());
@@ -79,7 +74,6 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<Map<String, String>> logout(HttpServletResponse response) {
-        // ✅ Clear the token cookie
         Cookie tokenCookie = new Cookie("token", null);
         tokenCookie.setHttpOnly(true);
         tokenCookie.setSecure(true);
@@ -88,7 +82,6 @@ public class AuthController {
         tokenCookie.setAttribute("SameSite", "Strict");
         response.addCookie(tokenCookie);
 
-        // ✅ Clear refresh token cookie
         Cookie refreshCookie = new Cookie("refreshToken", null);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setSecure(true);
@@ -102,13 +95,13 @@ public class AuthController {
         return ResponseEntity.ok(responseBody);
     }
 
+    // ✅ NEW: Get current user from token
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(@CookieValue(name = "token", required = false) String token) {
         if (token == null) {
             return ResponseEntity.status(401).body(Map.of("error", "Not authenticated"));
         }
 
-        // ✅ Validate with Auth API
         try {
             ValidateTokenResponse validation = authApiClient.validateToken("Bearer " + token);
 
