@@ -114,6 +114,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.equals("/forgot-password") ||
                 path.equals("/system-admin-login") ||
                 path.equals("/flights/search") ||
+                path.equals("/flights/results") ||
                 path.startsWith("/css/") ||
                 path.startsWith("/js/") ||
                 path.startsWith("/images/") ||
@@ -123,8 +124,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 path.startsWith("/api/auth/forgot-password") ||
                 path.startsWith("/api/auth/reset-password") ||
                 path.startsWith("/api/auth/logout") ||
-                path.startsWith("/api/auth/me")||
+                path.startsWith("/api/auth/me") ||
                 path.equals("/api/db/airports") ||
-                path.equals("/api/db/flights/search");
+                path.equals("/api/db/flights/search") ||
+                path.equals("/api/db/fare-classes") ||
+                path.startsWith("/api/db/fare-classes/");
     }
 }

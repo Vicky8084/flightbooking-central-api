@@ -2,6 +2,7 @@ package central_api.central_api.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class PageController {
@@ -62,5 +63,31 @@ public class PageController {
     @GetMapping("/booking-details")
     public String bookingDetails() {
         return "user-dashboard";  // Opens modal on dashboard
+    }
+
+    // ✅ NEW: Search Results Page
+    @GetMapping("/flights/results")
+    public String searchResults(@RequestParam(required = false) String sourceCode,
+                                @RequestParam(required = false) String destinationCode,
+                                @RequestParam(required = false) String travelDate,
+                                @RequestParam(required = false) String sourceCity,
+                                @RequestParam(required = false) String destinationCity,
+                                @RequestParam(required = false) Integer passengers,
+                                @RequestParam(required = false) String seatClass,
+                                @RequestParam(required = false) Boolean includeConnecting,
+                                @RequestParam(required = false) Double maxPrice,
+                                org.springframework.ui.Model model) {
+
+        model.addAttribute("sourceCode", sourceCode);
+        model.addAttribute("destinationCode", destinationCode);
+        model.addAttribute("travelDate", travelDate);
+        model.addAttribute("sourceCity", sourceCity);
+        model.addAttribute("destinationCity", destinationCity);
+        model.addAttribute("passengers", passengers != null ? passengers : 1);
+        model.addAttribute("seatClass", seatClass != null ? seatClass : "ECONOMY");
+        model.addAttribute("includeConnecting", includeConnecting != null ? includeConnecting : true);
+        model.addAttribute("maxPrice", maxPrice);
+
+        return "search-results";
     }
 }

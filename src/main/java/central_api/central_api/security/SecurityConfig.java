@@ -32,13 +32,15 @@ public class SecurityConfig {
                                 "/forgot-password",
                                 "/system-admin-login",
                                 "/flights/search",
+                                "/flights/results",      // ✅ GUEST USER CAN SEARCH
+                                "/booking",              // ✅ GUEST USER CAN BOOK (login redirect)
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico"
                         ).permitAll()
 
-                        // ========== PUBLIC API ENDPOINTS (No Auth Required) ==========
+                        // ========== PUBLIC API ENDPOINTS ==========
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login",
@@ -54,34 +56,24 @@ public class SecurityConfig {
                                 "/api/db/flights/*/price-breakdown"
                         ).permitAll()
 
-                        // ========== USER DASHBOARD PAGES (Authenticated Only) ==========
+                        // ========== USER DASHBOARD (Auth Required) ==========
                         .requestMatchers(
                                 "/user-dashboard",
                                 "/my-bookings",
                                 "/booking-details",
-                                "/booking-details/**"
+                                "/user/api/**"
                         ).authenticated()
 
-                        // ========== USER API ENDPOINTS (Authenticated Only) ==========
-                        .requestMatchers(
-                                "/user/api/profile",
-                                "/user/api/bookings",
-                                "/user/api/bookings/**",
-                                "/user/api/bookings/*/cancel"
-                        ).authenticated()
-
-                        // ========== DB API PROXY ENDPOINTS (Mix) ==========
-                        // Public DB endpoints
+                        // ========== DB API PROXY ==========
                         .requestMatchers(
                                 "/api/db/airports",
                                 "/api/db/flights/search",
                                 "/api/db/fare-classes",
                                 "/api/db/fare-classes/**"
                         ).permitAll()
-                        // Protected DB endpoints
                         .requestMatchers("/api/db/**").authenticated()
 
-                        // ========== AIRLINE DASHBOARD ==========
+                        // ========== AIRLINE ADMIN ==========
                         .requestMatchers(
                                 "/airline-dashboard",
                                 "/airline-flights",
@@ -89,13 +81,12 @@ public class SecurityConfig {
                                 "/airline-bookings"
                         ).hasRole("AIRLINE_ADMIN")
 
-                        // ========== SYSTEM ADMIN DASHBOARD ==========
+                        // ========== SYSTEM ADMIN ==========
                         .requestMatchers(
                                 "/system-dashboard",
                                 "/admin/airlines/**"
                         ).hasRole("SYSTEM_ADMIN")
 
-                        // ========== DEFAULT: All other requests need authentication ==========
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
