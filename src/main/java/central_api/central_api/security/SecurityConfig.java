@@ -32,8 +32,8 @@ public class SecurityConfig {
                                 "/forgot-password",
                                 "/system-admin-login",
                                 "/flights/search",
-                                "/flights/results",      // ✅ GUEST USER CAN SEARCH
-                                "/booking",              // ✅ GUEST USER CAN BOOK (login redirect)
+                                "/flights/results",
+                                "/price-comparison",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
@@ -53,24 +53,28 @@ public class SecurityConfig {
                                 "/api/db/flights/search",
                                 "/api/db/fare-classes",
                                 "/api/db/fare-classes/**",
-                                "/api/db/flights/*/price-breakdown"
+                                "/api/db/flights/*/price-breakdown",
+                                "/api/config/razorpay-key"
                         ).permitAll()
 
-                        // ========== USER DASHBOARD (Auth Required) ==========
+                        // ========== PAYMENT ENDPOINTS ==========
+                        .requestMatchers(
+                                "/api/payments/create-order",
+                                "/api/payments/verify",
+                                "/api/payments/status/**"
+                        ).permitAll()
+
+                        // ========== USER DASHBOARD & BOOKING ==========
                         .requestMatchers(
                                 "/user-dashboard",
                                 "/my-bookings",
                                 "/booking-details",
-                                "/user/api/**"
+                                "/user/api/**",
+                                "/booking",
+                                "/passenger-details"
                         ).authenticated()
 
                         // ========== DB API PROXY ==========
-                        .requestMatchers(
-                                "/api/db/airports",
-                                "/api/db/flights/search",
-                                "/api/db/fare-classes",
-                                "/api/db/fare-classes/**"
-                        ).permitAll()
                         .requestMatchers("/api/db/**").authenticated()
 
                         // ========== AIRLINE ADMIN ==========

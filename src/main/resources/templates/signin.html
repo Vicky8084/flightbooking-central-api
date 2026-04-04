@@ -135,6 +135,44 @@
             margin-bottom: 30px;
         }
 
+        /* Pending Booking Card - NEW */
+        .pending-booking-card {
+            background: rgba(255, 215, 0, 0.2);
+            border: 1.5px solid #ffd700;
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .pending-booking-card h4 {
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        .pending-booking-card p {
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+            margin-bottom: 12px;
+        }
+
+        .continue-booking-btn {
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: #1a1f2e;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+
+        .continue-booking-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(255,215,0,0.3);
+        }
+
         .role-selector {
             display: flex;
             gap: 15px;
@@ -412,35 +450,6 @@
             display: none;
         }
 
-        .demo-credentials {
-            margin-top: 25px;
-            padding: 15px;
-            background: rgba(255,255,255,0.03);
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .demo-title {
-            color: rgba(255,255,255,0.7);
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 10px;
-            text-align: center;
-        }
-
-        .cred-row {
-            display: flex;
-            justify-content: space-between;
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
-            padding: 5px 0;
-        }
-
-        .cred-row strong {
-            color: rgba(255,255,255,0.9);
-        }
-
         .loading-bar {
             position: fixed;
             top: 0;
@@ -510,6 +519,13 @@
         <h2 class="login-title">Welcome Back</h2>
         <p class="login-subtitle">Sign in to continue your journey</p>
 
+        <!-- Pending Booking Card -->
+        <div id="pendingBookingCard" class="pending-booking-card" style="display: none;">
+            <h4>✈️ Complete Your Booking</h4>
+            <p id="pendingBookingInfo">You have a pending booking</p>
+            <button class="continue-booking-btn" onclick="continuePendingBooking()">Continue Booking →</button>
+        </div>
+
         <!-- Error Message -->
         <div id="errorMessage" class="error-message"></div>
 
@@ -564,104 +580,150 @@
         <div class="register-link">
             Don't have an account? <a href="/signup">Register here</a>
         </div>
-
     </div>
 </div>
 
 <script>
     const API_BASE_URL = 'http://localhost:8081';
     let selectedRole = 'CUSTOMER';
+    let pendingBookingData = null;
 
     // Set role function
-window.setRole = function(role) {
-    selectedRole = role;
+    window.setRole = function(role) {
+        selectedRole = role;
 
-    const userBtn = document.getElementById('userRoleBtn');
-    const adminBtn = document.getElementById('adminRoleBtn');
+        const userBtn = document.getElementById('userRoleBtn');
+        const adminBtn = document.getElementById('adminRoleBtn');
 
-    if (role === 'CUSTOMER') {
-        userBtn.classList.add('active');
-        adminBtn.classList.remove('active');
-    } else {
-        adminBtn.classList.add('active');
-        userBtn.classList.remove('active');
-    }
-
-    console.log('Selected role:', role);
-};
-
- window.handleLogin = async function(event) {
-    event.preventDefault();
-
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const errorMsg = document.getElementById('errorMessage');
-    const successMsg = document.getElementById('successMessage');
-    const loginBtn = document.getElementById('loginBtn');
-
-    errorMsg.style.display = 'none';
-    successMsg.style.display = 'none';
-
-    if (!email || !password) {
-        errorMsg.textContent = 'Email and password are required';
-        errorMsg.style.display = 'block';
-        return;
-    }
-
-    const originalText = loginBtn.innerHTML;
-    loginBtn.innerHTML = '<span class="spinner"></span> Signing In...';
-    loginBtn.disabled = true;
-
-    try {
-        const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok) {
-            // ✅ Token is automatically stored in HTTP-Only Cookie by server
-            // ✅ Store user info in sessionStorage (not localStorage)
-            sessionStorage.setItem('user', JSON.stringify({
-                id: data.id,
-                email: data.email,
-                fullName: data.fullName,
-                role: data.role,
-                airlineId: data.airlineId,
-                status: data.status
-            }));
-
-            successMsg.textContent = 'Login successful! Redirecting...';
-            successMsg.style.display = 'block';
-
-            // Redirect based on role
-            setTimeout(() => {
-                if (data.role === 'CUSTOMER') {
-                    window.location.href = '/user-dashboard';
-                } else if (data.role === 'AIRLINE_ADMIN') {
-                    window.location.href = '/airline-dashboard';
-                } else if (data.role === 'SYSTEM_ADMIN') {
-                    window.location.href = '/system-dashboard';
-                } else {
-                    window.location.href = '/';
-                }
-            }, 1000);
-
+        if (role === 'CUSTOMER') {
+            userBtn.classList.add('active');
+            adminBtn.classList.remove('active');
         } else {
-            errorMsg.textContent = data.message || 'Invalid email or password';
-            errorMsg.style.display = 'block';
+            adminBtn.classList.add('active');
+            userBtn.classList.remove('active');
         }
-    } catch (error) {
-        console.error('Login error:', error);
-        errorMsg.textContent = 'Network error. Please check if server is running.';
-        errorMsg.style.display = 'block';
-    } finally {
-        loginBtn.innerHTML = originalText;
-        loginBtn.disabled = false;
+
+        console.log('Selected role:', role);
+    };
+
+    // Get cookie function
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(';').shift();
+        return null;
     }
-};
+
+    // Check for pending booking in cookies
+    function checkPendingBooking() {
+        const pendingCookie = getCookie('pendingBooking');
+        if (pendingCookie) {
+            try {
+                pendingBookingData = JSON.parse(decodeURIComponent(pendingCookie));
+                document.getElementById('pendingBookingInfo').innerHTML = `
+                    Flight ID: ${pendingBookingData.flightId}<br>
+                    Fare Class: ${pendingBookingData.fareCode}<br>
+                    Price: ₹${pendingBookingData.price}
+                `;
+                document.getElementById('pendingBookingCard').style.display = 'block';
+            } catch(e) {
+                console.error('Error parsing pending booking:', e);
+            }
+        }
+    }
+
+    // Continue pending booking function
+    window.continuePendingBooking = function() {
+        if (pendingBookingData) {
+            window.location.href = `/booking?flightId=${pendingBookingData.flightId}&fareCode=${pendingBookingData.fareCode}`;
+        }
+    };
+
+    window.handleLogin = async function(event) {
+        event.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const errorMsg = document.getElementById('errorMessage');
+        const successMsg = document.getElementById('successMessage');
+        const loginBtn = document.getElementById('loginBtn');
+
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+
+        if (!email || !password) {
+            errorMsg.textContent = 'Email and password are required';
+            errorMsg.style.display = 'block';
+            return;
+        }
+
+        const originalText = loginBtn.innerHTML;
+        loginBtn.innerHTML = '<span class="spinner"></span> Signing In...';
+        loginBtn.disabled = true;
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                // Store user in sessionStorage
+                sessionStorage.setItem('user', JSON.stringify({
+                    id: data.id,
+                    email: data.email,
+                    fullName: data.fullName,
+                    role: data.role,
+                    airlineId: data.airlineId,
+                    status: data.status
+                }));
+
+                // Remember me functionality
+                if (document.getElementById('rememberMe').checked) {
+                    localStorage.setItem('rememberedEmail', email);
+                } else {
+                    localStorage.removeItem('rememberedEmail');
+                }
+
+                successMsg.textContent = 'Login successful! Redirecting...';
+                successMsg.style.display = 'block';
+
+                // Check if there's a pending booking from response
+                if (data.pendingBooking && data.pendingFlightId) {
+                    setTimeout(() => {
+                        window.location.href = `/booking?flightId=${data.pendingFlightId}&fareCode=${data.pendingFareCode}`;
+                    }, 1000);
+                } else {
+                    // Normal redirect based on role
+                    setTimeout(() => {
+                        if (data.role === 'CUSTOMER') {
+                            window.location.href = '/user-dashboard';
+                        } else if (data.role === 'AIRLINE_ADMIN') {
+                            window.location.href = '/airline-dashboard';
+                        } else if (data.role === 'SYSTEM_ADMIN') {
+                            window.location.href = '/system-dashboard';
+                        } else {
+                            window.location.href = '/';
+                        }
+                    }, 1000);
+                }
+
+            } else {
+                errorMsg.textContent = data.message || 'Invalid email or password';
+                errorMsg.style.display = 'block';
+            }
+        } catch (error) {
+            console.error('Login error:', error);
+            errorMsg.textContent = 'Network error. Please check if server is running.';
+            errorMsg.style.display = 'block';
+        } finally {
+            loginBtn.innerHTML = originalText;
+            loginBtn.disabled = false;
+        }
+    };
 
     // System Admin Redirect
     window.redirectToSystemAdmin = function() {
@@ -702,6 +764,7 @@ window.setRole = function(role) {
     window.addEventListener('load', () => {
         generateStars();
         loadRememberedEmail();
+        checkPendingBooking();
         document.body.classList.add('loaded');
     });
 

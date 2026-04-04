@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirNova – Price Comparison</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f1429 60%, #050810 100%);
+            min-height: 100vh;
+            color: #eef2ff;
+        }
+
+        /* Stars Background */
+        .stars, .twinkling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, #fff 0%, #e6f2ff 60%, transparent 100%);
+            border-radius: 50%;
+            animation: starTwinkle 4s infinite ease-in-out;
+        }
+
+        .star.small { width: 1px; height: 1px; }
+        .star.medium { width: 2.5px; height: 2.5px; }
+        .star.large { width: 3.5px; height: 3.5px; }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .flying-plane {
+            position: fixed;
+            font-size: 24px;
+            color: rgba(255,255,255,0.1);
+            z-index: 2;
+            animation: fly 20s linear infinite;
+            pointer-events: none;
+        }
+        .plane-1 { top: 20%; left: -10%; animation-delay: 0s; }
+        .plane-2 { top: 70%; left: -10%; animation-delay: 10s; }
+        .plane-3 { top: 40%; right: -10%; animation-direction: reverse; animation-delay: 5s; }
+
+        @keyframes fly {
+            0% { transform: translateX(-100px); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+        }
+
+        /* Header */
+        .header {
+            background: rgba(10, 14, 39, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 20px;
+            border-radius: 40px;
+        }
+
+        .logout-btn {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid #ff4444;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        /* Main Container */
+        .main-container {
+            position: relative;
+            z-index: 50;
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        /* Flight Summary Card */
+        .flight-summary {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .flight-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .flight-badge {
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            color: #1a1f2e;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .flight-route {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 25px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .route-point {
+            text-align: center;
+            flex: 1;
+        }
+
+        .airport-code {
+            font-size: 32px;
+            font-weight: 800;
+            color: #ffd700;
+        }
+
+        .airport-city {
+            color: rgba(255,255,255,0.7);
+            font-size: 16px;
+            margin-top: 5px;
+        }
+
+        .route-arrow {
+            flex: 1;
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-size: 24px;
+        }
+
+        .flight-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 15px;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .info-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            background: rgba(255,215,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffd700;
+            font-size: 20px;
+        }
+
+        .info-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+
+        .info-value {
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+        }
+
+        /* Price Comparison Section */
+        .price-section {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 25px;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        .price-card {
+            background: rgba(0,0,0,0.4);
+            border-radius: 20px;
+            padding: 25px;
+            border: 1px solid rgba(255,255,255,0.1);
+            transition: all 0.3s;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .price-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255,215,0,0.5);
+            background: rgba(0,0,0,0.5);
+        }
+
+        .price-card.selected {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.1);
+        }
+
+        .popular-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            color: #1a1f2e;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .class-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .class-name {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .class-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .economy-icon { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
+        .business-icon { background: rgba(33, 150, 243, 0.2); border: 1px solid #2196F3; color: #2196F3; }
+        .first-icon { background: rgba(156, 39, 176, 0.2); border: 1px solid #9C27B0; color: #9C27B0; }
+
+        .class-description {
+            color: rgba(255,255,255,0.7);
+            font-size: 14px;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .price-display {
+            text-align: center;
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+        }
+
+        .price-label {
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .price-amount {
+            font-size: 36px;
+            font-weight: 800;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+
+        .price-note {
+            color: rgba(255,255,255,0.5);
+            font-size: 12px;
+        }
+
+        .features-list {
+            margin-bottom: 25px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            color: rgba(255,255,255,0.8);
+            font-size: 13px;
+        }
+
+        .feature-check {
+            color: #4CAF50;
+            font-size: 14px;
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            color: #1a1f2e;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .book-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,215,0,0.3);
+        }
+
+        /* Additional Info Section */
+        .info-section {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .info-card {
+            padding: 20px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 12px;
+            border-left: 3px solid #ffd700;
+        }
+
+        .info-card-title {
+            font-weight: 600;
+            color: #ffd700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-card-text {
+            color: rgba(255,255,255,0.7);
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #ffd700;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        @media (max-width: 768px) {
+            .header-container {
+                flex-direction: column;
+            }
+
+            .flight-route {
+                flex-direction: column;
+            }
+
+            .route-arrow {
+                transform: rotate(90deg);
+            }
+
+            .price-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .flight-info {
+                grid-template-columns: 1fr;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .airport-code {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<div class="flying-plane plane-1">✈️</div>
+<div class="flying-plane plane-2">✈️</div>
+<div class="flying-plane plane-3">✈️</div>
+
+<header class="header">
+    <div class="header-container">
+        <div class="logo" onclick="window.location.href='/'">
+            <i class="fas fa-plane"></i>
+            AirNova
+        </div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <button class="back-btn" onclick="window.location.href='/flights/results' + window.location.search">
+                <i class="fas fa-arrow-left"></i>
+                Back to Search
+            </button>
+            <div id="authSection"></div>
+        </div>
+    </div>
+</header>
+
+<div class="main-container">
+    <div id="loadingContainer" class="loading" style="text-align: center; padding: 50px;">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px;">Loading flight details...</p>
+    </div>
+
+    <div id="contentContainer" style="display: none;"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const API_BASE = '';
+    let flightData = null;
+    let fareClasses = [];
+    let currentUser = null;
+    let selectedFareClass = null;
+    let passengers = 1;
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 4000);
+    }
+
+    async function logout() {
+        try {
+            await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+        } catch (error) {}
+        sessionStorage.removeItem('user');
+        window.location.href = '/signin';
+    }
+
+    async function fetchAPI(url, options = {}) {
+        try {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (response.status === 401) {
+                window.location.href = '/signin';
+                return null;
+            }
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `HTTP ${response.status}`);
+            }
+            return response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            flightId: params.get('flightId'),
+            sourceCode: params.get('sourceCode'),
+            destinationCode: params.get('destinationCode'),
+            travelDate: params.get('travelDate'),
+            sourceCity: params.get('sourceCity'),
+            destinationCity: params.get('destinationCity'),
+            passengers: parseInt(params.get('passengers')) || 1,
+            seatClass: params.get('seatClass') || 'ECONOMY',
+            includeConnecting: params.get('includeConnecting') !== 'false',
+            maxPrice: params.get('maxPrice') ? parseFloat(params.get('maxPrice')) : null
+        };
+    }
+
+    function formatTime(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) { return 'N/A'; }
+    }
+
+    function formatDate(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+        } catch(e) { return dateTimeStr; }
+    }
+
+    function getCityName(code) {
+        const cities = {
+            'DEL': 'New Delhi', 'BOM': 'Mumbai', 'BLR': 'Bangalore',
+            'HYD': 'Hyderabad', 'CCU': 'Kolkata', 'MAA': 'Chennai',
+            'COK': 'Kochi', 'GOI': 'Goa', 'AMD': 'Ahmedabad', 'PNQ': 'Pune'
+        };
+        return cities[code] || code;
+    }
+
+    // ============================================
+    // LOAD DATA FROM DB
+    // ============================================
+    async function loadUserProfile() {
+        try {
+            const profile = await fetchAPI(`${API_BASE}/user/api/profile`);
+            if (profile) {
+                currentUser = profile;
+                return profile;
+            }
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async function loadFlightData() {
+        const params = getUrlParams();
+        if (!params.flightId) {
+            showToast('No flight selected', true);
+            window.location.href = '/flights/search';
+            return null;
+        }
+
+        try {
+            const flight = await fetchAPI(`${API_BASE}/api/db/flights/${params.flightId}`);
+            if (flight) {
+                flightData = flight;
+                return flight;
+            }
+        } catch (error) {
+            showToast('Failed to load flight details', true);
+            return null;
+        }
+    }
+
+    async function loadFareClasses() {
+        try {
+            const fares = await fetchAPI(`${API_BASE}/api/db/fare-classes`);
+            if (fares && fares.length > 0) {
+                fareClasses = fares;
+            } else {
+                fareClasses = [
+                    { code: 'LITE', name: 'Economy Lite', priceMultiplier: 0.9, cabinBaggageKg: 7, checkInBaggageKg: 15, mealIncluded: false, cancellationFee: 0, changeFee: 0, seatSelectionFree: false, priorityCheckin: false, priorityBoarding: false, loungeAccess: false },
+                    { code: 'STANDARD', name: 'Economy Standard', priceMultiplier: 1.1, cabinBaggageKg: 7, checkInBaggageKg: 23, mealIncluded: true, cancellationFee: 1000, changeFee: 500, seatSelectionFree: true, priorityCheckin: false, priorityBoarding: false, loungeAccess: false },
+                    { code: 'FLEX', name: 'Economy Flex', priceMultiplier: 1.5, cabinBaggageKg: 7, checkInBaggageKg: 30, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: false },
+                    { code: 'BUSINESS', name: 'Business Class', priceMultiplier: 1.0, cabinBaggageKg: 10, checkInBaggageKg: 40, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: true },
+                    { code: 'FIRST', name: 'First Class', priceMultiplier: 1.0, cabinBaggageKg: 12, checkInBaggageKg: 50, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: true }
+                ];
+            }
+            return fareClasses;
+        } catch (error) {
+            console.error('Error loading fare classes:', error);
+            return [];
+        }
+    }
+
+    // ============================================
+    // ✅ FIXED: Price Calculation - Using Base Price (No Dynamic)
+    // ============================================
+    function renderFlightSummary() {
+        const params = getUrlParams();
+
+        return `
+            <div class="flight-summary">
+                <div class="summary-header">
+                    <h1 class="flight-title">Flight Details</h1>
+                    <div class="flight-badge">Best Price Guaranteed</div>
+                </div>
+
+                <div class="flight-route">
+                    <div class="route-point">
+                        <div class="airport-code">${params.sourceCode || flightData.sourceAirport?.code || 'N/A'}</div>
+                        <div class="airport-city">${params.sourceCity || flightData.sourceAirport?.city || getCityName(params.sourceCode)}</div>
+                    </div>
+                    <div class="route-arrow">
+                        <i class="fas fa-plane"></i>
+                        <div style="font-size: 14px; margin-top: 8px;">${flightData.duration || '--'} min</div>
+                    </div>
+                    <div class="route-point">
+                        <div class="airport-code">${params.destinationCode || flightData.destinationAirport?.code || 'N/A'}</div>
+                        <div class="airport-city">${params.destinationCity || flightData.destinationAirport?.city || getCityName(params.destinationCode)}</div>
+                    </div>
+                </div>
+
+                <div class="flight-info">
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-plane"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Flight Number</div>
+                            <div class="info-value">${flightData.flightNumber || 'N/A'}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-building"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Airline</div>
+                            <div class="info-value">${flightData.aircraft?.airline?.name || flightData.airlineName || 'Airline'}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Departure</div>
+                            <div class="info-value">${formatTime(flightData.departureTime)}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-clock"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Arrival</div>
+                            <div class="info-value">${formatTime(flightData.arrivalTime)}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-calendar"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Date</div>
+                            <div class="info-value">${formatDate(flightData.departureTime)}</div>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-icon"><i class="fas fa-chair"></i></div>
+                        <div class="info-details">
+                            <div class="info-label">Aircraft</div>
+                            <div class="info-value">${flightData.aircraft?.model || flightData.aircraftModel || 'Aircraft'}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function getFareClassIcon(fareCode) {
+        if (fareCode === 'BUSINESS') return '<i class="fas fa-briefcase"></i>';
+        if (fareCode === 'FIRST') return '<i class="fas fa-crown"></i>';
+        return '<i class="fas fa-users"></i>';
+    }
+
+    function getFareClassIconClass(fareCode) {
+        if (fareCode === 'BUSINESS') return 'business-icon';
+        if (fareCode === 'FIRST') return 'first-icon';
+        return 'economy-icon';
+    }
+
+    function getFareClassDescription(fareCode) {
+        if (fareCode === 'BUSINESS') {
+            return 'Premium comfort with enhanced services. Ideal for business travelers and those seeking extra comfort.';
+        }
+        if (fareCode === 'FIRST') {
+            return 'Luxury experience with exclusive services. Ultimate comfort and personalized attention throughout your journey.';
+        }
+        if (fareCode === 'FLEX') {
+            return 'Flexible economy with additional benefits. Free cancellation and changes, priority services included.';
+        }
+        if (fareCode === 'LITE') {
+            return 'Affordable fares with essential services. Perfect for budget-conscious travelers.';
+        }
+        return 'Standard comfort with essential amenities. Perfect for reliable travel experience.';
+    }
+
+    // ✅ FIXED: Price calculation using BASE PRICE (no dynamic multiplier)
+    function renderPriceCards() {
+        const params = getUrlParams();
+        passengers = params.passengers;
+
+        let cardsHtml = '';
+
+        fareClasses.forEach((fare, index) => {
+            // ✅ FIXED: Use base price based on fare class
+            let basePriceForClass;
+
+            if (fare.code === 'BUSINESS') {
+                basePriceForClass = flightData.basePriceBusiness || flightData.basePriceEconomy * 2;
+            } else if (fare.code === 'FIRST') {
+                basePriceForClass = flightData.basePriceFirstClass || flightData.basePriceEconomy * 4;
+            } else {
+                // Economy classes (LITE, STANDARD, FLEX)
+                basePriceForClass = flightData.basePriceEconomy;
+            }
+
+            // ✅ Apply fare class multiplier
+            const finalPrice = Math.round(basePriceForClass * fare.priceMultiplier);
+
+            const isPopular = fare.code === 'BUSINESS';
+
+            // Get features based on fare class
+            const features = [];
+            features.push(`${fare.checkInBaggageKg}kg check-in baggage`);
+            features.push(`${fare.cabinBaggageKg}kg cabin baggage`);
+            if (fare.mealIncluded) features.push('Complimentary meal');
+            if (fare.seatSelectionFree) features.push('Free seat selection');
+            if (fare.priorityCheckin) features.push('Priority check-in');
+            if (fare.priorityBoarding) features.push('Priority boarding');
+            if (fare.loungeAccess) features.push('Lounge access');
+            if (fare.cancellationFee === 0) features.push('Free cancellation');
+
+            cardsHtml += `
+                <div class="price-card" data-fare-code="${fare.code}" data-fare-price="${finalPrice}" onclick="selectFareCard('${fare.code}', ${finalPrice})">
+                    ${isPopular ? '<div class="popular-badge">Most Popular</div>' : ''}
+                    <div class="class-header">
+                        <div class="class-name">
+                            <div class="class-icon ${getFareClassIconClass(fare.code)}">
+                                ${getFareClassIcon(fare.code)}
+                            </div>
+                            ${fare.name}
+                        </div>
+                    </div>
+
+                    <div class="class-description">
+                        ${getFareClassDescription(fare.code)}
+                    </div>
+
+                    <div class="price-display">
+                        <div class="price-label">Starting from</div>
+                        <div class="price-amount">₹${finalPrice.toLocaleString('en-IN')}</div>
+                        <div class="price-note">per person</div>
+                    </div>
+
+                    <div class="features-list">
+                        ${features.slice(0, 5).map(f => `
+                            <div class="feature-item">
+                                <i class="fas fa-check-circle feature-check"></i>
+                                <span>${f}</span>
+                            </div>
+                        `).join('')}
+                        ${features.length > 5 ? `<div class="feature-item">
+                            <i class="fas fa-plus-circle feature-check"></i>
+                            <span>+${features.length - 5} more benefits</span>
+                        </div>` : ''}
+                    </div>
+
+                    <button class="book-btn" onclick="event.stopPropagation(); proceedToBooking('${fare.code}', ${finalPrice})">
+                        <i class="fas fa-shopping-cart"></i>
+                        Book Now
+                    </button>
+                </div>
+            `;
+        });
+
+        return `
+            <div class="price-section">
+                <h2 class="section-title">
+                    <i class="fas fa-tags"></i>
+                    Choose Your Travel Class
+                </h2>
+                <div class="price-cards">
+                    ${cardsHtml}
+                </div>
+            </div>
+        `;
+    }
+
+    function renderAdditionalInfo() {
+        return `
+            <section class="info-section">
+                <h2 class="section-title">
+                    <i class="fas fa-info-circle"></i>
+                    Important Information
+                </h2>
+
+                <div class="info-grid">
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <i class="fas fa-luggage"></i>
+                            Baggage Policy
+                        </div>
+                        <div class="info-card-text">
+                            Additional baggage can be purchased at the time of booking or later at higher rates. Weight restrictions apply as per airline policy.
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <i class="fas fa-exchange-alt"></i>
+                            Cancellation Policy
+                        </div>
+                        <div class="info-card-text">
+                            Free cancellation available up to 24 hours before departure for select fare classes. Cancellation fees apply as per fare rules.
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <i class="fas fa-utensils"></i>
+                            Meal Preferences
+                        </div>
+                        <div class="info-card-text">
+                            Special meals available on request. Please specify dietary requirements at least 24 hours before departure.
+                        </div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            <i class="fas fa-wheelchair"></i>
+                            Special Assistance
+                        </div>
+                        <div class="info-card-text">
+                            Wheelchair assistance and special services available. Please inform us at the time of booking for best arrangements.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        `;
+    }
+
+    function selectFareCard(fareCode, price) {
+        document.querySelectorAll('.price-card').forEach(card => {
+            card.classList.remove('selected');
+            if (card.getAttribute('data-fare-code') === fareCode) {
+                card.classList.add('selected');
+            }
+        });
+        selectedFareClass = { fareCode: fareCode, price: price };
+        showToast(`${fareCode} fare selected`);
+    }
+
+    function proceedToBooking(fareCode, price) {
+        const params = getUrlParams();
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+
+        if (!user.id) {
+            sessionStorage.setItem('pendingBooking', JSON.stringify({
+                flightId: flightData.id,
+                fareCode: fareCode,
+                price: price
+            }));
+            showToast('Please login to continue booking');
+            setTimeout(() => window.location.href = '/signin', 1500);
+            return;
+        }
+
+        // Pass the selected class to booking page
+        let seatClass = 'ECONOMY';
+        if (fareCode === 'BUSINESS') seatClass = 'BUSINESS';
+        else if (fareCode === 'FIRST') seatClass = 'FIRST';
+
+        window.location.href = `/booking?flightId=${flightData.id}&fareCode=${fareCode}&passengers=${params.passengers || 1}&seatClass=${seatClass}`;
+    }
+
+    function updateAuthSection() {
+        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+        const authSection = document.getElementById('authSection');
+        if (user.id) {
+            authSection.innerHTML = `<div class="user-badge"><span>👤 ${user.fullName?.split(' ')[0] || 'User'}</span><button class="logout-btn" onclick="logout()">Logout</button></div>`;
+        } else {
+            authSection.innerHTML = `<button class="back-btn" onclick="window.location.href='/signin'">Sign In</button>`;
+        }
+    }
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    async function init() {
+        updateAuthSection();
+        await loadUserProfile();
+
+        const flight = await loadFlightData();
+        if (!flight) {
+            document.getElementById('loadingContainer').style.display = 'none';
+            document.getElementById('contentContainer').innerHTML = '<div class="flight-summary" style="text-align: center; padding: 50px;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ffd700;"></i><p style="margin-top: 20px;">Flight not found. Please go back and search again.</p><button class="back-btn" onclick="window.location.href=\'/flights/search\'" style="margin-top: 20px;">Search Flights</button></div>';
+            document.getElementById('contentContainer').style.display = 'block';
+            return;
+        }
+
+        await loadFareClasses();
+
+        const html = `
+            ${renderFlightSummary()}
+            ${renderPriceCards()}
+            ${renderAdditionalInfo()}
+        `;
+
+        document.getElementById('loadingContainer').style.display = 'none';
+        document.getElementById('contentContainer').innerHTML = html;
+        document.getElementById('contentContainer').style.display = 'block';
+    }
+
+    window.selectFareCard = selectFareCard;
+    window.proceedToBooking = proceedToBooking;
+    window.logout = logout;
+
+    window.addEventListener('load', init);
+
+    function generateStars() {
+        const starsContainer = document.querySelector('.stars');
+        if (!starsContainer) return;
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            const r = Math.random();
+            if (r > 0.7) star.classList.add('large');
+            else if (r > 0.3) star.classList.add('medium');
+            else star.classList.add('small');
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    }
+    generateStars();
+
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        const stars = document.querySelector('.stars');
+        if (stars) stars.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
+</body>
+</html>

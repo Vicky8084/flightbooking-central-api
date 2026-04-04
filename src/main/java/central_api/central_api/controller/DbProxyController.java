@@ -2,6 +2,7 @@ package central_api.central_api.controller;
 
 import central_api.central_api.client.DbApiClient;
 import central_api.central_api.dto.response.FareClassDTO;
+import central_api.central_api.dto.response.Seat;  // ✅ Import from correct package
 import central_api.central_api.dto.response.UserResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -103,15 +104,13 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.getAllAirports());
     }
 
-    // ========== BOOKING ENDPOINTS ==========
 
-    // ✅ FIXED: Return Map instead of List
+    // ========== BOOKING ENDPOINTS ==========
     @GetMapping("/bookings/user/{userId}")
     public ResponseEntity<Map<String, Object>> getUserBookings(@PathVariable Long userId) {
         return ResponseEntity.ok(dbApiClient.getUserBookings(userId));
     }
 
-    // ✅ NEW: Endpoint to get bookings list (extracted from response)
     @GetMapping("/bookings/user/{userId}/list")
     public ResponseEntity<List<Map<String, Object>>> getUserBookingsList(@PathVariable Long userId) {
         Map<String, Object> response = dbApiClient.getUserBookings(userId);
@@ -139,7 +138,6 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.cancelBooking(bookingId));
     }
 
-    // ✅ NEW: Get booking by ID
     @GetMapping("/bookings/{bookingId}")
     public ResponseEntity<Map<String, Object>> getBookingById(@PathVariable Long bookingId) {
         return ResponseEntity.ok(dbApiClient.getBookingById(bookingId));
@@ -191,9 +189,26 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.getUserById(id));
     }
 
-    // ✅ NEW: Get user profile
     @GetMapping("/users/{id}/profile")
     public ResponseEntity<Map<String, Object>> getUserProfile(@PathVariable Long id) {
         return ResponseEntity.ok(dbApiClient.getUserProfile(id));
     }
+
+    // Existing
+    @GetMapping("/seats/aircraft/{aircraftId}")
+    public ResponseEntity<List<Seat>> getSeatsByAircraft(@PathVariable Long aircraftId) {
+        return ResponseEntity.ok(dbApiClient.getSeatsByAircraft(aircraftId));
+    }
+
+    @GetMapping("/seats/aircraft/{aircraftId}/grouped")
+    public ResponseEntity<Map<String, Object>> getSeatsGroupedByRow(@PathVariable Long aircraftId) {
+        return ResponseEntity.ok(dbApiClient.getSeatsGroupedByRow(aircraftId));
+    }
+
+    // NEW: Seat map with categories
+    @GetMapping("/seats/aircraft/{aircraftId}/map")
+    public ResponseEntity<Map<String, Object>> getSeatMapWithCategories(@PathVariable Long aircraftId) {
+        return ResponseEntity.ok(dbApiClient.getSeatMapWithCategories(aircraftId));
+    }
+
 }

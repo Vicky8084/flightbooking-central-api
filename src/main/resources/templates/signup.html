@@ -811,18 +811,15 @@
             const data = await response.json();
 
             if (response.ok) {
-                // Store token and user data
-                localStorage.setItem('token', data.token);
-                localStorage.setItem('user', JSON.stringify(data));
-
-                showToast('✅ Registration successful! Welcome to AirNova!', 'success');
+                // ✅ CHANGED: Redirect to signin page instead of dashboard
+                showToast('✅ Registration successful! Please login to continue.', 'success');
 
                 // Reset form
                 document.getElementById('userRegistrationForm').reset();
 
-                // Redirect to dashboard after 2 seconds
+                // ✅ Redirect to signin page after 2 seconds
                 setTimeout(() => {
-                    window.location.href = '/user-dashboard';
+                    window.location.href = '/signin';
                 }, 2000);
             } else {
                 showToast(data.message || 'Registration failed. Please try again.', 'error');
@@ -963,14 +960,15 @@
             const data = await response.json();
 
             if (response.ok) {
-                showToast('✅ Airline registration successful! Awaiting admin approval.', 'success');
+                // ✅ CHANGED: Show pending approval message and redirect to signin
+                showToast('✅ Airline registration successful! Awaiting admin approval. You will receive an email when approved.', 'success');
 
                 // Reset form
                 document.getElementById('adminRegistrationForm').reset();
 
-                // Switch to user tab after 2 seconds
+                // ✅ Redirect to signin page after 2 seconds
                 setTimeout(() => {
-                    switchTab('user');
+                    window.location.href = '/signin';
                 }, 2000);
             } else {
                 showToast(data.message || 'Registration failed. Please try again.', 'error');

@@ -90,4 +90,27 @@ public class PageController {
 
         return "search-results";
     }
+
+    // ✅ ADD THIS - Booking Page (Only for logged in users)
+    @GetMapping("/booking")
+    public String booking() {
+        return "booking";
+    }
+
+    @GetMapping("/price-comparison")
+    public String priceComparison() {
+        return "price-comparison";
+    }
+
+    @GetMapping("/passenger-details")
+    public String passengerDetails(@RequestParam(required = false) Long flightId,
+                                   @RequestParam(required = false) String fareCode,
+                                   @RequestParam(required = false) Integer passengers,
+                                   org.springframework.ui.Model model) {
+        model.addAttribute("flightId", flightId);
+        model.addAttribute("fareCode", fareCode);
+        model.addAttribute("passengers", passengers != null ? passengers : 1);
+        return "passenger-details";
+    }
+
 }

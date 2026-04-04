@@ -34,4 +34,7 @@ public interface NotificationApiClient {
     @PostMapping("/api/notify/email/airline-rejected")
     Map<String, Object> sendAirlineRejected(@RequestParam("to") String to, @RequestBody Map<String, Object> airlineData);
 
+    @PostMapping("/api/notify/email/booking-confirmation-multiple")
+    Map<String, Object> sendBookingConfirmationToMultiple(
+            @RequestBody Map<String, Object> request);
 }

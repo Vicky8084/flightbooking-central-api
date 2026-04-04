@@ -1,7 +1,7 @@
 package central_api.central_api.dto.request;
 
-
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,18 +26,22 @@ public class BookingRequest {
     @Valid
     private PaymentDto payment;
 
+    private String fareClassCode;
+
     @Data
     public static class PassengerDto {
         @NotBlank(message = "Passenger name is required")
         private String fullName;
 
         private Integer age;
-
         private String gender;
-
         private String passportNumber;
-
         private String nationality;
+
+        @Email(message = "Invalid email format")
+        private String email;
+
+        private String phoneNumber;
     }
 
     @Data
@@ -46,5 +50,7 @@ public class BookingRequest {
         private String paymentMethod;
 
         private Double amount;
+
+        private String transactionId;
     }
 }

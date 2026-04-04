@@ -38,7 +38,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> login(
             @Valid @RequestBody LoginRequest request,
-            HttpServletResponse response) {
+            HttpServletResponse response,
+            @CookieValue(name = "pendingBooking", required = false) String pendingBooking) {
 
         AuthResponse authResponse = authService.login(request);
 
@@ -69,6 +70,32 @@ public class AuthController {
         responseBody.put("status", authResponse.getStatus());
         responseBody.put("message", "Login successful");
 
+        // ✅ NEW: Check for pending booking and add redirect URL
+        if (pendingBooking != null && !pendingBooking.isEmpty()) {
+            try {
+                // Parse pending booking JSON
+                com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+                Map<String, Object> bookingData = mapper.readValue(pendingBooking, Map.class);
+
+                // Store in response for frontend
+                responseBody.put("pendingBooking", true);
+                responseBody.put("pendingFlightId", bookingData.get("flightId"));
+                responseBody.put("pendingFareCode", bookingData.get("fareCode"));
+                responseBody.put("pendingPrice", bookingData.get("price"));
+
+                // ✅ Clear the cookie after reading
+                Cookie clearCookie = new Cookie("pendingBooking", null);
+                clearCookie.setPath("/");
+                clearCookie.setMaxAge(0);
+                response.addCookie(clearCookie);
+
+            } catch (Exception e) {
+                System.out.println("Error parsing pending booking: " + e.getMessage());
+            }
+        } else {
+            responseBody.put("pendingBooking", false);
+        }
+
         return ResponseEntity.ok(responseBody);
     }
 
@@ -95,7 +122,6 @@ public class AuthController {
         return ResponseEntity.ok(responseBody);
     }
 
-    // ✅ NEW: Get current user from token
     @GetMapping("/me")
     public ResponseEntity<Map<String, Object>> getCurrentUser(@CookieValue(name = "token", required = false) String token) {
         if (token == null) {

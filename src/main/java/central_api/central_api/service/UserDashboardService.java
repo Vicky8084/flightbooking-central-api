@@ -122,74 +122,6 @@ public class UserDashboardService {
         }
     }
 
-    /**
-     * Get upcoming bookings
-     */
-    public List<BookingSummaryDTO> getUpcomingBookings(Long userId) {
-        try {
-            Map<String, Object> bookingsResponse = dbApiClient.getUserUpcomingBookings(userId);
-            List<Map<String, Object>> bookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                bookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            return bookings.stream()
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b1.getDepartureTime().compareTo(b2.getDepartureTime()))
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Error fetching upcoming bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * Get past bookings
-     */
-    public List<BookingSummaryDTO> getPastBookings(Long userId) {
-        try {
-            Map<String, Object> bookingsResponse = dbApiClient.getUserPastBookings(userId);
-            List<Map<String, Object>> bookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                bookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            return bookings.stream()
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b2.getDepartureTime().compareTo(b1.getDepartureTime()))
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Error fetching past bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * Get cancelled bookings
-     */
-    public List<BookingSummaryDTO> getCancelledBookings(Long userId) {
-        try {
-            Map<String, Object> bookingsResponse = dbApiClient.getUserCancelledBookings(userId);
-            List<Map<String, Object>> bookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                bookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            return bookings.stream()
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b2.getBookingTime().compareTo(b1.getBookingTime()))
-                    .collect(Collectors.toList());
-
-        } catch (Exception e) {
-            log.error("Error fetching cancelled bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
-    }
 
     /**
      * Get booking details by ID
@@ -518,5 +450,122 @@ public class UserDashboardService {
         }
 
         return 0;
+    }
+
+
+    // UserDashboardService.java
+
+    public List<BookingSummaryDTO> getUpcomingBookings(Long userId) {
+        try {
+            // ✅ Use existing endpoint - get all bookings
+            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
+            List<Map<String, Object>> allBookings = new ArrayList<>();
+
+            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
+                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            // Filter upcoming bookings in memory
+            List<BookingSummaryDTO> upcoming = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        if (!"CONFIRMED".equals(status)) return false;
+
+                        List<Map<String, Object>> bookingFlights =
+                                (List<Map<String, Object>>) booking.get("bookingFlights");
+                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
+
+                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
+                        if (flight == null) return false;
+
+                        String departureTimeStr = (String) flight.get("departureTime");
+                        if (departureTimeStr == null) return false;
+
+                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
+                        return departureTime.isAfter(now);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> b1.getDepartureTime().compareTo(b2.getDepartureTime()))
+                    .collect(Collectors.toList());
+
+            return upcoming;
+
+        } catch (Exception e) {
+            log.error("Error fetching upcoming bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public List<BookingSummaryDTO> getPastBookings(Long userId) {
+        try {
+            // ✅ Use existing endpoint - get all bookings
+            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
+            List<Map<String, Object>> allBookings = new ArrayList<>();
+
+            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
+                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
+            }
+
+            LocalDateTime now = LocalDateTime.now();
+
+            // Filter past/completed bookings
+            List<BookingSummaryDTO> past = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        if ("CANCELLED".equals(status)) return false;
+
+                        List<Map<String, Object>> bookingFlights =
+                                (List<Map<String, Object>>) booking.get("bookingFlights");
+                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
+
+                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
+                        if (flight == null) return false;
+
+                        String departureTimeStr = (String) flight.get("departureTime");
+                        if (departureTimeStr == null) return false;
+
+                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
+                        return departureTime.isBefore(now) || "COMPLETED".equals(status);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> b2.getDepartureTime().compareTo(b1.getDepartureTime()))
+                    .collect(Collectors.toList());
+
+            return past;
+
+        } catch (Exception e) {
+            log.error("Error fetching past bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    public List<BookingSummaryDTO> getCancelledBookings(Long userId) {
+        try {
+            // ✅ Use existing endpoint - get all bookings
+            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
+            List<Map<String, Object>> allBookings = new ArrayList<>();
+
+            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
+                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
+            }
+
+            // Filter cancelled bookings
+            List<BookingSummaryDTO> cancelled = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        return "CANCELLED".equals(status);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> b2.getBookingTime().compareTo(b1.getBookingTime()))
+                    .collect(Collectors.toList());
+
+            return cancelled;
+
+        } catch (Exception e) {
+            log.error("Error fetching cancelled bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
     }
 }

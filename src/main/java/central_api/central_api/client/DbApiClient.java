@@ -20,7 +20,6 @@ public interface DbApiClient {
     @GetMapping("/users/{id}")
     UserResponse getUserById(@PathVariable("id") Long id);
 
-
     @GetMapping("/users/role/{role}")
     List<UserResponse> getUsersByRole(@PathVariable("role") String role);
 
@@ -29,6 +28,9 @@ public interface DbApiClient {
 
     @PutMapping("/users/{userId}")
     Map<String, Object> updateUser(@PathVariable("userId") Long userId, @RequestBody Map<String, Object> userDetails);
+
+    @GetMapping("/users/{id}/profile")
+    Map<String, Object> getUserProfile(@PathVariable("id") Long id);
 
     // ========== AIRLINE ENDPOINTS ==========
     @PostMapping("/airlines")
@@ -89,19 +91,15 @@ public interface DbApiClient {
     @PutMapping("/flights/{flightId}/cancel")
     Map<String, Object> cancelFlight(@PathVariable("flightId") Long flightId);
 
-    // ========== FARE CLASS ENDPOINTS ==========
-    @GetMapping("/fare-classes")
-    List<FareClassDTO> getFareClasses();
-
-    @GetMapping("/fare-classes/{code}")
-    FareClassDTO getFareClassByCode(@PathVariable("code") String code);
-
     @GetMapping("/flights/{flightId}/price-breakdown")
     Map<String, Object> getPriceBreakdown(@PathVariable("flightId") Long flightId,
                                           @RequestParam("seatClass") String seatClass,
                                           @RequestParam("fareClassCode") String fareClassCode);
 
-    // ✅ NEW: Get upcoming bookings
+    // ========== FARE CLASS ENDPOINTS ==========
+    @GetMapping("/fare-classes")
+    List<FareClassDTO> getFareClasses();
+
 
     // ========== REVIEW ENDPOINTS ==========
     @GetMapping("/reviews/airline/{airlineId}")
@@ -110,9 +108,6 @@ public interface DbApiClient {
     @PostMapping("/reviews/flight")
     Map<String, Object> createFlightReview(@RequestBody Map<String, Object> review);
 
-    @GetMapping("/users/{id}/profile")
-    Map<String, Object> getUserProfile(@PathVariable("id") Long id);
-
     // ========== BOOKING ENDPOINTS ==========
     @PostMapping("/bookings")
     Map<String, Object> createBooking(@RequestBody Map<String, Object> bookingRequest);
@@ -120,7 +115,6 @@ public interface DbApiClient {
     @GetMapping("/bookings/pnr/{pnr}")
     Map<String, Object> getBookingByPNR(@PathVariable("pnr") String pnr);
 
-    // ✅ FIX: Return type Map, not List
     @GetMapping("/bookings/user/{userId}")
     Map<String, Object> getUserBookings(@PathVariable("userId") Long userId);
 
@@ -130,15 +124,30 @@ public interface DbApiClient {
     @PutMapping("/bookings/{bookingId}/cancel")
     Map<String, Object> cancelBooking(@PathVariable("bookingId") Long bookingId);
 
-    // ✅ FIX: Return type Map
     @GetMapping("/bookings/user/{userId}/upcoming")
     Map<String, Object> getUserUpcomingBookings(@PathVariable("userId") Long userId);
 
-    // ✅ FIX: Return type Map
     @GetMapping("/bookings/user/{userId}/past")
     Map<String, Object> getUserPastBookings(@PathVariable("userId") Long userId);
 
-    // ✅ FIX: Return type Map
     @GetMapping("/bookings/user/{userId}/cancelled")
     Map<String, Object> getUserCancelledBookings(@PathVariable("userId") Long userId);
+
+    // ========== SEAT ENDPOINTS ==========
+
+    // Existing - get plain list
+    @GetMapping("/seats/aircraft/{aircraftId}")
+    List<Seat> getSeatsByAircraft(@PathVariable("aircraftId") Long aircraftId);
+
+    // ✅ NEW - get grouped by row
+    @GetMapping("/seats/aircraft/{aircraftId}/grouped")
+    Map<String, Object> getSeatsGroupedByRow(@PathVariable("aircraftId") Long aircraftId);
+
+    // ✅ NEW - get seat map with categories
+    @GetMapping("/seats/aircraft/{aircraftId}/map")
+    Map<String, Object> getSeatMapWithCategories(@PathVariable("aircraftId") Long aircraftId);
+
+
+    @GetMapping("/fare-classes/{code}")
+    FareClassDTO getFareClassByCode(@PathVariable("code") String code);
 }

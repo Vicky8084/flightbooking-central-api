@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>AirNova – Select Your Seat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f1429 60%, #050810 100%);
+            font-family: 'Lato', sans-serif;
+            color: #eef2ff;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .stars, .twinkling {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .star {
+            position: absolute;
+            background: radial-gradient(circle, #fff 0%, #e6f2ff 60%, transparent 100%);
+            border-radius: 50%;
+            animation: starTwinkle 4s infinite ease-in-out;
+        }
+
+        .star.small { width: 1px; height: 1px; }
+        .star.medium { width: 2.5px; height: 2.5px; }
+        .star.large { width: 3.5px; height: 3.5px; }
+
+        @keyframes starTwinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .flying-plane {
+            position: fixed;
+            font-size: 24px;
+            color: rgba(255,255,255,0.1);
+            z-index: 2;
+            animation: fly 20s linear infinite;
+            pointer-events: none;
+        }
+        .plane-1 { top: 20%; left: -10%; animation-delay: 0s; }
+        .plane-2 { top: 70%; left: -10%; animation-delay: 10s; }
+        .plane-3 { top: 40%; right: -10%; animation-direction: reverse; animation-delay: 5s; }
+
+        @keyframes fly {
+            0% { transform: translateX(-100px); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
+        }
+
+        .booking-header {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: pointer;
+        }
+
+        .flight-summary {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-size: 14px;
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 20px;
+            border-radius: 40px;
+        }
+
+        .logout-btn {
+            background: rgba(255,68,68,0.2);
+            border: 1px solid #ff4444;
+            padding: 4px 12px;
+            border-radius: 20px;
+            color: #ff4444;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 50;
+            max-width: 1400px;
+            margin: 20px auto;
+            padding: 0 20px;
+            display: flex;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+
+        .seat-map-container {
+            flex: 2;
+            min-width: 300px;
+        }
+
+        .booking-sidebar {
+            flex: 1;
+            min-width: 280px;
+            position: sticky;
+            top: 80px;
+            align-self: flex-start;
+        }
+
+        .flight-info-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .flight-route {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .route-point {
+            text-align: center;
+        }
+
+        .route-time {
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .route-airport {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .route-arrow {
+            font-size: 24px;
+            color: #ffd700;
+        }
+
+        .class-filter {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .filter-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .class-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .class-btn {
+            flex: 1;
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .class-btn.active {
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            border-color: #ffd700;
+            color: #1a1f2e;
+        }
+
+        .aircraft-visual {
+            background: rgba(0,0,0,0.4);
+            border-radius: 30px;
+            padding: 20px;
+            position: relative;
+        }
+
+        .aircraft-nose {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .nose-icon {
+            font-size: 50px;
+            color: #ffd700;
+            filter: drop-shadow(0 0 10px rgba(255,215,0,0.3));
+        }
+
+        .fuselage {
+            background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+            border-radius: 50px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            position: relative;
+        }
+
+        .cabin-section {
+            margin-bottom: 25px;
+        }
+
+        .cabin-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: linear-gradient(90deg, rgba(255,215,0,0.2), transparent);
+            border-radius: 30px;
+        }
+
+        .cabin-icon {
+            font-size: 28px;
+        }
+
+        .cabin-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .cabin-subtitle {
+            font-size: 11px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .seat-row-visual {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+
+        .row-label {
+            width: 45px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffd700;
+            text-align: right;
+            padding-right: 15px;
+        }
+
+        .left-wing {
+            width: 30px;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 14px;
+        }
+
+        .seat-group {
+            display: flex;
+            gap: 8px;
+            background: rgba(0,0,0,0.3);
+            padding: 8px 15px;
+            border-radius: 20px;
+            margin: 0 5px;
+        }
+
+        .seat-visual {
+            width: 55px;
+            height: 55px;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .seat-visual:hover {
+            transform: scale(1.05);
+        }
+
+        .seat-tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1a1f2e;
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 6px 12px;
+            font-size: 11px;
+            white-space: nowrap;
+            z-index: 100;
+            margin-bottom: 8px;
+            display: none;
+            color: #ffd700;
+            font-weight: 600;
+        }
+
+        .seat-visual:hover .seat-tooltip {
+            display: block;
+        }
+
+        .seat-visual .seat-number {
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .seat-visual .seat-icon {
+            font-size: 18px;
+            margin-top: 3px;
+        }
+
+        .seat-visual .seat-price {
+            font-size: 9px;
+            margin-top: 2px;
+            opacity: 0.8;
+        }
+
+        .seat-window { background: linear-gradient(135deg, #2E7D32, #1B5E20); border: 2px solid #4CAF50; }
+        .seat-aisle { background: linear-gradient(135deg, #1565C0, #0D47A1); border: 2px solid #2196F3; }
+        .seat-middle { background: linear-gradient(135deg, #F57C00, #EF6C00); border: 2px solid #FF9800; }
+        .seat-legroom { background: linear-gradient(135deg, #9C27B0, #7B1FA2); border: 2px solid #E040FB; }
+
+        .seat-visual.available { opacity: 1; cursor: pointer; }
+        .seat-visual.available:hover { filter: brightness(1.15); box-shadow: 0 0 15px rgba(255,215,0,0.4); }
+        .seat-visual.selected { background: linear-gradient(135deg, #FFD700, #FFC107); border-color: #FFD700; color: #1a1f2e; box-shadow: 0 0 20px rgba(255,215,0,0.6); }
+        .seat-visual.booked { background: linear-gradient(135deg, #C62828, #B71C1C); border-color: #F44336; cursor: not-allowed; opacity: 0.7; filter: grayscale(0.2); }
+        .seat-visual.disabled { background: #2c2c3a; border-color: #3a3a4a; cursor: not-allowed; opacity: 0.4; }
+        .seat-visual.empty { background: transparent; border: 1px dashed rgba(255,255,255,0.2); cursor: default; opacity: 0.3; }
+
+        .aisle-space {
+            width: 30px;
+            position: relative;
+        }
+
+        .aisle-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 2px;
+            background: repeating-linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.3) 5px, transparent 5px, transparent 10px);
+        }
+
+        .right-wing {
+            width: 30px;
+            text-align: center;
+            color: rgba(255,255,255,0.3);
+            font-size: 14px;
+        }
+
+        .aircraft-tail {
+            text-align: center;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+
+        .tail-icon {
+            font-size: 35px;
+            color: rgba(255,215,0,0.5);
+        }
+
+        .tail-text {
+            font-size: 10px;
+            color: rgba(255,255,255,0.4);
+            margin-top: 5px;
+        }
+
+        .seat-legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+        }
+
+        .legend-color {
+            width: 35px;
+            height: 35px;
+            border-radius: 10px;
+        }
+
+        .selection-summary {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .selected-seats-list {
+            margin: 15px 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .selected-seat-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .price-breakdown {
+            margin: 15px 0;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .total-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ffd700;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .continue-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #ffd700, #ffb700);
+            border: none;
+            border-radius: 40px;
+            color: #1a1f2e;
+            font-weight: 800;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(255,215,0,0.3);
+        }
+
+        .continue-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 1000px) {
+            .seat-visual { width: 45px; height: 45px; }
+            .seat-visual .seat-number { font-size: 11px; }
+            .seat-visual .seat-icon { font-size: 14px; }
+            .seat-group { padding: 5px 10px; }
+            .row-label { width: 35px; font-size: 11px; }
+        }
+
+        @media (max-width: 800px) {
+            .seat-visual { width: 38px; height: 38px; }
+            .seat-visual .seat-number { font-size: 10px; }
+            .seat-visual .seat-icon { font-size: 12px; }
+            .seat-group { gap: 4px; padding: 4px 8px; }
+            .left-wing, .right-wing { width: 20px; font-size: 10px; }
+            .aisle-space { width: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="stars"></div>
+<div class="twinkling"></div>
+
+<div class="flying-plane plane-1">✈️</div>
+<div class="flying-plane plane-2">✈️</div>
+<div class="flying-plane plane-3">✈️</div>
+
+<div class="booking-header">
+    <div class="header-container">
+        <div class="logo" onclick="window.location.href='/';">✈️ AirNova</div>
+        <div class="flight-summary" id="flightSummary">Loading flight details...</div>
+        <div class="user-badge">
+            <i class="fas fa-user-circle"></i>
+            <span id="userName">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="seat-map-container">
+        <div class="flight-info-card">
+            <div class="flight-route" id="flightRoute">
+                <div class="route-point">
+                    <div class="route-time" id="departureTime">--:--</div>
+                    <div class="route-airport" id="sourceCode">---</div>
+                </div>
+                <div class="route-arrow">✈️ →</div>
+                <div class="route-point">
+                    <div class="route-time" id="arrivalTime">--:--</div>
+                    <div class="route-airport" id="destCode">---</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="class-filter">
+            <div class="filter-title">
+                <i class="fas fa-ticket-alt"></i>
+                Select Travel Class
+            </div>
+            <div class="class-buttons" id="classButtons">
+                <button class="class-btn" data-class="ECONOMY" onclick="filterByClass('ECONOMY')">✈️ Economy</button>
+                <button class="class-btn" data-class="BUSINESS" onclick="filterByClass('BUSINESS')">💼 Business</button>
+                <button class="class-btn" data-class="FIRST" onclick="filterByClass('FIRST')">👑 First Class</button>
+            </div>
+        </div>
+
+        <div class="seat-map-card">
+            <div class="aircraft-visual">
+                <div class="aircraft-nose">
+                    <div class="nose-icon"><i class="fas fa-plane"></i></div>
+                    <div style="font-size: 10px; color: rgba(255,255,255,0.4);">COCKPIT</div>
+                </div>
+                <div class="fuselage">
+                    <div id="seatMapContainer">
+                        <div class="loading" style="text-align: center; padding: 50px;">
+                            <div class="spinner"></div>
+                            <p>Loading seat map...</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="aircraft-tail">
+                    <div class="tail-icon"><i class="fas fa-fan"></i></div>
+                    <div class="tail-text">TAIL • AIRNOVA</div>
+                </div>
+            </div>
+
+            <div class="seat-legend">
+                <div class="legend-item"><div class="legend-color" style="background: #2E7D32;"></div><span>Window Seat</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #1565C0;"></div><span>Aisle Seat</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #F57C00;"></div><span>Middle Seat</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #9C27B0;"></div><span>Extra Legroom</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #FFD700;"></div><span>Selected</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #C62828;"></div><span>Booked</span></div>
+                <div class="legend-item"><div class="legend-color" style="background: #2c2c3a;"></div><span>Not Available</span></div>
+            </div>
+            <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); font-size: 11px; color: rgba(255,255,255,0.4);">
+                <i class="fas fa-smoking-ban"></i> All AirNova seats are non-smoking, including lavatories
+            </div>
+        </div>
+    </div>
+
+    <div class="booking-sidebar">
+        <div class="selection-summary">
+            <h3><i class="fas fa-chair"></i> Selected Seats</h3>
+            <div id="selectedSeatsList" class="selected-seats-list">
+                <p style="color: rgba(255,255,255,0.5); text-align: center;">No seats selected</p>
+            </div>
+            <div class="price-breakdown">
+                <div class="price-row">
+                    <span>Base Fare (per passenger)</span>
+                    <span id="baseFare">₹0</span>
+                </div>
+                <div class="price-row">
+                    <span>Seat Premium</span>
+                    <span id="seatPremium">₹0</span>
+                </div>
+                <div class="price-row total-price">
+                    <span>Total Amount</span>
+                    <span id="totalAmount">₹0</span>
+                </div>
+            </div>
+            <div class="passenger-info">
+                <p><i class="fas fa-users"></i> Passengers: <span id="passengerCount">0</span></p>
+                <p><i class="fas fa-tag"></i> Fare Class: <span id="fareClassName">-</span></p>
+            </div>
+            <button class="continue-btn" id="continueBtn" onclick="proceedToPassengerDetails()" disabled>
+                Continue to Passenger Details →
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+    // ============================================
+    // CONFIGURATION
+    // ============================================
+    const API_BASE = '';
+    let currentUser = null;
+    let flightData = null;
+    let fareClassData = null;
+    let allSeats = [];
+    let seatsByRow = {};
+    let selectedSeats = [];
+    let currentClassFilter = 'ECONOMY';
+    let bookedSeatIds = [];
+
+    // ============================================
+    // HELPER FUNCTIONS
+    // ============================================
+    function showToast(message, isError = false) {
+        const toast = document.getElementById('toast');
+        toast.textContent = message;
+        toast.className = 'toast' + (isError ? ' error' : '');
+        toast.style.display = 'block';
+        setTimeout(() => toast.style.display = 'none', 4000);
+    }
+
+    async function logout() {
+        try {
+            await fetch(`${API_BASE}/api/auth/logout`, { method: 'POST', credentials: 'include' });
+        } catch (error) {}
+        sessionStorage.removeItem('user');
+        window.location.href = '/signin';
+    }
+
+    async function fetchAPI(url, options = {}) {
+        try {
+            const response = await fetch(url, {
+                ...options,
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json', ...options.headers }
+            });
+            if (response.status === 401) {
+                window.location.href = '/signin';
+                return null;
+            }
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || `HTTP ${response.status}`);
+            }
+            return response.json();
+        } catch (error) {
+            console.error('API Error:', error);
+            throw error;
+        }
+    }
+
+    function getUrlParams() {
+        const params = new URLSearchParams(window.location.search);
+        return {
+            flightId: params.get('flightId'),
+            fareCode: params.get('fareCode'),
+            seatClass: params.get('seatClass')
+        };
+    }
+
+    function formatTime(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) { return 'N/A'; }
+    }
+
+    function formatDate(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        } catch(e) { return 'N/A'; }
+    }
+
+    // ============================================
+    // LOAD DATA FROM DB
+    // ============================================
+    async function loadUserProfile() {
+        try {
+            const profile = await fetchAPI(`${API_BASE}/user/api/profile`);
+            if (profile) {
+                currentUser = profile;
+                document.getElementById('userName').textContent = profile.fullName?.split(' ')[0] || 'User';
+                return profile;
+            }
+        } catch (error) {
+            window.location.href = '/signin';
+            return null;
+        }
+    }
+
+    async function loadFlightData() {
+        const params = getUrlParams();
+        if (!params.flightId) {
+            showToast('No flight selected', true);
+            window.location.href = '/flights/search';
+            return null;
+        }
+
+        try {
+            const flight = await fetchAPI(`${API_BASE}/api/db/flights/${params.flightId}`);
+            if (flight) {
+                flightData = flight;
+                document.getElementById('departureTime').textContent = formatTime(flight.departureTime);
+                document.getElementById('arrivalTime').textContent = formatTime(flight.arrivalTime);
+                document.getElementById('sourceCode').textContent = flight.sourceAirport?.code || flight.sourceCode || 'N/A';
+                document.getElementById('destCode').textContent = flight.destinationAirport?.code || flight.destCode || 'N/A';
+                document.getElementById('flightSummary').innerHTML = `${flight.sourceAirport?.code || flight.sourceCode} → ${flight.destinationAirport?.code || flight.destCode} | ${formatDate(flight.departureTime)}`;
+                return flight;
+            }
+        } catch (error) {
+            showToast('Failed to load flight details', true);
+            return null;
+        }
+    }
+
+    async function loadFareClassData() {
+        const params = getUrlParams();
+        const fareCode = params.fareCode || 'STANDARD';
+        try {
+            const fare = await fetchAPI(`${API_BASE}/api/db/fare-classes/${fareCode}`);
+            if (fare) {
+                fareClassData = fare;
+                document.getElementById('fareClassName').textContent = fare.name;
+                return fare;
+            }
+        } catch (error) {
+            fareClassData = {
+                code: fareCode,
+                name: fareCode === 'BUSINESS' ? 'Business Class' : (fareCode === 'FIRST' ? 'First Class' : 'Economy'),
+                priceMultiplier: fareCode === 'BUSINESS' ? 2.5 : (fareCode === 'FIRST' ? 4.0 : 1.1)
+            };
+            document.getElementById('fareClassName').textContent = fareClassData.name;
+            return fareClassData;
+        }
+    }
+
+    async function loadSeats() {
+        if (!flightData?.aircraft?.id) {
+            showToast('Aircraft information not available', true);
+            return null;
+        }
+        try {
+            const response = await fetchAPI(`${API_BASE}/api/db/seats/aircraft/${flightData.aircraft.id}/grouped`);
+            if (response && response.success && response.seatsByRow) {
+                seatsByRow = response.seatsByRow;
+                allSeats = [];
+                for (const row in seatsByRow) {
+                    allSeats.push(...seatsByRow[row]);
+                }
+                return seatsByRow;
+            }
+        } catch (error) {
+            showToast('Failed to load seat map', true);
+            return null;
+        }
+    }
+
+    async function loadBookedSeats() {
+        if (!flightData?.id) return;
+        try {
+            const seatMap = await fetchAPI(`${API_BASE}/api/db/flights/${flightData.id}/seatmap`);
+            if (seatMap) {
+                const allSeatsMap = [...(seatMap.economySeats || []), ...(seatMap.businessSeats || []), ...(seatMap.firstClassSeats || [])];
+                bookedSeatIds = allSeatsMap.filter(s => !s.isAvailable).map(s => s.seatId);
+            }
+        } catch (error) {
+            bookedSeatIds = [];
+        }
+    }
+
+    // ============================================
+    // SEAT MAP RENDERER
+    // ============================================
+    function getSeatIcon(seatType, hasExtraLegroom) {
+        if (hasExtraLegroom) return '<i class="fas fa-arrows-alt"></i>';
+        switch(seatType) {
+            case 'WINDOW': return '<i class="fas fa-window-maximize"></i>';
+            case 'AISLE': return '<i class="fas fa-arrows-alt-h"></i>';
+            case 'MIDDLE': return '<i class="fas fa-user"></i>';
+            default: return '<i class="fas fa-chair"></i>';
+        }
+    }
+
+    function getSeatTypeClass(seatType, hasExtraLegroom) {
+        if (hasExtraLegroom) return 'seat-legroom';
+        switch(seatType) {
+            case 'WINDOW': return 'seat-window';
+            case 'AISLE': return 'seat-aisle';
+            case 'MIDDLE': return 'seat-middle';
+            default: return 'seat-standard';
+        }
+    }
+
+    function getTooltipText(seat) {
+        let basePriceForClass;
+
+        if (seat.seatClass === 'BUSINESS') {
+            basePriceForClass = flightData.basePriceBusiness || flightData.basePriceEconomy * 2;
+        } else if (seat.seatClass === 'FIRST') {
+            basePriceForClass = flightData.basePriceFirstClass || flightData.basePriceEconomy * 4;
+        } else {
+            basePriceForClass = flightData.basePriceEconomy;
+        }
+
+        let finalPrice = basePriceForClass;
+        if (seat.premiumPercent && seat.premiumPercent !== 0) {
+            finalPrice = Math.round(basePriceForClass + (basePriceForClass * seat.premiumPercent / 100));
+        }
+
+        let extraText = '';
+        if (seat.hasExtraLegroom) extraText = ' • Extra Legroom';
+        if (seat.isNearExit) extraText = ' • Exit Row';
+        return `${seat.seatNumber} • ${seat.seatType}${extraText} • ₹${finalPrice}`;
+    }
+
+    function getBookedTooltipText(seat) {
+        return `${seat.seatNumber} - Booked`;
+    }
+
+    function isSeatSelectable(seat) {
+        if (seat.seatClass !== currentClassFilter) return false;
+        if (bookedSeatIds.includes(seat.id)) return false;
+        if (!seat.isActive) return false;
+        return true;
+    }
+
+    function getSeatStatus(seat) {
+        if (bookedSeatIds.includes(seat.id)) return 'booked';
+        if (selectedSeats.some(s => s.id === seat.id)) return 'selected';
+        if (!isSeatSelectable(seat)) return 'disabled';
+        return 'available';
+    }
+
+    function calculateSeatPrice(seat) {
+        let basePriceForClass;
+
+        if (seat.seatClass === 'BUSINESS') {
+            basePriceForClass = flightData.basePriceBusiness || flightData.basePriceEconomy * 2;
+        } else if (seat.seatClass === 'FIRST') {
+            basePriceForClass = flightData.basePriceFirstClass || flightData.basePriceEconomy * 4;
+        } else {
+            basePriceForClass = flightData.basePriceEconomy;
+        }
+
+        let finalPrice = basePriceForClass;
+        if (seat.premiumPercent && seat.premiumPercent !== 0) {
+            finalPrice = Math.round(basePriceForClass + (basePriceForClass * seat.premiumPercent / 100));
+        }
+        return finalPrice;
+    }
+
+    function getSeatLayout(seatClass) {
+        if (seatClass === 'FIRST') {
+            return { leftCols: ['A'], rightCols: ['B'] };
+        } else if (seatClass === 'BUSINESS') {
+            return { leftCols: ['A', 'B'], rightCols: ['C', 'D'] };
+        } else {
+            return { leftCols: ['A', 'B', 'C'], rightCols: ['D', 'E', 'F'] };
+        }
+    }
+
+    function renderSeatMap() {
+        if (!seatsByRow || Object.keys(seatsByRow).length === 0) {
+            document.getElementById('seatMapContainer').innerHTML = '<div class="loading" style="text-align: center; padding: 50px;"><div class="spinner"></div><p>No seat data available</p></div>';
+            return;
+        }
+
+        const sortedRows = Object.keys(seatsByRow).sort((a, b) => parseInt(a) - parseInt(b));
+        const layout = getSeatLayout(currentClassFilter);
+
+        let html = '';
+        let renderedSeatCount = 0;
+
+        for (const row of sortedRows) {
+            const seatsInRow = seatsByRow[row];
+            if (!seatsInRow) continue;
+
+            const classSeats = seatsInRow.filter(s => s.seatClass === currentClassFilter);
+            if (classSeats.length === 0) continue;
+
+            const leftSeats = classSeats.filter(s => layout.leftCols.includes(s.columnLetter));
+            const rightSeats = classSeats.filter(s => layout.rightCols.includes(s.columnLetter));
+
+            if (leftSeats.length === 0 && rightSeats.length === 0) continue;
+
+            html += `<div class="seat-row-visual">`;
+            html += `<div class="row-label">${row}</div>`;
+            html += `<div class="left-wing"><i class="fas fa-window-maximize"></i></div>`;
+            html += `<div class="seat-group">`;
+
+            for (const expectedCol of layout.leftCols) {
+                const seat = leftSeats.find(s => s.columnLetter === expectedCol);
+                if (seat) {
+                    const status = getSeatStatus(seat);
+                    const typeClass = getSeatTypeClass(seat.seatType, seat.hasExtraLegroom);
+                    const seatPrice = calculateSeatPrice(seat);
+                    const tooltipText = status === 'booked' ? getBookedTooltipText(seat) : getTooltipText(seat);
+
+                    html += `
+                        <div class="seat-visual ${typeClass} ${status}"
+                             data-seat-id="${seat.id}"
+                             data-seat-number="${seat.seatNumber}"
+                             data-seat-type="${seat.seatType}"
+                             data-seat-class="${seat.seatClass}"
+                             data-premium="${seat.premiumPercent || 0}"
+                             data-price="${seatPrice}"
+                             onclick="${status !== 'booked' && status !== 'disabled' ? `selectSeat(this, '${seat.id}', '${seat.seatNumber}', '${seat.seatType}', ${seat.premiumPercent || 0}, ${seatPrice}, ${seat.hasExtraLegroom || false})` : ''}">
+                            <div class="seat-number">${seat.seatNumber}</div>
+                            <div class="seat-icon">${getSeatIcon(seat.seatType, seat.hasExtraLegroom)}</div>
+                            <div class="seat-price">${status !== 'booked' ? `₹${seatPrice}` : 'BOOKED'}</div>
+                            <div class="seat-tooltip">${tooltipText}</div>
+                        </div>
+                    `;
+                    renderedSeatCount++;
+                } else {
+                    html += `<div class="seat-visual empty" style="cursor: default;"><div class="seat-number">-</div><div class="seat-icon"><i class="fas fa-ban"></i></div><div class="seat-price">N/A</div><div class="seat-tooltip">No seat available</div></div>`;
+                }
+            }
+            html += `</div><div class="aisle-space"><div class="aisle-line"></div></div><div class="seat-group">`;
+
+            for (const expectedCol of layout.rightCols) {
+                const seat = rightSeats.find(s => s.columnLetter === expectedCol);
+                if (seat) {
+                    const status = getSeatStatus(seat);
+                    const typeClass = getSeatTypeClass(seat.seatType, seat.hasExtraLegroom);
+                    const seatPrice = calculateSeatPrice(seat);
+                    const tooltipText = status === 'booked' ? getBookedTooltipText(seat) : getTooltipText(seat);
+
+                    html += `
+                        <div class="seat-visual ${typeClass} ${status}"
+                             data-seat-id="${seat.id}"
+                             data-seat-number="${seat.seatNumber}"
+                             data-seat-type="${seat.seatType}"
+                             data-seat-class="${seat.seatClass}"
+                             data-premium="${seat.premiumPercent || 0}"
+                             data-price="${seatPrice}"
+                             onclick="${status !== 'booked' && status !== 'disabled' ? `selectSeat(this, '${seat.id}', '${seat.seatNumber}', '${seat.seatType}', ${seat.premiumPercent || 0}, ${seatPrice}, ${seat.hasExtraLegroom || false})` : ''}">
+                            <div class="seat-number">${seat.seatNumber}</div>
+                            <div class="seat-icon">${getSeatIcon(seat.seatType, seat.hasExtraLegroom)}</div>
+                            <div class="seat-price">${status !== 'booked' ? `₹${seatPrice}` : 'BOOKED'}</div>
+                            <div class="seat-tooltip">${tooltipText}</div>
+                        </div>
+                    `;
+                    renderedSeatCount++;
+                } else {
+                    html += `<div class="seat-visual empty" style="cursor: default;"><div class="seat-number">-</div><div class="seat-icon"><i class="fas fa-ban"></i></div><div class="seat-price">N/A</div><div class="seat-tooltip">No seat available</div></div>`;
+                }
+            }
+            html += `</div><div class="right-wing"><i class="fas fa-window-maximize"></i></div></div>`;
+        }
+
+        if (html === '') {
+            html = `<div class="loading" style="text-align: center; padding: 50px;"><div class="spinner"></div><p>No seats available for ${currentClassFilter} class</p></div>`;
+        }
+
+        document.getElementById('seatMapContainer').innerHTML = html;
+        updateSelectedSeatsDisplay();
+    }
+
+    // ============================================
+    // SEAT SELECTION - NO LIMIT, ALL SEATS SHOW IN SIDEBAR
+    // ============================================
+    function selectSeat(element, seatId, seatNumber, seatType, premiumPercent, seatPrice, hasExtraLegroom) {
+        const status = element.classList.contains('booked') ? 'booked' :
+                      (element.classList.contains('disabled') ? 'disabled' :
+                      (element.classList.contains('selected') ? 'selected' : 'available'));
+
+        if (status === 'booked') {
+            showToast('This seat is already booked', true);
+            return;
+        }
+
+        if (status === 'disabled') {
+            showToast(`This seat is not available for ${currentClassFilter} class`, true);
+            return;
+        }
+
+        const isSelected = status === 'selected';
+
+        if (isSelected) {
+            selectedSeats = selectedSeats.filter(s => s.id !== seatId);
+            element.classList.remove('selected');
+            element.classList.add('available');
+        } else {
+            // ✅ NO LIMIT - User can select any number of seats
+            selectedSeats.push({
+                id: seatId,
+                seatNumber: seatNumber,
+                seatType: seatType,
+                premiumPercent: premiumPercent,
+                price: seatPrice,
+                hasExtraLegroom: hasExtraLegroom
+            });
+            element.classList.remove('available');
+            element.classList.add('selected');
+        }
+
+        updateSelectedSeatsDisplay();
+        updateTotalPrice();
+
+        // ✅ Enable continue button if at least 1 seat selected
+        const continueBtn = document.getElementById('continueBtn');
+        continueBtn.disabled = selectedSeats.length === 0;
+    }
+
+    // ✅ FIXED: Show ALL selected seats in sidebar (no limit)
+    function updateSelectedSeatsDisplay() {
+        const container = document.getElementById('selectedSeatsList');
+        if (selectedSeats.length === 0) {
+            container.innerHTML = '<p style="color: rgba(255,255,255,0.5); text-align: center;">No seats selected</p>';
+            return;
+        }
+
+        // ✅ Show ALL selected seats (no slicing, no limit)
+        container.innerHTML = selectedSeats.map(seat => {
+            let icon = '';
+            if (seat.hasExtraLegroom) icon = '<i class="fas fa-arrows-alt"></i>';
+            else if (seat.seatType === 'WINDOW') icon = '<i class="fas fa-window-maximize"></i>';
+            else if (seat.seatType === 'AISLE') icon = '<i class="fas fa-arrows-alt-h"></i>';
+            else icon = '<i class="fas fa-user"></i>';
+
+            return `
+                <div class="selected-seat-item">
+                    <div class="selected-seat-info">
+                        <div class="selected-seat-icon" style="background: rgba(255,215,0,0.2);">${icon}</div>
+                        <div>
+                            <strong>Seat ${seat.seatNumber}</strong><br>
+                            <small style="color: rgba(255,255,255,0.6);">${seat.seatType}${seat.hasExtraLegroom ? ' • Extra Legroom' : ''}</small>
+                        </div>
+                    </div>
+                    <div class="selected-seat-price">₹${seat.price}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function updateTotalPrice() {
+        let baseFarePerPerson;
+
+        if (currentClassFilter === 'BUSINESS') {
+            baseFarePerPerson = flightData.basePriceBusiness || flightData.basePriceEconomy * 2;
+        } else if (currentClassFilter === 'FIRST') {
+            baseFarePerPerson = flightData.basePriceFirstClass || flightData.basePriceEconomy * 4;
+        } else {
+            baseFarePerPerson = flightData.basePriceEconomy;
+        }
+
+        const totalSeatPrice = selectedSeats.reduce((sum, seat) => sum + seat.price, 0);
+        const seatPremiumTotal = totalSeatPrice - (baseFarePerPerson * selectedSeats.length);
+
+        document.getElementById('baseFare').textContent = `₹${baseFarePerPerson}`;
+        document.getElementById('seatPremium').textContent = `₹${Math.max(0, seatPremiumTotal)}`;
+        document.getElementById('totalAmount').textContent = `₹${totalSeatPrice}`;
+
+        // ✅ Update passenger count display
+        document.getElementById('passengerCount').textContent = selectedSeats.length;
+    }
+
+    function filterByClass(seatClass) {
+        currentClassFilter = seatClass;
+        document.querySelectorAll('.class-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-class') === seatClass) btn.classList.add('active');
+        });
+        selectedSeats = [];
+        renderSeatMap();
+        document.getElementById('continueBtn').disabled = true;
+    }
+
+    // ✅ FIXED: Passenger count = selected seats count
+    function proceedToPassengerDetails() {
+        if (selectedSeats.length === 0) {
+            showToast(`Please select at least 1 seat`, true);
+            return;
+        }
+
+        const finalPassengerCount = selectedSeats.length;
+
+        sessionStorage.setItem('selectedSeats', JSON.stringify(selectedSeats));
+        sessionStorage.setItem('flightData', JSON.stringify(flightData));
+        sessionStorage.setItem('fareClassData', JSON.stringify(fareClassData));
+
+        window.location.href = `/passenger-details?flightId=${flightData.id}&fareCode=${fareClassData.code}&passengers=${finalPassengerCount}`;
+    }
+
+    function getPassengerCountAndClass() {
+        const params = getUrlParams();
+
+        if (params.seatClass) currentClassFilter = params.seatClass.toUpperCase();
+        else if (params.fareCode) {
+            const fareCode = params.fareCode.toUpperCase();
+            if (fareCode === 'BUSINESS') currentClassFilter = 'BUSINESS';
+            else if (fareCode === 'FIRST') currentClassFilter = 'FIRST';
+            else currentClassFilter = 'ECONOMY';
+        } else currentClassFilter = 'ECONOMY';
+
+        document.querySelectorAll('.class-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute('data-class') === currentClassFilter) btn.classList.add('active');
+        });
+
+        // ✅ No passenger count from URL - will be set by seat selection
+        document.getElementById('passengerCount').textContent = '0';
+    }
+
+    async function init() {
+        await loadUserProfile();
+        await loadFlightData();
+        await loadFareClassData();
+        if (flightData && flightData.aircraft && flightData.aircraft.id) {
+            await loadSeats();
+            await loadBookedSeats();
+        }
+        getPassengerCountAndClass();
+        if (seatsByRow && Object.keys(seatsByRow).length > 0) renderSeatMap();
+    }
+
+    window.selectSeat = selectSeat;
+    window.filterByClass = filterByClass;
+    window.proceedToPassengerDetails = proceedToPassengerDetails;
+    window.logout = logout;
+
+    window.addEventListener('load', init);
+
+    function generateStars() {
+        const starsContainer = document.querySelector('.stars');
+        if (!starsContainer) return;
+        for (let i = 0; i < 150; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            const r = Math.random();
+            if (r > 0.7) star.classList.add('large');
+            else if (r > 0.3) star.classList.add('medium');
+            else star.classList.add('small');
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+    }
+    generateStars();
+
+    document.addEventListener('mousemove', (e) => {
+        const x = e.clientX / window.innerWidth;
+        const y = e.clientY / window.innerHeight;
+        const stars = document.querySelector('.stars');
+        if (stars) stars.style.transform = `translate(${x * 20}px, ${y * 20}px)`;
+    });
+</script>
+</body>
+</html>
