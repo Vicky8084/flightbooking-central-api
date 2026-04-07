@@ -5,15 +5,24 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class BookingRequest {
 
-    @NotNull(message = "Flight ID is required")
+    // For direct flight (backward compatibility)
     private Long flightId;
+
+    // For connecting flight - LIST OF FLIGHTS ✅
+    @Valid
+    private List<FlightSegmentDto> flights = new ArrayList<>();
 
     @NotEmpty(message = "At least one seat is required")
     private List<@NotNull Long> seatIds;
@@ -29,6 +38,32 @@ public class BookingRequest {
     private String fareClassCode;
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FlightSegmentDto {
+        @NotNull(message = "Flight ID is required")
+        private Long flightId;
+
+        private Integer sequence;
+
+        @NotEmpty(message = "Seat selection required for each passenger")
+        @Valid
+        private List<PassengerSeatDto> passengerSeats = new ArrayList<>();
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PassengerSeatDto {
+        @NotNull(message = "Seat ID is required")
+        private Long seatId;
+
+        private Integer passengerIndex;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PassengerDto {
         @NotBlank(message = "Passenger name is required")
         private String fullName;
@@ -45,6 +80,8 @@ public class BookingRequest {
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PaymentDto {
         @NotBlank(message = "Payment method is required")
         private String paymentMethod;

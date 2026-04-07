@@ -100,6 +100,8 @@ public interface DbApiClient {
     @GetMapping("/fare-classes")
     List<FareClassDTO> getFareClasses();
 
+    @GetMapping("/fare-classes/{code}")
+    FareClassDTO getFareClassByCode(@PathVariable("code") String code);
 
     // ========== REVIEW ENDPOINTS ==========
     @GetMapping("/reviews/airline/{airlineId}")
@@ -114,9 +116,6 @@ public interface DbApiClient {
 
     @GetMapping("/bookings/pnr/{pnr}")
     Map<String, Object> getBookingByPNR(@PathVariable("pnr") String pnr);
-
-    @GetMapping("/bookings/user/{userId}")
-    Map<String, Object> getUserBookings(@PathVariable("userId") Long userId);
 
     @GetMapping("/bookings/{bookingId}")
     Map<String, Object> getBookingById(@PathVariable("bookingId") Long bookingId);
@@ -133,21 +132,25 @@ public interface DbApiClient {
     @GetMapping("/bookings/user/{userId}/cancelled")
     Map<String, Object> getUserCancelledBookings(@PathVariable("userId") Long userId);
 
-    // ========== SEAT ENDPOINTS ==========
+    // ✅ FIXED: For getting bookings as Map (with success, count, bookings)
+    @GetMapping("/bookings/user/{userId}")
+    Map<String, Object> getUserBookings(@PathVariable("userId") Long userId);
 
-    // Existing - get plain list
+    // ✅ FIXED: For getting direct list of bookings (NO duplicate /api/db)
+    @GetMapping("/bookings/user/{userId}/list")
+    List<Map<String, Object>> getUserBookingsList(@PathVariable("userId") Long userId);
+
+    // ========== SEAT ENDPOINTS ==========
     @GetMapping("/seats/aircraft/{aircraftId}")
     List<Seat> getSeatsByAircraft(@PathVariable("aircraftId") Long aircraftId);
 
-    // ✅ NEW - get grouped by row
     @GetMapping("/seats/aircraft/{aircraftId}/grouped")
     Map<String, Object> getSeatsGroupedByRow(@PathVariable("aircraftId") Long aircraftId);
 
-    // ✅ NEW - get seat map with categories
     @GetMapping("/seats/aircraft/{aircraftId}/map")
     Map<String, Object> getSeatMapWithCategories(@PathVariable("aircraftId") Long aircraftId);
 
-
-    @GetMapping("/fare-classes/{code}")
-    FareClassDTO getFareClassByCode(@PathVariable("code") String code);
+    // ✅ FIXED: Get seat by ID (NO duplicate /api/db)
+    @GetMapping("/seats/{seatId}")
+    Map<String, Object> getSeatById(@PathVariable("seatId") Long seatId);
 }

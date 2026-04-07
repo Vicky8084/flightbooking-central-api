@@ -7,521 +7,116 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f1429 60%, #050810 100%);
-            min-height: 100vh;
-            color: #eef2ff;
-        }
-
-        /* Stars Background */
-        .stars, .twinkling {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        .star {
-            position: absolute;
-            background: radial-gradient(circle, #fff 0%, #e6f2ff 60%, transparent 100%);
-            border-radius: 50%;
-            animation: starTwinkle 4s infinite ease-in-out;
-        }
-
+        /* Same CSS as before - keeping it compact */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(180deg, #0a0e27 0%, #1a1f3a 30%, #0f1429 60%, #050810 100%); min-height: 100vh; color: #eef2ff; }
+        .stars, .twinkling { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+        .star { position: absolute; background: radial-gradient(circle, #fff 0%, #e6f2ff 60%, transparent 100%); border-radius: 50%; animation: starTwinkle 4s infinite ease-in-out; }
         .star.small { width: 1px; height: 1px; }
         .star.medium { width: 2.5px; height: 2.5px; }
         .star.large { width: 3.5px; height: 3.5px; }
-
-        @keyframes starTwinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
-        }
-
-        .flying-plane {
-            position: fixed;
-            font-size: 24px;
-            color: rgba(255,255,255,0.1);
-            z-index: 2;
-            animation: fly 20s linear infinite;
-            pointer-events: none;
-        }
+        @keyframes starTwinkle { 0%, 100% { opacity: 0.2; } 50% { opacity: 1; } }
+        .flying-plane { position: fixed; font-size: 24px; color: rgba(255,255,255,0.1); z-index: 2; animation: fly 20s linear infinite; pointer-events: none; }
         .plane-1 { top: 20%; left: -10%; animation-delay: 0s; }
         .plane-2 { top: 70%; left: -10%; animation-delay: 10s; }
         .plane-3 { top: 40%; right: -10%; animation-direction: reverse; animation-delay: 5s; }
+        @keyframes fly { 0% { transform: translateX(-100px); opacity: 0; } 10% { opacity: 0.3; } 90% { opacity: 0.3; } 100% { transform: translateX(calc(100vw + 100px)); opacity: 0; } }
+        .header { background: rgba(10, 14, 39, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 1000; }
+        .header-container { max-width: 1400px; margin: 0 auto; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .logo { font-size: 28px; font-weight: 800; background: linear-gradient(135deg, #fff, #ffd700); -webkit-background-clip: text; -webkit-text-fill-color: transparent; display: flex; align-items: center; gap: 8px; cursor: pointer; }
+        .back-btn { padding: 10px 20px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); color: white; border-radius: 40px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+        .back-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+        .user-badge { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.1); padding: 8px 20px; border-radius: 40px; }
+        .logout-btn { background: rgba(255,68,68,0.2); border: 1px solid #ff4444; padding: 4px 12px; border-radius: 20px; color: #ff4444; cursor: pointer; font-size: 11px; }
+        .main-container { position: relative; z-index: 50; max-width: 1400px; margin: 30px auto; padding: 0 20px; }
 
-        @keyframes fly {
-            0% { transform: translateX(-100px); opacity: 0; }
-            10% { opacity: 0.3; }
-            90% { opacity: 0.3; }
-            100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
-        }
+        /* Connecting Flight Segments */
+        .segments-card { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .segments-title { font-size: 24px; font-weight: 700; color: #ffd700; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; padding-bottom: 15px; border-bottom: 2px solid rgba(255,215,0,0.3); }
+        .segment-item { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 25px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; }
+        .segment-item:hover { border-color: rgba(255,215,0,0.4); background: rgba(0,0,0,0.5); }
+        .segment-number { display: inline-block; background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; padding: 5px 15px; border-radius: 30px; font-size: 12px; font-weight: 700; margin-bottom: 15px; }
+        .segment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .segment-airline-info { display: flex; align-items: center; gap: 15px; }
+        .segment-airline-icon { width: 50px; height: 50px; background: rgba(255,215,0,0.15); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+        .segment-airline-details h3 { font-size: 18px; font-weight: 700; color: white; }
+        .segment-airline-details p { font-size: 13px; color: rgba(255,255,255,0.6); }
+        .segment-flight-number { background: rgba(255,255,255,0.1); padding: 8px 16px; border-radius: 30px; font-size: 14px; font-weight: 600; color: #ffd700; }
+        .segment-route { display: flex; align-items: center; justify-content: space-between; margin: 25px 0; flex-wrap: wrap; gap: 20px; }
+        .segment-point { text-align: center; flex: 1; min-width: 120px; }
+        .segment-time { font-size: 24px; font-weight: 800; color: white; }
+        .segment-date { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 5px; }
+        .segment-airport-code { font-size: 20px; font-weight: 700; color: #ffd700; margin-top: 10px; }
+        .segment-airport-city { font-size: 12px; color: rgba(255,255,255,0.6); }
+        .segment-duration-box { text-align: center; flex: 0.5; min-width: 100px; }
+        .segment-duration-box i { font-size: 24px; color: #ffd700; margin-bottom: 8px; display: block; }
+        .segment-duration-text { font-size: 14px; font-weight: 600; color: white; }
+        .layover-card { background: rgba(255,215,0,0.1); border-radius: 16px; padding: 15px 20px; margin: 15px 0 20px 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; border-left: 4px solid #ffd700; }
+        .layover-text { flex: 1; font-size: 14px; color: rgba(255,255,255,0.9); }
+        .layover-time { font-weight: 700; color: #ffd700; font-size: 16px; }
+        .total-journey-card { background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05)); border-radius: 20px; padding: 20px 25px; margin-top: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px; border: 1px solid rgba(255,215,0,0.3); }
+        .total-item { text-align: center; flex: 1; }
+        .total-label { font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 1px; }
+        .total-value { font-size: 20px; font-weight: 800; color: #ffd700; margin-top: 5px; }
 
-        /* Header */
-        .header {
-            background: rgba(10, 14, 39, 0.95);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
+        /* Flight Summary */
+        .flight-summary { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .summary-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px; }
+        .flight-title { font-size: 28px; font-weight: 800; color: white; }
+        .flight-badge { background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; padding: 8px 16px; border-radius: 20px; font-weight: 600; font-size: 14px; }
+        .flight-route { display: flex; align-items: center; justify-content: space-between; margin-bottom: 30px; padding: 25px; background: rgba(0,0,0,0.3); border-radius: 15px; flex-wrap: wrap; gap: 20px; }
+        .route-point { text-align: center; flex: 1; }
+        .airport-code { font-size: 32px; font-weight: 800; color: #ffd700; }
+        .airport-city { color: rgba(255,255,255,0.7); font-size: 16px; margin-top: 5px; }
+        .route-arrow { flex: 1; text-align: center; color: rgba(255,255,255,0.5); font-size: 24px; }
+        .flight-info { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 15px; }
+        .info-item { display: flex; align-items: center; gap: 15px; }
+        .info-icon { width: 50px; height: 50px; border-radius: 12px; background: rgba(255,215,0,0.2); display: flex; align-items: center; justify-content: center; color: #ffd700; font-size: 20px; }
+        .info-details { display: flex; flex-direction: column; }
+        .info-label { color: rgba(255,255,255,0.6); font-size: 12px; margin-bottom: 3px; }
+        .info-value { font-weight: 700; font-size: 16px; color: white; }
 
-        .header-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .logo {
-            font-size: 28px;
-            font-weight: 800;
-            background: linear-gradient(135deg, #fff, #ffd700);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-        }
-
-        .back-btn {
-            padding: 10px 20px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            border-radius: 40px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .back-btn:hover {
-            background: rgba(255,255,255,0.2);
-            transform: translateY(-2px);
-        }
-
-        .user-badge {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: rgba(255,255,255,0.1);
-            padding: 8px 20px;
-            border-radius: 40px;
-        }
-
-        .logout-btn {
-            background: rgba(255,68,68,0.2);
-            border: 1px solid #ff4444;
-            padding: 4px 12px;
-            border-radius: 20px;
-            color: #ff4444;
-            cursor: pointer;
-            font-size: 11px;
-        }
-
-        /* Main Container */
-        .main-container {
-            position: relative;
-            z-index: 50;
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        /* Flight Summary Card */
-        .flight-summary {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .summary-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .flight-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: white;
-        }
-
-        .flight-badge {
-            background: linear-gradient(135deg, #ffd700, #ffb700);
-            color: #1a1f2e;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .flight-route {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 30px;
-            padding: 25px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .route-point {
-            text-align: center;
-            flex: 1;
-        }
-
-        .airport-code {
-            font-size: 32px;
-            font-weight: 800;
-            color: #ffd700;
-        }
-
-        .airport-city {
-            color: rgba(255,255,255,0.7);
-            font-size: 16px;
-            margin-top: 5px;
-        }
-
-        .route-arrow {
-            flex: 1;
-            text-align: center;
-            color: rgba(255,255,255,0.5);
-            font-size: 24px;
-        }
-
-        .flight-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 15px;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .info-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: rgba(255,215,0,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffd700;
-            font-size: 20px;
-        }
-
-        .info-details {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .info-label {
-            color: rgba(255,255,255,0.6);
-            font-size: 12px;
-            margin-bottom: 3px;
-        }
-
-        .info-value {
-            font-weight: 700;
-            font-size: 16px;
-            color: white;
-        }
-
-        /* Price Comparison Section */
-        .price-section {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .section-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 25px;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .price-cards {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        .price-card {
-            background: rgba(0,0,0,0.4);
-            border-radius: 20px;
-            padding: 25px;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.3s;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .price-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255,215,0,0.5);
-            background: rgba(0,0,0,0.5);
-        }
-
-        .price-card.selected {
-            border-color: #ffd700;
-            background: rgba(255,215,0,0.1);
-        }
-
-        .popular-badge {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: linear-gradient(135deg, #ffd700, #ffb700);
-            color: #1a1f2e;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .class-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-        }
-
-        .class-name {
-            font-size: 20px;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .class-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-        }
-
+        /* Price Section */
+        .price-section { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .section-title { font-size: 24px; font-weight: 700; margin-bottom: 25px; color: white; display: flex; align-items: center; gap: 10px; }
+        .price-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; }
+        .price-card { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 25px; border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s; position: relative; cursor: pointer; }
+        .price-card:hover { transform: translateY(-5px); border-color: rgba(255,215,0,0.5); background: rgba(0,0,0,0.5); }
+        .price-card.selected { border-color: #ffd700; background: rgba(255,215,0,0.1); }
+        .popular-badge { position: absolute; top: 15px; right: 15px; background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .class-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .class-name { font-size: 20px; font-weight: 700; color: white; display: flex; align-items: center; gap: 10px; }
+        .class-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
         .economy-icon { background: rgba(76, 175, 80, 0.2); border: 1px solid #4CAF50; color: #4CAF50; }
         .business-icon { background: rgba(33, 150, 243, 0.2); border: 1px solid #2196F3; color: #2196F3; }
         .first-icon { background: rgba(156, 39, 176, 0.2); border: 1px solid #9C27B0; color: #9C27B0; }
-
-        .class-description {
-            color: rgba(255,255,255,0.7);
-            font-size: 14px;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .price-display {
-            text-align: center;
-            margin-bottom: 25px;
-            padding: 20px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 12px;
-        }
-
-        .price-label {
-            color: rgba(255,255,255,0.6);
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .price-amount {
-            font-size: 36px;
-            font-weight: 800;
-            color: #ffd700;
-            margin-bottom: 5px;
-        }
-
-        .price-note {
-            color: rgba(255,255,255,0.5);
-            font-size: 12px;
-        }
-
-        .features-list {
-            margin-bottom: 25px;
-        }
-
-        .feature-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            color: rgba(255,255,255,0.8);
-            font-size: 13px;
-        }
-
-        .feature-check {
-            color: #4CAF50;
-            font-size: 14px;
-        }
-
-        .book-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #ffd700, #ffb700);
-            color: #1a1f2e;
-            border: none;
-            border-radius: 40px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .book-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(255,215,0,0.3);
-        }
-
-        /* Additional Info Section */
-        .info-section {
-            background: rgba(255,255,255,0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            margin-top: 30px;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 20px;
-        }
-
-        .info-card {
-            padding: 20px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 12px;
-            border-left: 3px solid #ffd700;
-        }
-
-        .info-card-title {
-            font-weight: 600;
-            color: #ffd700;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .info-card-text {
-            color: rgba(255,255,255,0.7);
-            font-size: 13px;
-            line-height: 1.5;
-        }
-
-        .loading {
-            text-align: center;
-            padding: 50px;
-        }
-
-        .spinner {
-            display: inline-block;
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: #ffd700;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .toast {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #4caf50;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            display: none;
-            z-index: 1001;
-        }
-
-        .toast.error {
-            background: #f44336;
-        }
-
+        .class-description { color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 20px; line-height: 1.5; }
+        .price-display { text-align: center; margin-bottom: 25px; padding: 20px; background: rgba(0,0,0,0.3); border-radius: 12px; }
+        .price-label { color: rgba(255,255,255,0.6); font-size: 14px; margin-bottom: 8px; }
+        .price-amount { font-size: 36px; font-weight: 800; color: #ffd700; margin-bottom: 5px; }
+        .price-note { color: rgba(255,255,255,0.5); font-size: 12px; }
+        .features-list { margin-bottom: 25px; }
+        .feature-item { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; color: rgba(255,255,255,0.8); font-size: 13px; }
+        .feature-check { color: #4CAF50; font-size: 14px; }
+        .book-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; border: none; border-radius: 40px; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .book-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(255,215,0,0.3); }
+        .info-section { background: rgba(255,255,255,0.08); backdrop-filter: blur(10px); border-radius: 20px; padding: 30px; margin-top: 30px; border: 1px solid rgba(255,255,255,0.1); }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+        .info-card { padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px; border-left: 3px solid #ffd700; }
+        .info-card-title { font-weight: 600; color: #ffd700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+        .info-card-text { color: rgba(255,255,255,0.7); font-size: 13px; line-height: 1.5; }
+        .loading { text-align: center; padding: 50px; }
+        .spinner { display: inline-block; width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: #ffd700; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1001; }
+        .toast.error { background: #f44336; }
         @media (max-width: 768px) {
-            .header-container {
-                flex-direction: column;
-            }
-
-            .flight-route {
-                flex-direction: column;
-            }
-
-            .route-arrow {
-                transform: rotate(90deg);
-            }
-
-            .price-cards {
-                grid-template-columns: 1fr;
-            }
-
-            .flight-info {
-                grid-template-columns: 1fr;
-            }
-
-            .info-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .airport-code {
-                font-size: 24px;
-            }
+            .segment-route { flex-direction: column; }
+            .segment-duration-box { transform: rotate(90deg); }
+            .total-journey-card { flex-direction: column; text-align: center; }
+            .flight-route { flex-direction: column; }
+            .route-arrow { transform: rotate(90deg); }
+            .price-cards { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -541,7 +136,7 @@
             AirNova
         </div>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <button class="back-btn" onclick="window.location.href='/flights/results' + window.location.search">
+            <button class="back-btn" onclick="goBack()">
                 <i class="fas fa-arrow-left"></i>
                 Back to Search
             </button>
@@ -571,6 +166,8 @@
     let currentUser = null;
     let selectedFareClass = null;
     let passengers = 1;
+    let isConnectingFlight = false;
+    let connectingFlightData = null;
 
     // ============================================
     // HELPER FUNCTIONS
@@ -624,8 +221,8 @@
             destinationCity: params.get('destinationCity'),
             passengers: parseInt(params.get('passengers')) || 1,
             seatClass: params.get('seatClass') || 'ECONOMY',
-            includeConnecting: params.get('includeConnecting') !== 'false',
-            maxPrice: params.get('maxPrice') ? parseFloat(params.get('maxPrice')) : null
+            isConnecting: params.get('isConnecting') === 'true',
+            totalPrice: params.get('totalPrice') ? parseFloat(params.get('totalPrice')) : null
         };
     }
 
@@ -645,6 +242,14 @@
         } catch(e) { return dateTimeStr; }
     }
 
+    function formatDateShort(dateTimeStr) {
+        if (!dateTimeStr) return 'N/A';
+        try {
+            const date = new Date(dateTimeStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+        } catch(e) { return dateTimeStr; }
+    }
+
     function getCityName(code) {
         const cities = {
             'DEL': 'New Delhi', 'BOM': 'Mumbai', 'BLR': 'Bangalore',
@@ -652,6 +257,35 @@
             'COK': 'Kochi', 'GOI': 'Goa', 'AMD': 'Ahmedabad', 'PNQ': 'Pune'
         };
         return cities[code] || code;
+    }
+
+    function goBack() {
+        const params = getUrlParams();
+        const searchParams = new URLSearchParams({
+            sourceCode: params.sourceCode,
+            destinationCode: params.destinationCode,
+            travelDate: params.travelDate,
+            sourceCity: params.sourceCity,
+            destinationCity: params.destinationCity,
+            passengers: params.passengers,
+            seatClass: params.seatClass,
+            includeConnecting: true
+        });
+        window.location.href = `/flights/results?${searchParams.toString()}`;
+    }
+
+    function calculateDuration(departure, arrival) {
+        if (!departure || !arrival) return 0;
+        const start = new Date(departure);
+        const end = new Date(arrival);
+        return Math.round((end - start) / 60000);
+    }
+
+    function calculateLayover(arrivalTime, nextDepartureTime) {
+        if (!arrivalTime || !nextDepartureTime) return 0;
+        const arrival = new Date(arrivalTime);
+        const nextDeparture = new Date(nextDepartureTime);
+        return Math.round((nextDeparture - arrival) / 60000);
     }
 
     // ============================================
@@ -671,22 +305,72 @@
 
     async function loadFlightData() {
         const params = getUrlParams();
-        if (!params.flightId) {
-            showToast('No flight selected', true);
-            window.location.href = '/flights/search';
-            return null;
+
+        const storedConnectingData = sessionStorage.getItem('connectingFlightData');
+
+        if (storedConnectingData && params.isConnecting) {
+            console.log('🔗 Loading connecting flight from sessionStorage');
+            connectingFlightData = JSON.parse(storedConnectingData);
+            isConnectingFlight = true;
+            flightData = connectingFlightData.segments[0];
+            console.log('✅ Connecting flight loaded:', connectingFlightData);
+            return { flight: flightData, connectingData: connectingFlightData };
         }
 
-        try {
-            const flight = await fetchAPI(`${API_BASE}/api/db/flights/${params.flightId}`);
-            if (flight) {
-                flightData = flight;
-                return flight;
+        if (params.isConnecting && params.totalPrice) {
+            console.log('🔗 Searching for connecting flight from DB');
+            isConnectingFlight = true;
+
+            const searchRequest = {
+                sourceCode: params.sourceCode.toUpperCase(),
+                destinationCode: params.destinationCode.toUpperCase(),
+                travelDate: params.travelDate,
+                includeConnectingFlights: true,
+                seatClass: params.seatClass
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/api/db/flights/search`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(searchRequest)
+                });
+
+                const flights = await response.json();
+                console.log('📊 All flights from search:', flights);
+
+                for (const flight of flights) {
+                    if (flight.segments && flight.segments.length > 0) {
+                        if (flight.sourceCode === params.sourceCode.toUpperCase() &&
+                            flight.destinationCode === params.destinationCode.toUpperCase()) {
+                            connectingFlightData = flight;
+                            flightData = flight.segments[0];
+                            console.log('✅ Connecting flight found:', connectingFlightData);
+                            return { flight: flightData, connectingData: connectingFlightData };
+                        }
+                    }
+                }
+
+                throw new Error('Connecting flight not found');
+            } catch (error) {
+                console.error('Error loading connecting flight:', error);
+                throw error;
             }
-        } catch (error) {
-            showToast('Failed to load flight details', true);
-            return null;
+        } else {
+            isConnectingFlight = false;
+            try {
+                const flight = await fetchAPI(`${API_BASE}/api/db/flights/${params.flightId}`);
+                if (flight) {
+                    flightData = flight;
+                    return { flight: flightData, connectingData: null };
+                }
+            } catch (error) {
+                console.error('Error loading direct flight:', error);
+                throw error;
+            }
         }
+        return null;
     }
 
     async function loadFareClasses() {
@@ -694,14 +378,10 @@
             const fares = await fetchAPI(`${API_BASE}/api/db/fare-classes`);
             if (fares && fares.length > 0) {
                 fareClasses = fares;
+                console.log('✅ Fare classes loaded from DB:', fareClasses);
             } else {
-                fareClasses = [
-                    { code: 'LITE', name: 'Economy Lite', priceMultiplier: 0.9, cabinBaggageKg: 7, checkInBaggageKg: 15, mealIncluded: false, cancellationFee: 0, changeFee: 0, seatSelectionFree: false, priorityCheckin: false, priorityBoarding: false, loungeAccess: false },
-                    { code: 'STANDARD', name: 'Economy Standard', priceMultiplier: 1.1, cabinBaggageKg: 7, checkInBaggageKg: 23, mealIncluded: true, cancellationFee: 1000, changeFee: 500, seatSelectionFree: true, priorityCheckin: false, priorityBoarding: false, loungeAccess: false },
-                    { code: 'FLEX', name: 'Economy Flex', priceMultiplier: 1.5, cabinBaggageKg: 7, checkInBaggageKg: 30, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: false },
-                    { code: 'BUSINESS', name: 'Business Class', priceMultiplier: 1.0, cabinBaggageKg: 10, checkInBaggageKg: 40, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: true },
-                    { code: 'FIRST', name: 'First Class', priceMultiplier: 1.0, cabinBaggageKg: 12, checkInBaggageKg: 50, mealIncluded: true, cancellationFee: 0, changeFee: 0, seatSelectionFree: true, priorityCheckin: true, priorityBoarding: true, loungeAccess: true }
-                ];
+                console.warn('No fare classes found in DB');
+                fareClasses = [];
             }
             return fareClasses;
         } catch (error) {
@@ -711,183 +391,227 @@
     }
 
     // ============================================
-    // ✅ FIXED: Price Calculation - Using Base Price (No Dynamic)
+    // RENDER CONNECTING FLIGHT SEGMENTS
     // ============================================
+    function renderConnectingFlightSegments() {
+        if (!connectingFlightData || !connectingFlightData.segments) {
+            return '';
+        }
+
+        const segments = connectingFlightData.segments;
+        let segmentsHtml = '';
+
+        for (let i = 0; i < segments.length; i++) {
+            const segment = segments[i];
+            const segmentNumber = i + 1;
+            const isLastSegment = (i === segments.length - 1);
+
+            const airlineName = segment.aircraft?.airline?.name || segment.airlineName || 'Airline';
+            const flightNumber = segment.flightNumber || 'N/A';
+
+            const sourceCode = segment.sourceAirport?.code || segment.sourceCode || 'N/A';
+            const sourceCity = segment.sourceAirport?.city || getCityName(sourceCode);
+            const destCode = segment.destinationAirport?.code || segment.destCode || 'N/A';
+            const destCity = segment.destinationAirport?.city || getCityName(destCode);
+
+            const departureTime = formatTime(segment.departureTime);
+            const departureDateShort = formatDateShort(segment.departureTime);
+            const arrivalTime = formatTime(segment.arrivalTime);
+            const arrivalDateShort = formatDateShort(segment.arrivalTime);
+
+            const duration = segment.duration || calculateDuration(segment.departureTime, segment.arrivalTime);
+            const hours = Math.floor(duration / 60);
+            const minutes = duration % 60;
+            const durationText = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+            segmentsHtml += `
+                <div class="segment-item">
+                    <div class="segment-number">✈️ SEGMENT ${segmentNumber} OF ${segments.length}</div>
+                    <div class="segment-header">
+                        <div class="segment-airline-info">
+                            <div class="segment-airline-icon"><i class="fas fa-plane"></i></div>
+                            <div class="segment-airline-details"><h3>${airlineName}</h3></div>
+                        </div>
+                        <div class="segment-flight-number"><i class="fas fa-ticket-alt"></i> Flight ${flightNumber}</div>
+                    </div>
+                    <div class="segment-route">
+                        <div class="segment-point">
+                            <div class="segment-time">${departureTime}</div>
+                            <div class="segment-date">${departureDateShort}</div>
+                            <div class="segment-airport-code">${sourceCode}</div>
+                            <div class="segment-airport-city">${sourceCity}</div>
+                        </div>
+                        <div class="segment-duration-box">
+                            <i class="fas fa-long-arrow-alt-right"></i>
+                            <div class="segment-duration-text">${durationText}</div>
+                        </div>
+                        <div class="segment-point">
+                            <div class="segment-time">${arrivalTime}</div>
+                            <div class="segment-date">${arrivalDateShort}</div>
+                            <div class="segment-airport-code">${destCode}</div>
+                            <div class="segment-airport-city">${destCity}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            if (!isLastSegment) {
+                const nextSegment = segments[i + 1];
+                const layoverMinutes = connectingFlightData.layoverDurations?.[i] ||
+                    calculateLayover(segment.arrivalTime, nextSegment.departureTime);
+                const layoverHours = Math.floor(layoverMinutes / 60);
+                const layoverMins = layoverMinutes % 60;
+                const layoverText = layoverHours > 0 ? `${layoverHours}h ${layoverMins}m` : `${layoverMins}m`;
+                const layoverAirport = destCode;
+
+                segmentsHtml += `
+                    <div class="layover-card">
+                        <div class="layover-text"><strong>Layover at ${layoverAirport} (${destCity})</strong><br></div>
+                        <div class="layover-time">${layoverText}</div>
+                    </div>
+                `;
+            }
+        }
+
+        const totalDuration = connectingFlightData.totalDuration || 0;
+        const totalHours = Math.floor(totalDuration / 60);
+        const totalMins = totalDuration % 60;
+        const totalDurationText = totalHours > 0 ? `${totalHours}h ${totalMins}m` : `${totalMins}m`;
+
+        const totalLayover = connectingFlightData.totalLayoverTime || 0;
+        const layoverHours = Math.floor(totalLayover / 60);
+        const layoverMins = totalLayover % 60;
+        const totalLayoverText = layoverHours > 0 ? `${layoverHours}h ${layoverMins}m` : `${layoverMins}m`;
+
+        const totalPrice = connectingFlightData.totalPrice || 0;
+        const stops = connectingFlightData.numberOfStops || segments.length - 1;
+
+        segmentsHtml += `
+            <div class="total-journey-card">
+                <div class="total-item"><div class="total-label">Total Journey</div><div class="total-value">${totalDurationText}</div></div>
+                <div class="total-item"><div class="total-label">Total Layover</div><div class="total-value">${totalLayoverText}</div></div>
+                <div class="total-item"><div class="total-label">Stops</div><div class="total-value">${stops} Stop${stops !== 1 ? 's' : ''}</div></div>
+                <div class="total-item"><div class="total-label">Base Price</div><div class="total-value">₹${Math.round(totalPrice).toLocaleString('en-IN')}</div></div>
+            </div>
+        `;
+
+        return `
+            <div class="segments-card">
+                <div class="segments-title"><i class="fas fa-random"></i> Connecting Flight Journey <span style="font-size: 14px; background: rgba(255,215,0,0.2); padding: 4px 12px; border-radius: 20px;">${segments.length} Segments</span></div>
+                ${segmentsHtml}
+            </div>
+        `;
+    }
+
     function renderFlightSummary() {
         const params = getUrlParams();
 
+        let sourceCode, sourceCity, destCode, destCity, departureTime, arrivalTime, duration, flightNumber, airlineName;
+
+        if (isConnectingFlight && connectingFlightData) {
+            sourceCode = connectingFlightData.sourceCode;
+            sourceCity = params.sourceCity || getCityName(sourceCode);
+            destCode = connectingFlightData.destinationCode;
+            destCity = params.destinationCity || getCityName(destCode);
+            departureTime = connectingFlightData.segments[0]?.departureTime;
+            arrivalTime = connectingFlightData.segments[connectingFlightData.segments.length - 1]?.arrivalTime;
+            duration = connectingFlightData.totalDuration;
+            flightNumber = connectingFlightData.flightNumbers?.join(' → ') || 'Connecting Flight';
+            airlineName = connectingFlightData.airlines?.join(' → ') || 'Multiple Airlines';
+        } else if (flightData) {
+            sourceCode = flightData.sourceAirport?.code || params.sourceCode;
+            sourceCity = flightData.sourceAirport?.city || params.sourceCity || getCityName(sourceCode);
+            destCode = flightData.destinationAirport?.code || params.destinationCode;
+            destCity = flightData.destinationAirport?.city || params.destinationCity || getCityName(destCode);
+            departureTime = flightData.departureTime;
+            arrivalTime = flightData.arrivalTime;
+            duration = flightData.duration;
+            flightNumber = flightData.flightNumber;
+            airlineName = flightData.aircraft?.airline?.name || flightData.airlineName || 'Airline';
+        } else {
+            sourceCode = params.sourceCode;
+            sourceCity = params.sourceCity || getCityName(sourceCode);
+            destCode = params.destinationCode;
+            destCity = params.destinationCity || getCityName(destCode);
+            departureTime = null;
+            arrivalTime = null;
+            duration = null;
+            flightNumber = 'N/A';
+            airlineName = 'Airline';
+        }
+
         return `
             <div class="flight-summary">
-                <div class="summary-header">
-                    <h1 class="flight-title">Flight Details</h1>
-                    <div class="flight-badge">Best Price Guaranteed</div>
-                </div>
-
+                <div class="summary-header"><h1 class="flight-title">Flight Details</h1><div class="flight-badge">Best Price Guaranteed</div></div>
                 <div class="flight-route">
-                    <div class="route-point">
-                        <div class="airport-code">${params.sourceCode || flightData.sourceAirport?.code || 'N/A'}</div>
-                        <div class="airport-city">${params.sourceCity || flightData.sourceAirport?.city || getCityName(params.sourceCode)}</div>
-                    </div>
-                    <div class="route-arrow">
-                        <i class="fas fa-plane"></i>
-                        <div style="font-size: 14px; margin-top: 8px;">${flightData.duration || '--'} min</div>
-                    </div>
-                    <div class="route-point">
-                        <div class="airport-code">${params.destinationCode || flightData.destinationAirport?.code || 'N/A'}</div>
-                        <div class="airport-city">${params.destinationCity || flightData.destinationAirport?.city || getCityName(params.destinationCode)}</div>
-                    </div>
+                    <div class="route-point"><div class="airport-code">${sourceCode || 'N/A'}</div><div class="airport-city">${sourceCity || 'N/A'}</div></div>
+                    <div class="route-arrow"><i class="fas fa-plane"></i><div style="font-size: 14px; margin-top: 8px;">${duration || '--'} min</div></div>
+                    <div class="route-point"><div class="airport-code">${destCode || 'N/A'}</div><div class="airport-city">${destCity || 'N/A'}</div></div>
                 </div>
-
                 <div class="flight-info">
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-plane"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Flight Number</div>
-                            <div class="info-value">${flightData.flightNumber || 'N/A'}</div>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-building"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Airline</div>
-                            <div class="info-value">${flightData.aircraft?.airline?.name || flightData.airlineName || 'Airline'}</div>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-clock"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Departure</div>
-                            <div class="info-value">${formatTime(flightData.departureTime)}</div>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-clock"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Arrival</div>
-                            <div class="info-value">${formatTime(flightData.arrivalTime)}</div>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-calendar"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Date</div>
-                            <div class="info-value">${formatDate(flightData.departureTime)}</div>
-                        </div>
-                    </div>
-                    <div class="info-item">
-                        <div class="info-icon"><i class="fas fa-chair"></i></div>
-                        <div class="info-details">
-                            <div class="info-label">Aircraft</div>
-                            <div class="info-value">${flightData.aircraft?.model || flightData.aircraftModel || 'Aircraft'}</div>
-                        </div>
-                    </div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-plane"></i></div><div class="info-details"><div class="info-label">Flight</div><div class="info-value">${flightNumber}</div></div></div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-building"></i></div><div class="info-details"><div class="info-label">Airline</div><div class="info-value">${airlineName}</div></div></div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-clock"></i></div><div class="info-details"><div class="info-label">Departure</div><div class="info-value">${formatTime(departureTime)}</div></div></div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-clock"></i></div><div class="info-details"><div class="info-label">Arrival</div><div class="info-value">${formatTime(arrivalTime)}</div></div></div>
+                    <div class="info-item"><div class="info-icon"><i class="fas fa-calendar"></i></div><div class="info-details"><div class="info-label">Date</div><div class="info-value">${formatDate(departureTime)}</div></div></div>
                 </div>
             </div>
         `;
     }
 
-    function getFareClassIcon(fareCode) {
-        if (fareCode === 'BUSINESS') return '<i class="fas fa-briefcase"></i>';
-        if (fareCode === 'FIRST') return '<i class="fas fa-crown"></i>';
-        return '<i class="fas fa-users"></i>';
-    }
-
-    function getFareClassIconClass(fareCode) {
-        if (fareCode === 'BUSINESS') return 'business-icon';
-        if (fareCode === 'FIRST') return 'first-icon';
-        return 'economy-icon';
-    }
-
-    function getFareClassDescription(fareCode) {
-        if (fareCode === 'BUSINESS') {
-            return 'Premium comfort with enhanced services. Ideal for business travelers and those seeking extra comfort.';
-        }
-        if (fareCode === 'FIRST') {
-            return 'Luxury experience with exclusive services. Ultimate comfort and personalized attention throughout your journey.';
-        }
-        if (fareCode === 'FLEX') {
-            return 'Flexible economy with additional benefits. Free cancellation and changes, priority services included.';
-        }
-        if (fareCode === 'LITE') {
-            return 'Affordable fares with essential services. Perfect for budget-conscious travelers.';
-        }
-        return 'Standard comfort with essential amenities. Perfect for reliable travel experience.';
-    }
-
-    // ✅ FIXED: Price calculation using BASE PRICE (no dynamic multiplier)
+    // ✅ FIXED: NO MULTIPLIER - Direct DB se price
     function renderPriceCards() {
         const params = getUrlParams();
         passengers = params.passengers;
 
+        // ✅ Base prices DB se directly - BINA MULTIPLIER KE
+        let basePriceEconomy = 0;
+        let basePriceBusiness = 0;
+        let basePriceFirstClass = 0;
+
+        if (isConnectingFlight && connectingFlightData) {
+            basePriceEconomy = connectingFlightData.totalPrice || 0;
+            basePriceBusiness = connectingFlightData.totalPrice || 0;
+            basePriceFirstClass = connectingFlightData.totalPrice || 0;
+        } else if (flightData) {
+            basePriceEconomy = flightData.basePriceEconomy || 0;
+            basePriceBusiness = flightData.basePriceBusiness || 0;
+            basePriceFirstClass = flightData.basePriceFirstClass || 0;
+        }
+
+        console.log('💰 Prices from DB:', { economy: basePriceEconomy, business: basePriceBusiness, firstClass: basePriceFirstClass });
+
+        const fareTypes = [
+            { code: 'ECONOMY', name: 'Economy Class', iconClass: 'economy-icon', iconHtml: '<i class="fas fa-users"></i>', price: basePriceEconomy, popular: false },
+            { code: 'BUSINESS', name: 'Business Class', iconClass: 'business-icon', iconHtml: '<i class="fas fa-briefcase"></i>', price: basePriceBusiness, popular: true },
+            { code: 'FIRST', name: 'First Class', iconClass: 'first-icon', iconHtml: '<i class="fas fa-crown"></i>', price: basePriceFirstClass, popular: false }
+        ];
+
         let cardsHtml = '';
 
-        fareClasses.forEach((fare, index) => {
-            // ✅ FIXED: Use base price based on fare class
-            let basePriceForClass;
-
-            if (fare.code === 'BUSINESS') {
-                basePriceForClass = flightData.basePriceBusiness || flightData.basePriceEconomy * 2;
-            } else if (fare.code === 'FIRST') {
-                basePriceForClass = flightData.basePriceFirstClass || flightData.basePriceEconomy * 4;
-            } else {
-                // Economy classes (LITE, STANDARD, FLEX)
-                basePriceForClass = flightData.basePriceEconomy;
-            }
-
-            // ✅ Apply fare class multiplier
-            const finalPrice = Math.round(basePriceForClass * fare.priceMultiplier);
-
-            const isPopular = fare.code === 'BUSINESS';
-
-            // Get features based on fare class
-            const features = [];
-            features.push(`${fare.checkInBaggageKg}kg check-in baggage`);
-            features.push(`${fare.cabinBaggageKg}kg cabin baggage`);
-            if (fare.mealIncluded) features.push('Complimentary meal');
-            if (fare.seatSelectionFree) features.push('Free seat selection');
-            if (fare.priorityCheckin) features.push('Priority check-in');
-            if (fare.priorityBoarding) features.push('Priority boarding');
-            if (fare.loungeAccess) features.push('Lounge access');
-            if (fare.cancellationFee === 0) features.push('Free cancellation');
+        fareTypes.forEach((fare) => {
+            const features = getFeaturesForClass(fare.code);
 
             cardsHtml += `
-                <div class="price-card" data-fare-code="${fare.code}" data-fare-price="${finalPrice}" onclick="selectFareCard('${fare.code}', ${finalPrice})">
-                    ${isPopular ? '<div class="popular-badge">Most Popular</div>' : ''}
+                <div class="price-card" data-fare-code="${fare.code}" data-fare-price="${fare.price}" onclick="selectFareCard('${fare.code}', ${fare.price})">
+                    ${fare.popular ? '<div class="popular-badge">Most Popular</div>' : ''}
                     <div class="class-header">
                         <div class="class-name">
-                            <div class="class-icon ${getFareClassIconClass(fare.code)}">
-                                ${getFareClassIcon(fare.code)}
-                            </div>
+                            <div class="class-icon ${fare.iconClass}">${fare.iconHtml}</div>
                             ${fare.name}
                         </div>
                     </div>
-
-                    <div class="class-description">
-                        ${getFareClassDescription(fare.code)}
-                    </div>
-
+                    <div class="class-description">${getClassDescription(fare.code)}</div>
                     <div class="price-display">
                         <div class="price-label">Starting from</div>
-                        <div class="price-amount">₹${finalPrice.toLocaleString('en-IN')}</div>
+                        <div class="price-amount">₹${fare.price.toLocaleString('en-IN')}</div>
                         <div class="price-note">per person</div>
                     </div>
-
                     <div class="features-list">
-                        ${features.slice(0, 5).map(f => `
-                            <div class="feature-item">
-                                <i class="fas fa-check-circle feature-check"></i>
-                                <span>${f}</span>
-                            </div>
-                        `).join('')}
-                        ${features.length > 5 ? `<div class="feature-item">
-                            <i class="fas fa-plus-circle feature-check"></i>
-                            <span>+${features.length - 5} more benefits</span>
-                        </div>` : ''}
+                        ${features.map(f => `<div class="feature-item"><i class="fas fa-check-circle feature-check"></i><span>${f}</span></div>`).join('')}
                     </div>
-
-                    <button class="book-btn" onclick="event.stopPropagation(); proceedToBooking('${fare.code}', ${finalPrice})">
-                        <i class="fas fa-shopping-cart"></i>
-                        Book Now
+                    <button class="book-btn" onclick="event.stopPropagation(); proceedToBooking('${fare.code}', ${fare.price})">
+                        <i class="fas fa-shopping-cart"></i> Book Now
                     </button>
                 </div>
             `;
@@ -895,65 +619,40 @@
 
         return `
             <div class="price-section">
-                <h2 class="section-title">
-                    <i class="fas fa-tags"></i>
-                    Choose Your Travel Class
-                </h2>
-                <div class="price-cards">
-                    ${cardsHtml}
-                </div>
+                <h2 class="section-title"><i class="fas fa-tags"></i> Choose Your Travel Class</h2>
+                <div class="price-cards">${cardsHtml}</div>
             </div>
         `;
+    }
+
+    function getFeaturesForClass(className) {
+        if (className === 'ECONOMY') {
+            return ['7kg cabin baggage', '15kg check-in baggage', 'Standard seat', 'Complimentary water', 'TV/Entertainment'];
+        } else if (className === 'BUSINESS') {
+            return ['10kg cabin baggage', '30kg check-in baggage', 'Extra legroom seat', 'Complimentary meal', 'Priority check-in', 'Priority boarding'];
+        } else {
+            return ['12kg cabin baggage', '50kg check-in baggage', 'Luxury seat', 'Fine dining meal', 'Priority check-in', 'Priority boarding', 'Lounge access'];
+        }
+    }
+
+    function getClassDescription(className) {
+        const descriptions = {
+            'ECONOMY': 'Affordable comfort with essential amenities. Perfect for budget-conscious travelers.',
+            'BUSINESS': 'Premium comfort with enhanced services. Ideal for business travelers.',
+            'FIRST': 'Luxury experience with exclusive services. Ultimate comfort and personalized attention.'
+        };
+        return descriptions[className] || 'Comfortable travel experience with essential amenities.';
     }
 
     function renderAdditionalInfo() {
         return `
             <section class="info-section">
-                <h2 class="section-title">
-                    <i class="fas fa-info-circle"></i>
-                    Important Information
-                </h2>
-
+                <h2 class="section-title"><i class="fas fa-info-circle"></i> Important Information</h2>
                 <div class="info-grid">
-                    <div class="info-card">
-                        <div class="info-card-title">
-                            <i class="fas fa-luggage"></i>
-                            Baggage Policy
-                        </div>
-                        <div class="info-card-text">
-                            Additional baggage can be purchased at the time of booking or later at higher rates. Weight restrictions apply as per airline policy.
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">
-                            <i class="fas fa-exchange-alt"></i>
-                            Cancellation Policy
-                        </div>
-                        <div class="info-card-text">
-                            Free cancellation available up to 24 hours before departure for select fare classes. Cancellation fees apply as per fare rules.
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">
-                            <i class="fas fa-utensils"></i>
-                            Meal Preferences
-                        </div>
-                        <div class="info-card-text">
-                            Special meals available on request. Please specify dietary requirements at least 24 hours before departure.
-                        </div>
-                    </div>
-
-                    <div class="info-card">
-                        <div class="info-card-title">
-                            <i class="fas fa-wheelchair"></i>
-                            Special Assistance
-                        </div>
-                        <div class="info-card-text">
-                            Wheelchair assistance and special services available. Please inform us at the time of booking for best arrangements.
-                        </div>
-                    </div>
+                    <div class="info-card"><div class="info-card-title"><i class="fas fa-luggage"></i> Baggage Policy</div><div class="info-card-text">Additional baggage can be purchased at the time of booking.</div></div>
+                    <div class="info-card"><div class="info-card-title"><i class="fas fa-exchange-alt"></i> Cancellation Policy</div><div class="info-card-text">Free cancellation available up to 24 hours before departure.</div></div>
+                    <div class="info-card"><div class="info-card-title"><i class="fas fa-utensils"></i> Meal Preferences</div><div class="info-card-text">Special meals available on request.</div></div>
+                    <div class="info-card"><div class="info-card-title"><i class="fas fa-wheelchair"></i> Special Assistance</div><div class="info-card-text">Wheelchair assistance available.</div></div>
                 </div>
             </section>
         `;
@@ -971,27 +670,42 @@
     }
 
     function proceedToBooking(fareCode, price) {
-        const params = getUrlParams();
-        const user = JSON.parse(sessionStorage.getItem('user') || '{}');
+    const params = getUrlParams();
+    const user = JSON.parse(sessionStorage.getItem('user') || '{}');
 
-        if (!user.id) {
-            sessionStorage.setItem('pendingBooking', JSON.stringify({
-                flightId: flightData.id,
-                fareCode: fareCode,
-                price: price
-            }));
-            showToast('Please login to continue booking');
-            setTimeout(() => window.location.href = '/signin', 1500);
-            return;
-        }
-
-        // Pass the selected class to booking page
-        let seatClass = 'ECONOMY';
-        if (fareCode === 'BUSINESS') seatClass = 'BUSINESS';
-        else if (fareCode === 'FIRST') seatClass = 'FIRST';
-
-        window.location.href = `/booking?flightId=${flightData.id}&fareCode=${fareCode}&passengers=${params.passengers || 1}&seatClass=${seatClass}`;
+    // ✅ CRITICAL: Store connecting flight data before redirect
+    if (isConnectingFlight && connectingFlightData) {
+        console.log('🔗 Storing connecting flight data:', connectingFlightData);
+        sessionStorage.setItem('connectingFlightData', JSON.stringify(connectingFlightData));
     }
+
+    if (!user.id) {
+        sessionStorage.setItem('pendingBooking', JSON.stringify({
+            flightId: params.flightId,
+            fareCode: fareCode,
+            price: price,
+            isConnecting: isConnectingFlight,
+            connectingData: connectingFlightData
+        }));
+        showToast('Please login to continue booking');
+        setTimeout(() => window.location.href = '/signin', 1500);
+        return;
+    }
+
+    let seatClass = 'ECONOMY';
+    if (fareCode === 'BUSINESS') seatClass = 'BUSINESS';
+    else if (fareCode === 'FIRST') seatClass = 'FIRST';
+
+    // ✅ Pass connecting flag in URL
+    let url = `/booking?flightId=${params.flightId}&fareCode=${fareCode}&passengers=${params.passengers || 1}&seatClass=${seatClass}`;
+
+    if (isConnectingFlight && connectingFlightData) {
+        url += `&isConnecting=true`;
+        console.log('🔗 Redirecting with connecting flag:', url);
+    }
+
+    window.location.href = url;
+}
 
     function updateAuthSection() {
         const user = JSON.parse(sessionStorage.getItem('user') || '{}');
@@ -1003,37 +717,46 @@
         }
     }
 
-    // ============================================
-    // INITIALIZATION
-    // ============================================
     async function init() {
+        console.log('🚀 Initializing price comparison page...');
         updateAuthSection();
         await loadUserProfile();
+        await loadFareClasses();
 
-        const flight = await loadFlightData();
-        if (!flight) {
+        const result = await loadFlightData();
+
+        if (!result || (!result.flight && !result.connectingData)) {
             document.getElementById('loadingContainer').style.display = 'none';
-            document.getElementById('contentContainer').innerHTML = '<div class="flight-summary" style="text-align: center; padding: 50px;"><i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ffd700;"></i><p style="margin-top: 20px;">Flight not found. Please go back and search again.</p><button class="back-btn" onclick="window.location.href=\'/flights/search\'" style="margin-top: 20px;">Search Flights</button></div>';
+            document.getElementById('contentContainer').innerHTML = `
+                <div class="flight-summary" style="text-align: center; padding: 50px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #ffd700;"></i>
+                    <p style="margin-top: 20px;">Flight not found. Please go back and search again.</p>
+                    <button class="back-btn" onclick="goBack()" style="margin-top: 20px;">Back to Search</button>
+                </div>
+            `;
             document.getElementById('contentContainer').style.display = 'block';
             return;
         }
 
-        await loadFareClasses();
-
-        const html = `
-            ${renderFlightSummary()}
-            ${renderPriceCards()}
-            ${renderAdditionalInfo()}
-        `;
+        let html = '';
+        if (isConnectingFlight && connectingFlightData) {
+            html += renderConnectingFlightSegments();
+        }
+        html += renderFlightSummary();
+        html += renderPriceCards();
+        html += renderAdditionalInfo();
 
         document.getElementById('loadingContainer').style.display = 'none';
         document.getElementById('contentContainer').innerHTML = html;
         document.getElementById('contentContainer').style.display = 'block';
+
+        console.log('✅ Price comparison page loaded successfully');
     }
 
     window.selectFareCard = selectFareCard;
     window.proceedToBooking = proceedToBooking;
     window.logout = logout;
+    window.goBack = goBack;
 
     window.addEventListener('load', init);
 

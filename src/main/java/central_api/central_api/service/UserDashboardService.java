@@ -35,13 +35,9 @@ public class UserDashboardService {
 
             log.debug("User profile data: {}", userData);
 
-            // ✅ FIX: Now getUserBookings returns Map, extract list from "bookings" key
-            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
-            List<Map<String, Object>> allBookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
+            // ✅ FIXED: Use getUserBookingsList directly
+            List<Map<String, Object>> allBookings = dbApiClient.getUserBookingsList(userId);
+            log.info("✅ Found {} bookings for user {}", allBookings.size(), userId);
 
             LocalDateTime now = LocalDateTime.now();
 
@@ -104,16 +100,18 @@ public class UserDashboardService {
      */
     public List<BookingSummaryDTO> getUserBookingsSummary(Long userId) {
         try {
-            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
-            List<Map<String, Object>> bookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                bookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
+            // ✅ FIXED: Use getUserBookingsList directly
+            List<Map<String, Object>> bookings = dbApiClient.getUserBookingsList(userId);
+            log.info("✅ Found {} bookings for user {}", bookings.size(), userId);
 
             return bookings.stream()
                     .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b2.getDepartureTime().compareTo(b1.getDepartureTime()))
+                    .sorted((b1, b2) -> {
+                        if (b1.getDepartureTime() == null || b2.getDepartureTime() == null) {
+                            return 0;
+                        }
+                        return b2.getDepartureTime().compareTo(b1.getDepartureTime());
+                    })
                     .collect(Collectors.toList());
 
         } catch (Exception e) {
@@ -121,7 +119,6 @@ public class UserDashboardService {
             return new ArrayList<>();
         }
     }
-
 
     /**
      * Get booking details by ID
@@ -215,6 +212,132 @@ public class UserDashboardService {
     }
 
     /**
+     * Get upcoming bookings
+     */
+    public List<BookingSummaryDTO> getUpcomingBookings(Long userId) {
+        try {
+            // ✅ FIXED: Use getUserBookingsList directly
+            List<Map<String, Object>> allBookings = dbApiClient.getUserBookingsList(userId);
+            log.info("✅ Checking upcoming bookings for user {}, total bookings: {}", userId, allBookings.size());
+
+            LocalDateTime now = LocalDateTime.now();
+
+            List<BookingSummaryDTO> upcoming = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        if (!"CONFIRMED".equals(status)) return false;
+
+                        List<Map<String, Object>> bookingFlights =
+                                (List<Map<String, Object>>) booking.get("bookingFlights");
+                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
+
+                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
+                        if (flight == null) return false;
+
+                        String departureTimeStr = (String) flight.get("departureTime");
+                        if (departureTimeStr == null) return false;
+
+                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
+                        return departureTime.isAfter(now);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> {
+                        if (b1.getDepartureTime() == null || b2.getDepartureTime() == null) {
+                            return 0;
+                        }
+                        return b1.getDepartureTime().compareTo(b2.getDepartureTime());
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("✅ Found {} upcoming bookings", upcoming.size());
+            return upcoming;
+
+        } catch (Exception e) {
+            log.error("Error fetching upcoming bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Get past bookings
+     */
+    public List<BookingSummaryDTO> getPastBookings(Long userId) {
+        try {
+            // ✅ FIXED: Use getUserBookingsList directly
+            List<Map<String, Object>> allBookings = dbApiClient.getUserBookingsList(userId);
+            log.info("✅ Checking past bookings for user {}, total bookings: {}", userId, allBookings.size());
+
+            LocalDateTime now = LocalDateTime.now();
+
+            List<BookingSummaryDTO> past = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        if ("CANCELLED".equals(status)) return false;
+
+                        List<Map<String, Object>> bookingFlights =
+                                (List<Map<String, Object>>) booking.get("bookingFlights");
+                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
+
+                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
+                        if (flight == null) return false;
+
+                        String departureTimeStr = (String) flight.get("departureTime");
+                        if (departureTimeStr == null) return false;
+
+                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
+                        return departureTime.isBefore(now) || "COMPLETED".equals(status);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> {
+                        if (b1.getDepartureTime() == null || b2.getDepartureTime() == null) {
+                            return 0;
+                        }
+                        return b2.getDepartureTime().compareTo(b1.getDepartureTime());
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("✅ Found {} past bookings", past.size());
+            return past;
+
+        } catch (Exception e) {
+            log.error("Error fetching past bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Get cancelled bookings
+     */
+    public List<BookingSummaryDTO> getCancelledBookings(Long userId) {
+        try {
+            // ✅ FIXED: Use getUserBookingsList directly
+            List<Map<String, Object>> allBookings = dbApiClient.getUserBookingsList(userId);
+            log.info("✅ Checking cancelled bookings for user {}, total bookings: {}", userId, allBookings.size());
+
+            List<BookingSummaryDTO> cancelled = allBookings.stream()
+                    .filter(booking -> {
+                        String status = (String) booking.get("status");
+                        return "CANCELLED".equals(status);
+                    })
+                    .map(this::convertToBookingSummary)
+                    .sorted((b1, b2) -> {
+                        if (b1.getBookingTime() == null || b2.getBookingTime() == null) {
+                            return 0;
+                        }
+                        return b2.getBookingTime().compareTo(b1.getBookingTime());
+                    })
+                    .collect(Collectors.toList());
+
+            log.info("✅ Found {} cancelled bookings", cancelled.size());
+            return cancelled;
+
+        } catch (Exception e) {
+            log.error("Error fetching cancelled bookings: {}", e.getMessage());
+            return new ArrayList<>();
+        }
+    }
+
+    /**
      * Convert booking map to BookingSummaryDTO
      */
     private BookingSummaryDTO convertToBookingSummary(Map<String, Object> booking) {
@@ -234,15 +357,20 @@ public class UserDashboardService {
 
         if (bookingFlights != null && !bookingFlights.isEmpty()) {
             Map<String, Object> flightData = (Map<String, Object>) bookingFlights.get(0).get("flight");
-            flightNumber = (String) flightData.get("flightNumber");
+            if (flightData != null) {
+                flightNumber = (String) flightData.get("flightNumber");
 
-            Map<String, Object> sourceAirport = (Map<String, Object>) flightData.get("sourceAirport");
-            Map<String, Object> destAirport = (Map<String, Object>) flightData.get("destinationAirport");
+                Map<String, Object> sourceAirport = (Map<String, Object>) flightData.get("sourceAirport");
+                Map<String, Object> destAirport = (Map<String, Object>) flightData.get("destinationAirport");
 
-            if (sourceAirport != null) sourceCode = (String) sourceAirport.get("code");
-            if (destAirport != null) destinationCode = (String) destAirport.get("code");
+                if (sourceAirport != null) sourceCode = (String) sourceAirport.get("code");
+                if (destAirport != null) destinationCode = (String) destAirport.get("code");
 
-            departureTime = LocalDateTime.parse((String) flightData.get("departureTime"));
+                String departureTimeStr = (String) flightData.get("departureTime");
+                if (departureTimeStr != null) {
+                    departureTime = LocalDateTime.parse(departureTimeStr);
+                }
+            }
         }
 
         // Get passenger count
@@ -250,10 +378,12 @@ public class UserDashboardService {
         int passengerCount = passengers != null ? passengers.size() : 0;
 
         // Get baggage allowance from fare class
-        int checkInBaggageKg = 15; // default
+        int checkInBaggageKg = 15;
         try {
             FareClassDTO fareClass = fareClassService.getFareClassByCode(fareClassCode);
-            checkInBaggageKg = fareClass.getCheckInBaggageKg();
+            if (fareClass != null) {
+                checkInBaggageKg = fareClass.getCheckInBaggageKg();
+            }
         } catch (Exception e) {
             log.warn("Could not fetch fare class for baggage: {}", fareClassCode);
         }
@@ -307,7 +437,6 @@ public class UserDashboardService {
         String flightNumber = flightData != null ? (String) flightData.get("flightNumber") : "N/A";
         String airlineName = "Airline";
 
-        // Get aircraft and airline
         if (flightData != null) {
             Map<String, Object> aircraft = (Map<String, Object>) flightData.get("aircraft");
             if (aircraft != null) {
@@ -318,7 +447,6 @@ public class UserDashboardService {
             }
         }
 
-        // Get source/destination airports
         String sourceCode = "N/A";
         String sourceCity = "N/A";
         String destinationCode = "N/A";
@@ -340,8 +468,11 @@ public class UserDashboardService {
                 destinationCity = (String) destAirport.get("city");
             }
 
-            departureTime = LocalDateTime.parse((String) flightData.get("departureTime"));
-            arrivalTime = LocalDateTime.parse((String) flightData.get("arrivalTime"));
+            String departureTimeStr = (String) flightData.get("departureTime");
+            String arrivalTimeStr = (String) flightData.get("arrivalTime");
+
+            if (departureTimeStr != null) departureTime = LocalDateTime.parse(departureTimeStr);
+            if (arrivalTimeStr != null) arrivalTime = LocalDateTime.parse(arrivalTimeStr);
             duration = (Integer) flightData.get("duration");
         }
 
@@ -450,122 +581,5 @@ public class UserDashboardService {
         }
 
         return 0;
-    }
-
-
-    // UserDashboardService.java
-
-    public List<BookingSummaryDTO> getUpcomingBookings(Long userId) {
-        try {
-            // ✅ Use existing endpoint - get all bookings
-            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
-            List<Map<String, Object>> allBookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            LocalDateTime now = LocalDateTime.now();
-
-            // Filter upcoming bookings in memory
-            List<BookingSummaryDTO> upcoming = allBookings.stream()
-                    .filter(booking -> {
-                        String status = (String) booking.get("status");
-                        if (!"CONFIRMED".equals(status)) return false;
-
-                        List<Map<String, Object>> bookingFlights =
-                                (List<Map<String, Object>>) booking.get("bookingFlights");
-                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
-
-                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
-                        if (flight == null) return false;
-
-                        String departureTimeStr = (String) flight.get("departureTime");
-                        if (departureTimeStr == null) return false;
-
-                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
-                        return departureTime.isAfter(now);
-                    })
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b1.getDepartureTime().compareTo(b2.getDepartureTime()))
-                    .collect(Collectors.toList());
-
-            return upcoming;
-
-        } catch (Exception e) {
-            log.error("Error fetching upcoming bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    public List<BookingSummaryDTO> getPastBookings(Long userId) {
-        try {
-            // ✅ Use existing endpoint - get all bookings
-            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
-            List<Map<String, Object>> allBookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            LocalDateTime now = LocalDateTime.now();
-
-            // Filter past/completed bookings
-            List<BookingSummaryDTO> past = allBookings.stream()
-                    .filter(booking -> {
-                        String status = (String) booking.get("status");
-                        if ("CANCELLED".equals(status)) return false;
-
-                        List<Map<String, Object>> bookingFlights =
-                                (List<Map<String, Object>>) booking.get("bookingFlights");
-                        if (bookingFlights == null || bookingFlights.isEmpty()) return false;
-
-                        Map<String, Object> flight = (Map<String, Object>) bookingFlights.get(0).get("flight");
-                        if (flight == null) return false;
-
-                        String departureTimeStr = (String) flight.get("departureTime");
-                        if (departureTimeStr == null) return false;
-
-                        LocalDateTime departureTime = LocalDateTime.parse(departureTimeStr);
-                        return departureTime.isBefore(now) || "COMPLETED".equals(status);
-                    })
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b2.getDepartureTime().compareTo(b1.getDepartureTime()))
-                    .collect(Collectors.toList());
-
-            return past;
-
-        } catch (Exception e) {
-            log.error("Error fetching past bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    public List<BookingSummaryDTO> getCancelledBookings(Long userId) {
-        try {
-            // ✅ Use existing endpoint - get all bookings
-            Map<String, Object> bookingsResponse = dbApiClient.getUserBookings(userId);
-            List<Map<String, Object>> allBookings = new ArrayList<>();
-
-            if (bookingsResponse != null && bookingsResponse.get("bookings") != null) {
-                allBookings = (List<Map<String, Object>>) bookingsResponse.get("bookings");
-            }
-
-            // Filter cancelled bookings
-            List<BookingSummaryDTO> cancelled = allBookings.stream()
-                    .filter(booking -> {
-                        String status = (String) booking.get("status");
-                        return "CANCELLED".equals(status);
-                    })
-                    .map(this::convertToBookingSummary)
-                    .sorted((b1, b2) -> b2.getBookingTime().compareTo(b1.getBookingTime()))
-                    .collect(Collectors.toList());
-
-            return cancelled;
-
-        } catch (Exception e) {
-            log.error("Error fetching cancelled bookings: {}", e.getMessage());
-            return new ArrayList<>();
-        }
     }
 }

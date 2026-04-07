@@ -941,6 +941,7 @@
             });
             if (response.ok) {
                 fareClasses = await response.json();
+                console.log('✅ Fare classes loaded:', fareClasses.length);
             }
         } catch (error) {
             console.error('Error loading fare classes:', error);
@@ -949,11 +950,14 @@
 
     async function searchFlights() {
         const params = getUrlParams();
+        console.log('🔍 Search params:', params);
+
         if (!params.sourceCode || !params.destinationCode || !params.travelDate) {
             showToast('Invalid search parameters', true);
             window.location.href = '/flights/search';
             return;
         }
+
         updateSearchInfo(params);
         updateTemperatureDisplay(params.sourceCode, params.destinationCode);
 
@@ -966,13 +970,25 @@
         };
         if (params.maxPrice) searchRequest.maxPrice = params.maxPrice;
 
+        console.log('📤 Search request:', searchRequest);
+
         try {
             const response = await fetch(`${API_BASE}/api/db/flights/search`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
                 body: JSON.stringify(searchRequest)
             });
+
+            console.log('📥 Response status:', response.status);
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
             const data = await response.json();
+            console.log('✅ Flights received:', data.length);
+
             if (response.ok) {
                 allFlights = data;
                 filteredFlights = [...allFlights];
@@ -987,39 +1003,38 @@
         } catch (error) {
             console.error('Search error:', error);
             const flightsList = document.getElementById('flightsList');
-            if (flightsList) flightsList.innerHTML = `<div class="no-flights">❌ Network error: ${error.message}</div>`;
+            if (flightsList) flightsList.innerHTML = `<div class="no-flights">❌ Network error: ${error.message}. Please check if server is running.</div>`;
+            showToast('Failed to search flights. Please try again.', true);
         }
     }
 
     function updateSearchInfo(params) {
-    const originCity = params.sourceCity || params.sourceCode;
-    const destCity = params.destinationCity || params.destinationCode;
-    const date = new Date(params.travelDate);
+        const originCity = params.sourceCity || params.sourceCode;
+        const destCity = params.destinationCity || params.destinationCode;
+        const date = new Date(params.travelDate);
 
-    const originCityEl = document.getElementById('originCity');
-    const originCodeEl = document.getElementById('originCode');
-    const destCityEl = document.getElementById('destCity');
-    const destCodeEl = document.getElementById('destCode');
-    const dateInfoEl = document.getElementById('dateInfo');
-    const searchSummaryEl = document.getElementById('searchSummary');
+        const originCityEl = document.getElementById('originCity');
+        const originCodeEl = document.getElementById('originCode');
+        const destCityEl = document.getElementById('destCity');
+        const destCodeEl = document.getElementById('destCode');
+        const dateInfoEl = document.getElementById('dateInfo');
+        const searchSummaryEl = document.getElementById('searchSummary');
 
-    if (originCityEl) originCityEl.textContent = originCity || 'Departure';
-    if (originCodeEl) originCodeEl.textContent = params.sourceCode?.toUpperCase() || '???';
-    if (destCityEl) destCityEl.textContent = destCity || 'Arrival';
-    if (destCodeEl) destCodeEl.textContent = params.destinationCode?.toUpperCase() || '???';
+        if (originCityEl) originCityEl.textContent = originCity || 'Departure';
+        if (originCodeEl) originCodeEl.textContent = params.sourceCode?.toUpperCase() || '???';
+        if (destCityEl) destCityEl.textContent = destCity || 'Arrival';
+        if (destCodeEl) destCodeEl.textContent = params.destinationCode?.toUpperCase() || '???';
 
-    // ✅ FIXED: Removed passenger count from display
-    if (dateInfoEl) dateInfoEl.innerHTML = `📅 ${date.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | 💺 ${params.seatClass}`;
+        if (dateInfoEl) dateInfoEl.innerHTML = `📅 ${date.toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })} | 💺 ${params.seatClass}`;
 
-    if (searchSummaryEl) searchSummaryEl.innerHTML = `${originCity} → ${destCity} | ${params.travelDate} | ${params.passengers} Traveller | ${params.seatClass}`;
-}
+        if (searchSummaryEl) searchSummaryEl.innerHTML = `${originCity} → ${destCity} | ${params.travelDate} | ${params.passengers} Traveller | ${params.seatClass}`;
+    }
 
     function updateFilterCounts() {
         let directCount = 0, oneStopCount = 0, twoPlusCount = 0;
         let morningCount = 0, afternoonCount = 0, eveningCount = 0;
         let dep6to12 = 0, dep12to18 = 0, dep18to24 = 0;
         let arr6to12 = 0, arr12to18 = 0, arr18to24 = 0;
-        let smallAircraftCount = 0;
         let airlinePrices = {};
 
         allFlights.forEach(flight => {
@@ -1029,8 +1044,7 @@
             if (segments[0]?.departureTime) departureHour = new Date(segments[0].departureTime).getHours();
             if (segments[segments.length-1]?.arrivalTime) arrivalHour = new Date(segments[segments.length-1].arrivalTime).getHours();
             const price = flight.currentPriceEconomy || flight.basePriceEconomy || flight.totalPrice || 0;
-            const airline = flight.aircraft?.airline?.name || flight.airlineName || 'Airline';
-            const aircraftModel = flight.aircraft?.model || '';
+            const airline = flight.aircraft?.airline?.name || flight.airlineName || (flight.airlines ? flight.airlines[0] : 'Airline');
 
             if (stops === 0) directCount++;
             else if (stops === 1) oneStopCount++;
@@ -1048,13 +1062,10 @@
             else if (arrivalHour >= 12 && arrivalHour < 18) arr12to18++;
             else if (arrivalHour >= 18 || arrivalHour < 6) arr18to24++;
 
-            if (aircraftModel && (aircraftModel.includes('A320') || aircraftModel.includes('737') || aircraftModel.includes('E190'))) smallAircraftCount++;
-
             if (!airlinePrices[airline]) airlinePrices[airline] = price;
             else airlinePrices[airline] = Math.min(airlinePrices[airline], price);
         });
 
-        // Safe update with null checks
         const safeSetText = (id, value) => {
             const el = document.getElementById(id);
             if (el) el.textContent = value;
@@ -1072,7 +1083,6 @@
         safeSetText('countArr6to12', arr6to12);
         safeSetText('countArr12to18', arr12to18);
         safeSetText('countArr18to24', arr18to24);
-        safeSetText('countSmallAircraft', smallAircraftCount);
         safeSetText('count1Stop', oneStopCount);
 
         window.airlinePrices = airlinePrices;
@@ -1081,8 +1091,9 @@
     function populateAirlinesFilter() {
         const airlinesSet = new Set();
         allFlights.forEach(flight => {
-            const airline = flight.aircraft?.airline?.name || flight.airlineName || 'Airline';
-            airlinesSet.add(airline);
+            let airline = flight.aircraft?.airline?.name || flight.airlineName;
+            if (!airline && flight.airlines) airline = flight.airlines[0];
+            if (airline) airlinesSet.add(airline);
         });
         const airlineList = document.getElementById('airlineList');
         if (!airlineList) return;
@@ -1125,7 +1136,8 @@
             if (segments[0]?.departureTime) departureHour = new Date(segments[0].departureTime).getHours();
             if (segments[segments.length-1]?.arrivalTime) arrivalHour = new Date(segments[segments.length-1].arrivalTime).getHours();
             const price = flight.currentPriceEconomy || flight.basePriceEconomy || flight.totalPrice || 0;
-            const airline = flight.aircraft?.airline?.name || flight.airlineName || 'Airline';
+            let airline = flight.aircraft?.airline?.name || flight.airlineName;
+            if (!airline && flight.airlines) airline = flight.airlines[0];
 
             if (stopsValue === 'direct' && stops !== 0) return false;
             if (stopsValue === '1' && stops !== 1) return false;
@@ -1152,7 +1164,7 @@
                 if (!match) return false;
             }
 
-            if (selectedAirlines.length > 0 && !selectedAirlines.includes(airline)) return false;
+            if (selectedAirlines.length > 0 && airline && !selectedAirlines.includes(airline)) return false;
             return true;
         });
         displayFlights(filteredFlights);
@@ -1221,10 +1233,34 @@
         displayFlights(filteredFlights);
     }
 
-    function viewPrices(flightId) {
+    // ✅ FIXED: viewPrices - passes complete connecting flight object
+    function viewPrices(flight) {
+        console.log('✈️ viewPrices called with flight:', flight);
         const params = getUrlParams();
-        const redirectUrl = `/price-comparison?flightId=${flightId}&sourceCode=${params.sourceCode}&destinationCode=${params.destinationCode}&travelDate=${params.travelDate}&sourceCity=${params.sourceCity}&destinationCity=${params.destinationCity}&passengers=${params.passengers}&seatClass=${params.seatClass}`;
-        window.location.href = redirectUrl;
+
+        if (!flight) {
+            showToast('Invalid flight data', true);
+            return;
+        }
+
+        // Check if it's a connecting flight (has segments array)
+        if (flight.segments && flight.segments.length > 0) {
+            console.log('🔗 Connecting flight detected with', flight.segments.length, 'segments');
+
+            // Store the complete connecting flight data in sessionStorage
+            sessionStorage.setItem('connectingFlightData', JSON.stringify(flight));
+
+            // Redirect with connecting flight flag
+            const redirectUrl = `/price-comparison?flightId=${flight.segments[0].id}&sourceCode=${params.sourceCode}&destinationCode=${params.destinationCode}&travelDate=${params.travelDate}&sourceCity=${params.sourceCity}&destinationCity=${params.destinationCity}&passengers=${params.passengers}&seatClass=${params.seatClass}&isConnecting=true&totalPrice=${flight.totalPrice}`;
+            console.log('🔗 Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+        } else {
+            // Direct flight
+            console.log('✈️ Direct flight detected');
+            const redirectUrl = `/price-comparison?flightId=${flight.id}&sourceCode=${params.sourceCode}&destinationCode=${params.destinationCode}&travelDate=${params.travelDate}&sourceCity=${params.sourceCity}&destinationCity=${params.destinationCity}&passengers=${params.passengers}&seatClass=${params.seatClass}`;
+            console.log('✈️ Redirecting to:', redirectUrl);
+            window.location.href = redirectUrl;
+        }
     }
 
     function redirectToDashboardSearch() {
@@ -1248,24 +1284,29 @@
     function displayFlights(flights) {
         const container = document.getElementById('flightsList');
         if (!container) return;
+
         if (!flights || flights.length === 0) {
             container.innerHTML = '<div class="no-flights">✈️ No flights found. Try different dates or destinations.</div>';
             return;
         }
+
+        console.log('📊 Displaying flights:', flights.length);
+
         container.innerHTML = flights.map(flight => {
-            if (flight.flightNumber) {
-                return directFlightHtml(flight);
-            } else if (flight.segments && flight.segments.length > 0) {
+            if (flight.segments && flight.segments.length > 0) {
                 return connectingFlightHtml(flight);
+            } else {
+                return directFlightHtml(flight);
             }
-            return '';
         }).join('');
     }
 
     function directFlightHtml(flight) {
         const basePrice = flight.currentPriceEconomy || flight.basePriceEconomy || 0;
+        const flightJson = JSON.stringify(flight).replace(/'/g, "&apos;");
+
         return `
-            <div class="flight-card" data-flight-id="${flight.id}">
+            <div class="flight-card">
                 <div class="flight-card-header">
                     <div class="airline-info">
                         <div class="airline-icon">✈️</div>
@@ -1296,7 +1337,7 @@
                         <div class="price-amount">₹${Math.round(basePrice)}</div>
                         <div class="price-tax">+ taxes</div>
                     </div>
-                    <button class="view-price-btn" onclick="viewPrices(${flight.id})">View Prices</button>
+                    <button class="view-price-btn" onclick='viewPrices(${flightJson})'>View Prices</button>
                 </div>
             </div>
         `;
@@ -1309,6 +1350,9 @@
         const stops = flight.numberOfStops || flight.segments.length - 1;
         const stopsText = stops === 1 ? '1 Stop' : `${stops} Stops`;
         const layoverText = flight.layoverAirports ? `via ${flight.layoverAirports.join(' → ')}` : '';
+
+        const flightJson = JSON.stringify(flight).replace(/'/g, "&apos;");
+
         return `
             <div class="flight-card">
                 <div class="flight-card-header">
@@ -1319,7 +1363,7 @@
                             <p>${flight.flightNumbers?.join(' → ')}</p>
                         </div>
                     </div>
-                    <div class="connecting-badge">✈️ Connecting Flight</div>
+                    <div class="connecting-badge">✈️ Connecting Flight (${stopsText})</div>
                 </div>
                 <div class="flight-route">
                     <div class="route-point">
@@ -1343,7 +1387,7 @@
                         <div class="price-amount">₹${Math.round(totalPrice)}</div>
                         <div class="price-tax">+ taxes</div>
                     </div>
-                    <button class="view-price-btn" onclick="viewPrices(${flight.id})">View Prices</button>
+                    <button class="view-price-btn" onclick='viewPrices(${flightJson})'>View Prices</button>
                 </div>
             </div>
         `;
@@ -1419,6 +1463,7 @@
     }
 
     async function init() {
+        console.log('🚀 Initializing search results page...');
         generateStars();
         updateAuthSection();
         await loadFareClasses();
@@ -1436,6 +1481,7 @@
     window.logout = logout;
 
     window.addEventListener('load', init);
+
     document.addEventListener('mousemove', (e) => {
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;

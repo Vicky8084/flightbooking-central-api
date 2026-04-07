@@ -7,6 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* Your existing CSS here - keeping it same */
         * {
             margin: 0;
             padding: 0;
@@ -829,11 +830,13 @@
     let flightData = null;
     let fareClassData = null;
     let selectedSeats = [];
+    let selectedSeatsByFlight = {};
+    let connectingFlightData = null;
+    let isConnectingFlight = false;
     let passengers = [];
     let selectedPaymentMethod = 'CARD';
     let passengerIdCounter = 1;
     let razorpayOrderId = null;
-    let razorpayPaymentId = null;
     let RAZORPAY_KEY_ID = '';
 
     // ============================================
@@ -903,20 +906,19 @@
     }
 
     // ============================================
-    // GET RAZORPAY PUBLIC KEY FROM BACKEND
+    // GET RAZORPAY PUBLIC KEY
     // ============================================
     async function loadRazorpayKey() {
         try {
-            const response = await fetch(`${API_BASE}/api/config/razorpay-key`);
+            const response = await fetch(`${API_BASE}/api/config/razorpay-key`, { credentials: 'include' });
             const data = await response.json();
             RAZORPAY_KEY_ID = data.keyId;
             console.log('✅ Razorpay key loaded successfully');
             return true;
         } catch (error) {
             console.error('Failed to load Razorpay key:', error);
-            // Fallback only for local development
             if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                RAZORPAY_KEY_ID = 'rzp_test_YOUR_KEY_ID_HERE';
+                RAZORPAY_KEY_ID = 'rzp_test_SXuvclubXYTVX3';
                 console.warn('⚠️ Using fallback key for local development');
                 return true;
             }
@@ -930,26 +932,57 @@
     // ============================================
     async function loadUserProfile() {
         try {
-            const profile = await fetchAPI(`${API_BASE}/user/api/profile`);
-            if (profile) {
+            const response = await fetch(`${API_BASE}/user/api/profile`, { credentials: 'include' });
+            if (response.ok) {
+                const profile = await response.json();
                 currentUser = profile;
                 updateAuthSection();
                 return profile;
             }
         } catch (error) {
-            window.location.href = '/signin';
-            return null;
+            console.error('Error loading profile:', error);
         }
+        return null;
     }
 
     function updateAuthSection() {
         const authSection = document.getElementById('authSection');
-        if (currentUser) {
-            authSection.innerHTML = `<div class="user-badge"><span>👤 ${currentUser.fullName?.split(' ')[0] || 'User'}</span><button class="logout-btn" onclick="logout()">Logout</button></div>`;
+        if (authSection && currentUser) {
+            authSection.innerHTML = `<div class="user-badge"><span>👤 ${currentUser.fullName?.split(' ')[0] || 'User'}</span><button class="logout-btn" onclick="manualLogout()">Logout</button></div>`;
         }
     }
 
+    function manualLogout() {
+        sessionStorage.removeItem('user');
+        window.location.href = '/signin';
+    }
+
     function loadBookingData() {
+        // Check for connecting flight data first
+        const storedConnectingData = sessionStorage.getItem('connectingFlightData');
+        const storedSelectedSeatsByFlight = sessionStorage.getItem('selectedSeatsByFlight');
+
+        if (storedConnectingData && storedSelectedSeatsByFlight) {
+            console.log('🔗 Loading connecting flight booking data');
+            connectingFlightData = JSON.parse(storedConnectingData);
+            selectedSeatsByFlight = JSON.parse(storedSelectedSeatsByFlight);
+            isConnectingFlight = true;
+            flightData = connectingFlightData.segments[0];
+
+            // Calculate total passengers from first flight seats
+            const firstFlightId = connectingFlightData.segments[0].id;
+            const firstFlightSeats = selectedSeatsByFlight[firstFlightId] || [];
+            const passengerCount = firstFlightSeats.length;
+
+            console.log('Connecting flight detected, passengers:', passengerCount);
+
+            for (let i = 0; i < passengerCount; i++) {
+                addPassenger();
+            }
+            return;
+        }
+
+        // Direct flight
         const savedSeats = sessionStorage.getItem('selectedSeats');
         if (savedSeats) {
             selectedSeats = JSON.parse(savedSeats);
@@ -977,33 +1010,82 @@
     // UPDATE DISPLAY
     // ============================================
     function updateFlightDisplay() {
-        document.getElementById('fromCode').textContent = flightData?.sourceAirport?.code || 'N/A';
-        document.getElementById('fromCity').textContent = flightData?.sourceAirport?.city || 'N/A';
-        document.getElementById('toCode').textContent = flightData?.destinationAirport?.code || 'N/A';
-        document.getElementById('toCity').textContent = flightData?.destinationAirport?.city || 'N/A';
-        document.getElementById('duration').textContent = `${flightData?.duration || 0} min`;
-        document.getElementById('flightInfo').textContent = `${flightData?.flightNumber || 'N/A'}`;
-        document.getElementById('flightDate').textContent = formatDate(flightData?.departureTime);
-        document.getElementById('departureTime').textContent = formatTime(flightData?.departureTime);
-        document.getElementById('arrivalTime').textContent = formatTime(flightData?.arrivalTime);
-        document.getElementById('fareClassName').textContent = fareClassData?.name || 'Economy';
-        document.getElementById('airlineName').textContent = flightData?.aircraft?.airline?.name || 'Airline';
+        if (isConnectingFlight && connectingFlightData) {
+            const firstSegment = connectingFlightData.segments[0];
+            const lastSegment = connectingFlightData.segments[connectingFlightData.segments.length - 1];
 
-        const seatsList = document.getElementById('seatsList');
-        if (selectedSeats && selectedSeats.length > 0) {
-            seatsList.innerHTML = selectedSeats.map(seat =>
-                `<div class="seat-tag">${seat.seatNumber}</div>`
-            ).join('');
+            document.getElementById('fromCode').textContent = firstSegment.sourceAirport?.code || firstSegment.sourceCode || 'N/A';
+            document.getElementById('fromCity').textContent = firstSegment.sourceAirport?.city || 'N/A';
+            document.getElementById('toCode').textContent = lastSegment.destinationAirport?.code || lastSegment.destCode || 'N/A';
+            document.getElementById('toCity').textContent = lastSegment.destinationAirport?.city || 'N/A';
+            document.getElementById('duration').textContent = `${connectingFlightData.totalDuration || 0} min`;
+            document.getElementById('flightInfo').textContent = connectingFlightData.flightNumbers?.join(' → ') || 'Connecting Flight';
+            document.getElementById('flightDate').textContent = formatDate(firstSegment.departureTime);
+            document.getElementById('departureTime').textContent = formatTime(firstSegment.departureTime);
+            document.getElementById('arrivalTime').textContent = formatTime(lastSegment.arrivalTime);
+            document.getElementById('fareClassName').textContent = fareClassData?.name || 'Economy';
+            document.getElementById('airlineName').textContent = connectingFlightData.airlines?.join(' → ') || 'Multiple Airlines';
+
+            let seatsHtml = '';
+            for (let i = 0; i < connectingFlightData.segments.length; i++) {
+                const segment = connectingFlightData.segments[i];
+                const seats = selectedSeatsByFlight[segment.id] || [];
+                seatsHtml += `<div style="margin-bottom: 10px;"><strong>Flight ${i+1}: ${segment.sourceAirport?.code || segment.sourceCode} → ${segment.destinationAirport?.code || segment.destCode}</strong><br>`;
+                seats.forEach(seat => {
+                    seatsHtml += `<div class="seat-tag">${seat.seatNumber}</div>`;
+                });
+                seatsHtml += `</div>`;
+            }
+            document.getElementById('seatsList').innerHTML = seatsHtml;
+        } else {
+            document.getElementById('fromCode').textContent = flightData?.sourceAirport?.code || 'N/A';
+            document.getElementById('fromCity').textContent = flightData?.sourceAirport?.city || 'N/A';
+            document.getElementById('toCode').textContent = flightData?.destinationAirport?.code || 'N/A';
+            document.getElementById('toCity').textContent = flightData?.destinationAirport?.city || 'N/A';
+            document.getElementById('duration').textContent = `${flightData?.duration || 0} min`;
+            document.getElementById('flightInfo').textContent = `${flightData?.flightNumber || 'N/A'}`;
+            document.getElementById('flightDate').textContent = formatDate(flightData?.departureTime);
+            document.getElementById('departureTime').textContent = formatTime(flightData?.departureTime);
+            document.getElementById('arrivalTime').textContent = formatTime(flightData?.arrivalTime);
+            document.getElementById('fareClassName').textContent = fareClassData?.name || 'Economy';
+            document.getElementById('airlineName').textContent = flightData?.aircraft?.airline?.name || 'Airline';
+
+            const seatsList = document.getElementById('seatsList');
+            if (selectedSeats && selectedSeats.length > 0) {
+                seatsList.innerHTML = selectedSeats.map(seat =>
+                    `<div class="seat-tag">${seat.seatNumber}</div>`
+                ).join('');
+            }
         }
     }
 
     function updatePriceDisplay() {
         const passengerCount = passengers.length;
-        const baseFarePerPerson = fareClassData?.priceMultiplier ?
-            Math.round((flightData?.basePriceEconomy || 2500) * fareClassData.priceMultiplier) :
-            (flightData?.basePriceEconomy || 2500);
+        let baseFarePerPerson = 0;
 
-        const totalSeatPrice = selectedSeats.reduce((sum, seat) => sum + (seat.price || baseFarePerPerson), 0);
+        if (fareClassData) {
+            if (fareClassData.code === 'BUSINESS') {
+                baseFarePerPerson = flightData?.basePriceBusiness || 2500;
+            } else if (fareClassData.code === 'FIRST') {
+                baseFarePerPerson = flightData?.basePriceFirstClass || 5000;
+            } else {
+                baseFarePerPerson = flightData?.basePriceEconomy || 1500;
+            }
+        } else {
+            baseFarePerPerson = flightData?.basePriceEconomy || 1500;
+        }
+
+        let totalSeatPrice = 0;
+
+        if (isConnectingFlight && connectingFlightData) {
+            for (const segment of connectingFlightData.segments) {
+                const seats = selectedSeatsByFlight[segment.id] || [];
+                totalSeatPrice += seats.reduce((sum, seat) => sum + (seat.price || baseFarePerPerson), 0);
+            }
+        } else {
+            totalSeatPrice = selectedSeats.reduce((sum, seat) => sum + (seat.price || baseFarePerPerson), 0);
+        }
+
         const seatPremiumTotal = totalSeatPrice - (baseFarePerPerson * passengerCount);
         const convenienceFee = passengerCount * 150;
         const subtotal = totalSeatPrice + convenienceFee;
@@ -1042,7 +1124,7 @@
             <div class="form-grid">
                 <div class="form-group full-width">
                     <label class="form-label">Full Name <span class="required">*</span></label>
-                    <input type="text" class="form-input" id="fullName-${passengerId}" placeholder="As per ID proof" value="${defaultName}" required>
+                    <input type="text" class="form-input" id="fullName-${passengerId}" placeholder="As per ID proof" value="${defaultName.replace(/"/g, '&quot;')}" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Age <span class="required">*</span></label>
@@ -1058,12 +1140,14 @@
                     </select>
                 </div>
                 <div class="form-group full-width">
-                    <label class="form-label">Email Address</label>
-                    <input type="email" class="form-input" id="email-${passengerId}" placeholder="example@email.com" value="${defaultEmail}">
+                    <label class="form-label">Email Address <span class="required">*</span></label>
+                    <input type="email" class="form-input" id="email-${passengerId}" placeholder="example@email.com" value="${defaultEmail.replace(/"/g, '&quot;')}" required>
+                    <small style="color: rgba(255,255,255,0.5);">Booking confirmation will be sent to this email</small>
                 </div>
                 <div class="form-group full-width">
                     <label class="form-label">Phone Number</label>
-                    <input type="tel" class="form-input" id="phone-${passengerId}" placeholder="+91 9876543210" value="${defaultPhone}">
+                    <input type="tel" class="form-input" id="phone-${passengerId}" placeholder="+91 9876543210" value="${defaultPhone.replace(/"/g, '&quot;')}">
+                    <small style="color: rgba(255,255,255,0.5);">For SMS alerts (optional)</small>
                 </div>
                 <div class="form-group full-width">
                     <label class="form-label">Passport Number</label>
@@ -1085,7 +1169,10 @@
             </div>
         `;
 
-        document.getElementById('passengersContainer').appendChild(passengerCard);
+        const container = document.getElementById('passengersContainer');
+        if (container) {
+            container.appendChild(passengerCard);
+        }
         passengers.push({ id: passengerId });
         updatePriceDisplay();
     }
@@ -1104,51 +1191,33 @@
     }
 
     function getPassengerDetails() {
-    console.log("📝 Getting passenger details from form...");
+        console.log("📝 Getting passenger details from form...");
 
-    const passengerDetails = passengers.map((passenger, index) => {
-        const emailInput = document.getElementById(`email-${passenger.id}`);
-        const phoneInput = document.getElementById(`phone-${passenger.id}`);
-        const fullNameInput = document.getElementById(`fullName-${passenger.id}`);
-        const ageInput = document.getElementById(`age-${passenger.id}`);
-        const genderSelect = document.getElementById(`gender-${passenger.id}`);
-        const passportInput = document.getElementById(`passport-${passenger.id}`);
-        const nationalityInput = document.getElementById(`nationality-${passenger.id}`);
-        const mealSelect = document.getElementById(`meal-${passenger.id}`);
+        const passengerDetails = passengers.map((passenger, index) => {
+            const emailInput = document.getElementById(`email-${passenger.id}`);
+            const phoneInput = document.getElementById(`phone-${passenger.id}`);
+            const fullNameInput = document.getElementById(`fullName-${passenger.id}`);
+            const ageInput = document.getElementById(`age-${passenger.id}`);
+            const genderSelect = document.getElementById(`gender-${passenger.id}`);
+            const passportInput = document.getElementById(`passport-${passenger.id}`);
+            const nationalityInput = document.getElementById(`nationality-${passenger.id}`);
+            const mealSelect = document.getElementById(`meal-${passenger.id}`);
 
-        const email = emailInput ? emailInput.value : '';
-        const phoneNumber = phoneInput ? phoneInput.value : '';
-        const fullName = fullNameInput ? fullNameInput.value : '';
-        const age = ageInput ? parseInt(ageInput.value) : 25;
-        const gender = genderSelect ? genderSelect.value : 'MALE';
-        const passportNumber = passportInput ? passportInput.value : '';
-        const nationality = nationalityInput ? nationalityInput.value : 'Indian';
-        const mealPreference = mealSelect ? mealSelect.value : 'VEG';
+            return {
+                fullName: fullNameInput ? fullNameInput.value.trim() : '',
+                age: ageInput ? parseInt(ageInput.value) : 25,
+                gender: genderSelect ? genderSelect.value : 'MALE',
+                email: emailInput ? emailInput.value.trim() : '',
+                phoneNumber: phoneInput ? phoneInput.value.trim() : '',
+                passportNumber: passportInput ? passportInput.value.trim() : '',
+                nationality: nationalityInput ? nationalityInput.value.trim() : 'Indian',
+                mealPreference: mealSelect ? mealSelect.value : 'VEG'
+            };
+        });
 
-        // ✅ LOG EACH PASSENGER FOR DEBUGGING
-        console.log(`   Passenger ${index + 1}:`);
-        console.log(`      Name: ${fullName}`);
-        console.log(`      Email: ${email}`);
-        console.log(`      Phone: ${phoneNumber}`);
-        console.log(`      Age: ${age}`);
-        console.log(`      Gender: ${gender}`);
-
-        return {
-            fullName: fullName,
-            age: age,
-            gender: gender,
-            email: email,                    // ✅ CRITICAL: Email field
-            phoneNumber: phoneNumber,        // ✅ CRITICAL: Phone field
-            passportNumber: passportNumber,
-            nationality: nationality,
-            mealPreference: mealPreference,
-            seatNumber: selectedSeats[index]?.seatNumber || 'Auto-assigned'
-        };
-    });
-
-    console.log("✅ Passenger details collected:", passengerDetails);
-    return passengerDetails;
-}
+        console.log("✅ Passenger details collected:", passengerDetails.length);
+        return passengerDetails;
+    }
 
     function validatePassengers() {
         let isValid = true;
@@ -1158,6 +1227,7 @@
             const fullName = document.getElementById(`fullName-${passenger.id}`)?.value;
             const age = document.getElementById(`age-${passenger.id}`)?.value;
             const gender = document.getElementById(`gender-${passenger.id}`)?.value;
+            const email = document.getElementById(`email-${passenger.id}`)?.value;
 
             if (!fullName || fullName.trim().length < 2) {
                 errors.push(`Passenger ${index + 1}: Full name is required`);
@@ -1171,9 +1241,107 @@
                 errors.push(`Passenger ${index + 1}: Gender is required`);
                 isValid = false;
             }
+            if (!email || !email.trim()) {
+                errors.push(`Passenger ${index + 1}: Email is required`);
+                isValid = false;
+            }
         });
 
+        if (!isValid) {
+            showToast(errors.join('\n'), true);
+        }
         return { isValid, errors };
+    }
+
+    // ============================================
+    // ✅ FIXED: CREATE BOOKING - Connecting Flight Support
+    // ============================================
+    async function createBooking(paymentId, amount) {
+        const passengerDetails = getPassengerDetails();
+
+        document.getElementById('loadingOverlay').style.display = 'flex';
+
+        let bookingRequest = null;
+        let allSeatIds = [];
+
+        if (isConnectingFlight && connectingFlightData) {
+            // Connecting flight: Prepare data for all segments
+            const flights = [];
+
+            for (let i = 0; i < connectingFlightData.segments.length; i++) {
+                const segment = connectingFlightData.segments[i];
+                const seats = selectedSeatsByFlight[segment.id] || [];
+
+                // Collect all seat IDs for validation
+                seats.forEach(seat => allSeatIds.push(seat.id));
+
+                flights.push({
+                    flightId: segment.id,
+                    sequence: i + 1,
+                    passengerSeats: seats.map((seat, idx) => ({
+                        seatId: seat.id,
+                        passengerIndex: idx
+                    }))
+                });
+            }
+
+            bookingRequest = {
+                flights: flights,
+                seatIds: allSeatIds,  // ✅ IMPORTANT: All seat IDs from all flights
+                passengers: passengerDetails,
+                fareClassCode: fareClassData?.code || 'STANDARD',
+                payment: {
+                    paymentMethod: selectedPaymentMethod,
+                    transactionId: paymentId,
+                    amount: amount
+                }
+            };
+        } else {
+            // Direct flight
+            bookingRequest = {
+                flightId: flightData?.id,
+                seatIds: selectedSeats.map(s => s.id),
+                passengers: passengerDetails,
+                fareClassCode: fareClassData?.code || 'STANDARD',
+                payment: {
+                    paymentMethod: selectedPaymentMethod,
+                    transactionId: paymentId,
+                    amount: amount
+                }
+            };
+        }
+
+        console.log('📤 Sending booking request:', JSON.stringify(bookingRequest, null, 2));
+        console.log('📤 Seat IDs count:', bookingRequest.seatIds.length);
+
+        try {
+            const response = await fetch(`${API_BASE}/api/bookings`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(bookingRequest)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                showToast(`✅ Booking confirmed! PNR: ${result.pnr}`);
+                sessionStorage.removeItem('selectedSeats');
+                sessionStorage.removeItem('selectedSeatsByFlight');
+                sessionStorage.removeItem('flightData');
+                sessionStorage.removeItem('fareClassData');
+                sessionStorage.removeItem('connectingFlightData');
+                setTimeout(() => {
+                    window.location.href = '/user-dashboard';
+                }, 2000);
+            } else {
+                throw new Error(result.message || 'Booking creation failed');
+            }
+        } catch (error) {
+            console.error('Booking error:', error);
+            showToast('Booking failed: ' + error.message, true);
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
     }
 
     // ============================================
@@ -1211,7 +1379,7 @@
                         <input type="text" class="form-input" id="cardName" placeholder="As on card">
                     </div>
                 </div>
-                <small style="color: rgba(255,255,255,0.5); display: block; margin-top: 10px;">🔒 Test Mode: Use 4111 1111 1111 1111 | Any future expiry | Any CVV</small>
+                <small style="color: rgba(255,255,255,0.5); display: block; margin-top: 10px;">🔒 Test Mode: Use 4111 1111 1111 1111 | Any future expiry | Any CVV | OTP: 1234</small>
             `;
             container.style.display = 'block';
         } else if (method === 'UPI') {
@@ -1252,7 +1420,6 @@
     // ============================================
     // RAZORPAY PAYMENT INTEGRATION
     // ============================================
-
     function loadRazorpayScript() {
         return new Promise((resolve, reject) => {
             if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
@@ -1302,18 +1469,13 @@
                 amount: amount * 100,
                 currency: 'INR',
                 name: 'AirNova',
-                description: `Flight Booking - ${flightData?.flightNumber || 'AirNova Flight'}`,
+                description: `Flight Booking - ${isConnectingFlight ? 'Connecting Flight' : (flightData?.flightNumber || 'AirNova Flight')}`,
                 order_id: orderId,
                 handler: async function(response) {
-    console.log('=== RAZORPAY RESPONSE ===');
-    console.log('Full Response:', response);
-    console.log('Payment ID:', response.razorpay_payment_id);
-    console.log('Order ID:', response.razorpay_order_id);
-    console.log('Signature:', response.razorpay_signature);
-    console.log('==========================');
-
-    await verifyAndCreateBooking(response, amount);
-},
+                    console.log('=== RAZORPAY RESPONSE ===');
+                    console.log('Payment ID:', response.razorpay_payment_id);
+                    await verifyAndCreateBooking(response, amount);
+                },
                 prefill: {
                     name: currentUser?.fullName || '',
                     email: currentUser?.email || '',
@@ -1321,12 +1483,9 @@
                 },
                 notes: {
                     flightId: flightData?.id || '',
-                    flightNumber: flightData?.flightNumber || '',
-                    passengerCount: passengers.length.toString()
+                    isConnecting: isConnectingFlight ? 'true' : 'false'
                 },
-                theme: {
-                    color: '#F37254'
-                },
+                theme: { color: '#F37254' },
                 modal: {
                     ondismiss: function() {
                         console.log('Checkout closed');
@@ -1373,78 +1532,9 @@
         }
     }
 
-    async function createBooking(paymentId, amount) {
-    const passengerDetails = getPassengerDetails();
-
-    console.log('📧 Passenger Emails:', passengerDetails.map(p => ({ name: p.fullName, email: p.email, phone: p.phoneNumber })));
-
-    const bookingRequest = {
-        userId: currentUser?.id,
-        fareClassCode: fareClassData?.code || 'STANDARD',
-        flights: [
-            {
-                flightId: flightData?.id,
-                sequence: 1,
-                passengerSeats: selectedSeats.map((seat, idx) => ({
-                    seatId: seat.id,
-                    passengerIndex: idx
-                }))
-            }
-        ],
-        passengers: passengerDetails.map(p => ({
-            fullName: p.fullName,
-            age: p.age,
-            gender: p.gender,
-            passportNumber: p.passportNumber || null,
-            nationality: p.nationality || 'Indian',
-            mealPreference: p.mealPreference,
-            email: p.email,           // ✅ CRITICAL FIX
-            phoneNumber: p.phoneNumber // ✅ CRITICAL FIX
-        })),
-        payment: {
-            paymentMethod: selectedPaymentMethod,
-            transactionId: paymentId,
-            amount: amount
-        }
-    };
-
-    try {
-        const response = await fetch(`${API_BASE}/api/db/bookings`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(bookingRequest)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-            showToast(`✅ Booking confirmed! PNR: ${result.pnr}`);
-            sessionStorage.removeItem('selectedSeats');
-            sessionStorage.removeItem('flightData');
-            sessionStorage.removeItem('fareClassData');
-            setTimeout(() => {
-                window.location.href = '/user-dashboard';
-            }, 2000);
-        } else {
-            throw new Error(result.message || 'Booking creation failed');
-        }
-    } catch (error) {
-        console.error('Booking error:', error);
-        showToast('Payment successful but booking failed. Please contact support.', true);
-        document.getElementById('loadingOverlay').style.display = 'none';
-    }
-}
-
-    // ============================================
-    // CONFIRM BOOKING (MAIN ENTRY POINT)
-    // ============================================
     async function confirmBooking() {
         const validation = validatePassengers();
-        if (!validation.isValid) {
-            showToast(validation.errors.join('\n'), true);
-            return;
-        }
+        if (!validation.isValid) return;
 
         if (!selectedPaymentMethod) {
             showToast('Please select a payment method', true);
@@ -1452,7 +1542,6 @@
         }
 
         const totalAmount = parseInt(document.getElementById('totalAmount').textContent.replace(/[^0-9]/g, ''));
-
         if (isNaN(totalAmount) || totalAmount <= 0) {
             showToast('Invalid amount', true);
             return;
@@ -1467,9 +1556,6 @@
         }
     }
 
-    // ============================================
-    // INITIALIZATION
-    // ============================================
     async function init() {
         const keyLoaded = await loadRazorpayKey();
         if (!keyLoaded) {
@@ -1489,18 +1575,15 @@
         }
 
         console.log('✅ Razorpay integration ready - TEST MODE');
-        console.log(`   Key ID: ${RAZORPAY_KEY_ID}`);
-        console.log('   Use test cards: 4111 1111 1111 1111');
-        console.log('   Use test UPI: success@razorpay');
+        console.log('   OTP for test cards: 1234');
     }
 
-    // Global functions
     window.addPassenger = addPassenger;
     window.removePassenger = removePassenger;
     window.selectPaymentMethod = selectPaymentMethod;
     window.confirmBooking = confirmBooking;
     window.cancelBooking = cancelBooking;
-    window.logout = logout;
+    window.manualLogout = manualLogout;
 
     window.addEventListener('load', init);
 

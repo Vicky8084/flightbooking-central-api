@@ -22,7 +22,6 @@
             min-height: 100vh;
         }
 
-        /* Stars Background */
         .stars, .twinkling {
             position: fixed;
             top: 0;
@@ -68,7 +67,6 @@
             100% { transform: translateX(calc(100vw + 100px)); opacity: 0; }
         }
 
-        /* Dashboard Layout */
         .dashboard-layout {
             display: flex;
             min-height: 100vh;
@@ -76,7 +74,6 @@
             z-index: 50;
         }
 
-        /* Sidebar */
         .sidebar {
             width: 280px;
             background: rgba(10, 14, 39, 0.9);
@@ -138,14 +135,12 @@
             color: white;
         }
 
-        /* Main Content */
         .main-content {
             flex: 1;
             padding: 28px 32px;
             overflow-x: auto;
         }
 
-        /* Header */
         .dashboard-header {
             display: flex;
             justify-content: space-between;
@@ -192,7 +187,6 @@
             background: rgba(255,68,68,0.4);
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -231,7 +225,6 @@
             margin-top: 5px;
         }
 
-        /* Section Cards */
         .section-card {
             background: rgba(255,255,255,0.05);
             backdrop-filter: blur(10px);
@@ -257,7 +250,6 @@
             color: #ffd700;
         }
 
-        /* Pending Booking Card */
         .pending-booking-card {
             background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,215,0,0.05));
             border: 1px solid #ffd700;
@@ -268,30 +260,6 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 15px;
-        }
-
-        .pending-info h4 {
-            color: #ffd700;
-            font-size: 16px;
-            margin-bottom: 5px;
-        }
-
-        .pending-flight-route {
-            font-size: 18px;
-            font-weight: 700;
-            color: white;
-            margin: 8px 0;
-        }
-
-        .pending-flight-details {
-            font-size: 12px;
-            color: rgba(255,255,255,0.7);
-            margin-top: 5px;
-        }
-
-        .pending-flight-details i {
-            margin-right: 5px;
-            color: #ffd700;
         }
 
         .continue-btn {
@@ -305,12 +273,6 @@
             transition: all 0.3s;
         }
 
-        .continue-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 15px rgba(255,215,0,0.4);
-        }
-
-        /* Search Form Styles - Simplified (No Trip Type, No Passengers, No Class, No Max Price) */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -362,13 +324,6 @@
             background: rgba(255,255,255,0.12);
         }
 
-        .swap-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 28px;
-        }
-
         .swap-icon {
             width: 40px;
             height: 40px;
@@ -389,7 +344,6 @@
             transform: rotate(180deg);
         }
 
-        /* Date Input */
         .date-input-wrapper {
             position: relative;
             width: 100%;
@@ -417,12 +371,6 @@
             opacity: 0;
             cursor: pointer;
             z-index: 2;
-        }
-
-        .date-input-wrapper input[type="date"]:focus {
-            outline: none;
-            border-color: #ffd700;
-            background: rgba(255,255,255,0.12);
         }
 
         .date-input-wrapper::before {
@@ -498,35 +446,6 @@
             background: rgba(255,215,0,0.2);
         }
 
-        /* Quick Search on Dashboard */
-        .quick-search {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-
-        .quick-search input {
-            flex: 1;
-            min-width: 180px;
-            padding: 12px 15px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.2);
-            border-radius: 12px;
-            color: white;
-            font-size: 14px;
-        }
-
-        .quick-search button {
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #ffd700, #ffb700);
-            border: none;
-            border-radius: 30px;
-            color: #1a1f2e;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        /* Profile Section */
         .profile-header {
             display: flex;
             align-items: center;
@@ -617,11 +536,6 @@
             transition: all 0.3s;
         }
 
-        .edit-profile-btn:hover {
-            background: rgba(255,215,0,0.3);
-        }
-
-        /* Tables */
         .booking-table {
             width: 100%;
             border-collapse: collapse;
@@ -710,7 +624,6 @@
             font-size: 14px;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -729,7 +642,7 @@
             background: #1a1f2e;
             border-radius: 24px;
             padding: 28px;
-            max-width: 550px;
+            max-width: 700px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
@@ -771,6 +684,43 @@
         .confirm-cancel {
             background: #f44336;
             color: white;
+        }
+
+        .modal-segment {
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 3px solid #ffd700;
+        }
+
+        .modal-segment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .modal-segment-airline {
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .modal-segment-route {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .modal-seat-info {
+            background: rgba(255,215,0,0.1);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 13px;
         }
 
         .loading {
@@ -875,7 +825,6 @@
 <div class="flying-plane plane-3">✈️</div>
 
 <div class="dashboard-layout">
-    <!-- Sidebar -->
     <div class="sidebar">
         <div class="logo-area">AIRNOVA <span>v2.0</span></div>
         <div class="nav-menu">
@@ -910,7 +859,6 @@
         </div>
     </div>
 
-    <!-- Main Content -->
     <div class="main-content">
         <div class="dashboard-header">
             <h1 class="page-title" id="mainTitle">📊 My Dashboard</h1>
@@ -1008,7 +956,6 @@
         } catch (error) {}
         sessionStorage.removeItem('user');
         localStorage.removeItem('user');
-        sessionStorage.removeItem('pendingBooking');
         window.location.href = '/signin';
     }
 
@@ -1017,6 +964,7 @@
     // ============================================
     async function fetchAPI(url, options = {}) {
         try {
+            console.log(`📡 API CALL: ${url}`);
             const response = await fetch(url, {
                 ...options,
                 credentials: 'include',
@@ -1027,18 +975,22 @@
             });
 
             if (response.status === 401) {
+                console.error(`❌ API 401 Unauthorized: ${url}`);
                 window.location.href = '/signin';
                 return null;
             }
 
             if (!response.ok) {
                 const error = await response.json();
+                console.error(`❌ API Error ${response.status}: ${url}`, error);
                 throw new Error(error.message || `HTTP ${response.status}`);
             }
 
-            return response.json();
+            const data = await response.json();
+            console.log(`✅ API Success: ${url}`, data);
+            return data;
         } catch (error) {
-            console.error('API Error:', error);
+            console.error(`❌ API Exception: ${url}`, error);
             showToast(error.message, true);
             throw error;
         }
@@ -1048,6 +1000,7 @@
     // LOAD AIRPORTS
     // ============================================
     async function loadAirports() {
+        console.log('🛫 Loading airports...');
         try {
             const response = await fetch(`${API_BASE}/api/db/airports`, {
                 method: 'GET',
@@ -1055,9 +1008,12 @@
             });
             if (response.ok) {
                 airports = await response.json();
+                console.log(`✅ Airports loaded: ${airports.length}`);
+            } else {
+                console.error('❌ Failed to load airports:', response.status);
             }
         } catch (error) {
-            console.error('Error loading airports:', error);
+            console.error('❌ Error loading airports:', error);
         }
     }
 
@@ -1144,68 +1100,88 @@
     // LOAD USER PROFILE
     // ============================================
     async function loadUserProfile() {
+        console.log('👤 Loading user profile...');
         try {
             const data = await fetchAPI(`${API_BASE}/user/api/profile`);
             if (data) {
                 currentUser = data;
                 document.getElementById('userName').textContent = `${data.fullName?.split(' ')[0] || 'User'}`;
+                console.log('✅ Profile loaded:', { name: data.fullName, email: data.email, totalBookings: data.totalBookings });
                 return data;
             }
         } catch (error) {
-            console.error('Error loading profile:', error);
+            console.error('❌ Error loading profile:', error);
             return null;
         }
     }
 
     // ============================================
-    // LOAD ALL BOOKINGS
+    // LOAD ALL BOOKINGS WITH LOGS
     // ============================================
     async function loadAllBookings() {
+        console.log('📋 Loading all bookings...');
         try {
-            const [upcoming, past, cancelled] = await Promise.all([
-                fetchAPI(`${API_BASE}/user/api/bookings/upcoming`).catch(() => []),
-                fetchAPI(`${API_BASE}/user/api/bookings/past`).catch(() => []),
-                fetchAPI(`${API_BASE}/user/api/bookings/cancelled`).catch(() => [])
-            ]);
+            console.log('📡 Calling: /user/api/bookings/upcoming');
+            const upcoming = await fetchAPI(`${API_BASE}/user/api/bookings/upcoming`).catch(() => []);
+            console.log(`📊 Upcoming bookings: ${upcoming?.length || 0}`, upcoming);
+
+            console.log('📡 Calling: /user/api/bookings/past');
+            const past = await fetchAPI(`${API_BASE}/user/api/bookings/past`).catch(() => []);
+            console.log(`📊 Past bookings: ${past?.length || 0}`, past);
+
+            console.log('📡 Calling: /user/api/bookings/cancelled');
+            const cancelled = await fetchAPI(`${API_BASE}/user/api/bookings/cancelled`).catch(() => []);
+            console.log(`📊 Cancelled bookings: ${cancelled?.length || 0}`, cancelled);
+
             allBookingsData = { upcoming: upcoming || [], past: past || [], cancelled: cancelled || [] };
+            console.log('✅ All bookings loaded:', {
+                upcoming: allBookingsData.upcoming.length,
+                past: allBookingsData.past.length,
+                cancelled: allBookingsData.cancelled.length,
+                total: allBookingsData.upcoming.length + allBookingsData.past.length + allBookingsData.cancelled.length
+            });
             return allBookingsData;
         } catch (error) {
-            console.error('Error loading bookings:', error);
+            console.error('❌ Error loading bookings:', error);
             return { upcoming: [], past: [], cancelled: [] };
         }
     }
 
     // ============================================
-    // CHECK PENDING BOOKING FROM SESSION
+    // CHECK PENDING BOOKING
     // ============================================
     function checkPendingBooking() {
         const pending = sessionStorage.getItem('pendingBooking');
         if (pending) {
             try {
                 const booking = JSON.parse(pending);
+                console.log('⏳ Pending booking found:', booking);
                 if (booking.flightId && booking.fareCode) {
                     return booking;
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('❌ Error parsing pending booking:', e);
+            }
         }
         return null;
     }
 
     // ============================================
-    // FETCH flight details for pending booking
+    // FETCH FLIGHT DETAILS FOR PENDING BOOKING
     // ============================================
     async function getFlightDetailsForPending(flightId) {
+        console.log(`✈️ Fetching flight details for pending booking: ${flightId}`);
         try {
             const flight = await fetchAPI(`${API_BASE}/api/db/flights/${flightId}`);
             return flight;
         } catch (error) {
-            console.error('Error fetching flight details:', error);
+            console.error('❌ Error fetching flight details:', error);
             return null;
         }
     }
 
     // ============================================
-    // RENDER SEARCH FLIGHTS SECTION - REMOVED: Trip Type, Passengers, Class, Max Price
+    // RENDER SEARCH FLIGHTS SECTION
     // ============================================
     function renderSearchFlights(restoreData = null) {
         const defaultFrom = restoreData?.sourceCity ? `${restoreData.sourceCity} (${restoreData.sourceCode})` : '';
@@ -1295,13 +1271,14 @@
             includeConnecting: includeConnecting
         });
 
+        console.log('🔍 Searching flights with params:', params.toString());
         window.location.href = `/flights/results?${params.toString()}`;
     }
 
     // ============================================
     // RENDER PROFILE SECTION
     // ============================================
-    function renderProfile(profile) {
+    function renderProfile(profile, bookings) {
         if (!profile) return '<div class="loading"><div class="spinner"></div><p>Loading profile...</p></div>';
 
         const memberDate = profile.memberSince ? new Date(profile.memberSince).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) : 'N/A';
@@ -1409,9 +1386,144 @@
     }
 
     // ============================================
+    // GET SEAT NUMBER FROM SEAT ID
+    // ============================================
+    async function getSeatNumber(seatId) {
+        try {
+            const seat = await fetchAPI(`${API_BASE}/api/db/seats/${seatId}`);
+            return seat?.seatNumber || 'Auto-assigned';
+        } catch (error) {
+            return 'Auto-assigned';
+        }
+    }
+
+    // ============================================
+    // VIEW BOOKING DETAILS
+    // ============================================
+    async function viewBooking(bookingId) {
+        console.log(`🔍 Viewing booking details for ID: ${bookingId}`);
+        try {
+            const booking = await fetchAPI(`${API_BASE}/user/api/bookings/${bookingId}`);
+            const modal = document.getElementById('bookingModal');
+            const modalBody = document.getElementById('modalBody');
+
+            const bookingFlights = booking.bookingFlights || [];
+            const isConnecting = bookingFlights.length > 1;
+            console.log(`📊 Booking has ${bookingFlights.length} flights, isConnecting: ${isConnecting}`);
+
+            let flightsHtml = '';
+
+            if (isConnecting) {
+                flightsHtml = `<div style="margin-bottom: 15px;"><strong>✈️ Connecting Flight (${bookingFlights.length} Segments)</strong></div>`;
+
+                for (let i = 0; i < bookingFlights.length; i++) {
+                    const bf = bookingFlights[i];
+                    const flight = bf.flight;
+                    const sourceAirport = flight.sourceAirport || {};
+                    const destAirport = flight.destinationAirport || {};
+
+                    const passengerSeats = bf.passengerSeats || [];
+                    let seatNumbersHtml = '';
+                    for (const ps of passengerSeats) {
+                        const seatNum = await getSeatNumber(ps.seat.id);
+                        seatNumbersHtml += `<div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                            <span>${ps.passenger.fullName}</span>
+                            <span style="font-weight: 700; color: #ffd700;">${seatNum}</span>
+                        </div>`;
+                    }
+
+                    flightsHtml += `
+                        <div class="modal-segment">
+                            <div class="modal-segment-header">
+                                <span class="modal-segment-airline">✈️ ${flight.aircraft?.airline?.name || 'Airline'}</span>
+                                <span>Flight ${flight.flightNumber}</span>
+                                <span>Segment ${i+1} of ${bookingFlights.length}</span>
+                            </div>
+                            <div class="modal-segment-route">
+                                <div><strong>${sourceAirport.code || 'N/A'}</strong><br>${sourceAirport.city || ''}<br>${formatDateTime(flight.departureTime)}</div>
+                                <div><i class="fas fa-long-arrow-alt-right"></i> ${flight.duration || 0} min</div>
+                                <div><strong>${destAirport.code || 'N/A'}</strong><br>${destAirport.city || ''}<br>${formatDateTime(flight.arrivalTime)}</div>
+                            </div>
+                            <div class="modal-seat-info">
+                                <strong>🎫 Seats:</strong>
+                                ${seatNumbersHtml}
+                            </div>
+                        </div>
+                    `;
+                }
+            } else {
+                const flight = booking.bookingFlights?.[0]?.flight;
+                const passengerSeats = booking.bookingFlights?.[0]?.passengerSeats || [];
+                let seatNumbersHtml = '';
+                for (const ps of passengerSeats) {
+                    const seatNum = await getSeatNumber(ps.seat.id);
+                    seatNumbersHtml += `<div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                        <span>${ps.passenger.fullName}</span>
+                        <span style="font-weight: 700; color: #ffd700;">${seatNum}</span>
+                    </div>`;
+                }
+
+                flightsHtml = `
+                    <div class="modal-segment">
+                        <div class="modal-segment-header">
+                            <span class="modal-segment-airline">✈️ ${flight?.aircraft?.airline?.name || 'Airline'}</span>
+                            <span>Flight ${flight?.flightNumber || 'N/A'}</span>
+                        </div>
+                        <div class="modal-segment-route">
+                            <div><strong>${flight?.sourceAirport?.code || 'N/A'}</strong><br>${flight?.sourceAirport?.city || ''}<br>${formatDateTime(flight?.departureTime)}</div>
+                            <div><i class="fas fa-long-arrow-alt-right"></i> ${flight?.duration || 0} min</div>
+                            <div><strong>${flight?.destinationAirport?.code || 'N/A'}</strong><br>${flight?.destinationAirport?.city || ''}<br>${formatDateTime(flight?.arrivalTime)}</div>
+                        </div>
+                        <div class="modal-seat-info">
+                            <strong>🎫 Seats:</strong>
+                            ${seatNumbersHtml}
+                        </div>
+                    </div>
+                `;
+            }
+
+            modalBody.innerHTML = `
+                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <strong>PNR:</strong> ${booking.pnrNumber}<br>
+                    <strong>Status:</strong> <span class="status-${booking.status.toLowerCase()}">${booking.status}</span><br>
+                    <strong>Booking Date:</strong> ${new Date(booking.bookingTime).toLocaleString()}
+                </div>
+                ${flightsHtml}
+                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <strong>💰 Fare Details</strong><br>
+                    Fare Class: ${booking.fareClassName} (${booking.fareClassCode})<br>
+                    <strong>Total: ₹${Math.round(booking.finalPrice)}</strong>
+                </div>
+                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
+                    <strong>🧳 Baggage Allowance</strong><br>
+                    Cabin: ${booking.cabinBaggageKg}kg | Checked: ${booking.checkInBaggageKg}kg
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <strong>👥 Passengers (${booking.passengers.length})</strong><br>
+                    ${booking.passengers.map(p => `<div style="margin-left: 10px; padding: 5px 0;">• ${p.fullName}</div>`).join('')}
+                </div>
+                ${booking.cancellationFee > 0 ? `<div style="margin-top: 15px; padding: 12px; background: rgba(244,67,54,0.1); border-radius: 12px;"><strong>⚠️ Cancellation Policy</strong><br>Cancellation Fee: ₹${booking.cancellationFee}<br>Refund Policy: ${booking.cancellationPolicy}</div>` : ''}
+            `;
+            modal.style.display = 'flex';
+        } catch (error) {
+            console.error('❌ Error fetching booking details:', error);
+            showToast('Failed to load booking details', true);
+        }
+    }
+
+    function formatDateTime(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        } catch(e) { return dateStr; }
+    }
+
+    // ============================================
     // RENDER BOOKING TABLES
     // ============================================
     function renderBookingTable(bookings, type) {
+        console.log(`📊 Rendering ${type} bookings table with ${bookings?.length || 0} bookings`);
         if (!bookings || bookings.length === 0) {
             return '<div class="no-data">📋 No bookings found</div>';
         }
@@ -1440,22 +1552,27 @@
         `;
     }
 
-    function renderBookingsTab(bookings, title, icon) {
-        if (!bookings || bookings.length === 0) {
-            return `<div class="section-card"><div class="section-title"><i class="fas ${icon}"></i> ${title} Trips</div><div class="no-data">No ${title.toLowerCase()} bookings found</div></div>`;
-        }
-        return `
-            <div class="section-card">
-                <div class="section-title"><i class="fas ${icon}"></i> ${title} Trips</div>
-                ${renderBookingTable(bookings, title.toLowerCase())}
-            </div>
-        `;
+    function formatDate(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+        } catch(e) { return dateStr; }
+    }
+
+    function formatTime(dateStr) {
+        if (!dateStr) return 'N/A';
+        try {
+            const date = new Date(dateStr);
+            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+        } catch(e) { return dateStr; }
     }
 
     // ============================================
     // RENDER DASHBOARD
     // ============================================
     async function renderDashboard() {
+        console.log('📊 Rendering Dashboard...');
         const profile = await loadUserProfile();
         const bookings = await loadAllBookings();
         const pendingBooking = checkPendingBooking();
@@ -1501,6 +1618,8 @@
         const cancelledCount = bookings.cancelled?.length || 0;
         const totalBookings = upcomingCount + pastCount + cancelledCount;
 
+        console.log(`📊 Dashboard Stats - Total: ${totalBookings}, Upcoming: ${upcomingCount}, Past: ${pastCount}, Cancelled: ${cancelledCount}`);
+
         const html = `
             <div class="stats-grid">
                 <div class="stat-card"><div class="stat-icon">✈️</div><div class="stat-value">${totalBookings}</div><div class="stat-label">Total Bookings</div></div>
@@ -1511,11 +1630,11 @@
             ${pendingHtml}
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-search"></i> Quick Flight Search</div>
-                <div class="quick-search">
-                    <input type="text" id="quickFrom" placeholder="From (City or Airport)">
-                    <input type="text" id="quickTo" placeholder="To (City or Airport)">
-                    <input type="date" id="quickDate">
-                    <button onclick="quickSearchDashboard()"><i class="fas fa-search"></i> Search</button>
+                <div class="quick-search" style="display: flex; gap: 15px; flex-wrap: wrap;">
+                    <input type="text" id="quickFrom" placeholder="From (City or Airport)" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <input type="text" id="quickTo" placeholder="To (City or Airport)" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <input type="date" id="quickDate" style="flex: 0.5; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <button onclick="quickSearchDashboard()" style="padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ffb700); border: none; border-radius: 30px; color: #1a1f2e; font-weight: 700; cursor: pointer;">Search</button>
                 </div>
             </div>
             <div class="section-card" id="upcomingSection">
@@ -1538,14 +1657,8 @@
         document.getElementById('quickDate').value = today;
         setupAirportInput('quickFrom');
         setupAirportInput('quickTo');
-    }
 
-    function formatTime(dateTimeStr) {
-        if (!dateTimeStr) return 'N/A';
-        try {
-            const date = new Date(dateTimeStr);
-            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-        } catch(e) { return 'N/A'; }
+        console.log('✅ Dashboard rendered successfully');
     }
 
     function quickSearchDashboard() {
@@ -1572,9 +1685,48 @@
     }
 
     // ============================================
+    // CANCEL BOOKING
+    // ============================================
+    function openCancelModal(bookingId, pnr, amount) {
+        currentCancelBookingId = bookingId;
+        document.getElementById('cancelInfo').innerHTML = `Are you sure you want to cancel booking <strong>${pnr}</strong>?<br>Total Amount: ₹${Math.round(amount)}<br><span style="color: #ffd700;">Refund will be calculated based on cancellation policy.</span>`;
+        document.getElementById('cancelModal').style.display = 'flex';
+    }
+
+    async function confirmCancel() {
+        if (!currentCancelBookingId) return;
+        const reason = document.getElementById('cancelReason').value;
+
+        document.getElementById('loadingOverlay')?.remove();
+        const loadingDiv = document.createElement('div');
+        loadingDiv.id = 'loadingOverlay';
+        loadingDiv.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+        loadingDiv.innerHTML = '<div class="spinner"></div><p style="color: white; margin-top: 20px;">Cancelling booking...</p>';
+        document.body.appendChild(loadingDiv);
+
+        try {
+            const result = await fetchAPI(`${API_BASE}/user/api/bookings/${currentCancelBookingId}/cancel`, {
+                method: 'POST',
+                body: JSON.stringify({ reason })
+            });
+            showToast(`✅ Booking cancelled! Refund: ₹${Math.round(result.refundAmount || 0)}`);
+            closeCancelModal();
+            await renderTab(currentTab);
+        } catch (error) {
+            showToast('Failed to cancel booking', true);
+        } finally {
+            document.getElementById('loadingOverlay')?.remove();
+        }
+    }
+
+    function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
+    function closeCancelModal() { document.getElementById('cancelModal').style.display = 'none'; currentCancelBookingId = null; document.getElementById('cancelReason').value = ''; }
+
+    // ============================================
     // RENDER SPECIFIC TAB
     // ============================================
     async function renderTab(tabName) {
+        console.log(`🔄 Switching to tab: ${tabName}`);
         const bookings = await loadAllBookings();
         const profile = await loadUserProfile();
 
@@ -1584,15 +1736,34 @@
                 await renderDashboard();
                 return;
             case 'upcoming':
-                html = renderBookingsTab(bookings.upcoming, 'Upcoming', 'fa-calendar-alt');
+                console.log(`📋 Rendering Upcoming Trips tab with ${bookings.upcoming?.length || 0} bookings`);
+                html = `
+                    <div class="section-card">
+                        <div class="section-title"><i class="fas fa-calendar-alt"></i> Upcoming Trips</div>
+                        ${renderBookingTable(bookings.upcoming, 'upcoming')}
+                    </div>
+                `;
                 break;
             case 'bookings':
-                html = renderBookingsTab(bookings.past, 'Past', 'fa-history');
+                console.log(`📋 Rendering Past Bookings tab with ${bookings.past?.length || 0} bookings`);
+                html = `
+                    <div class="section-card">
+                        <div class="section-title"><i class="fas fa-history"></i> Past Bookings</div>
+                        ${renderBookingTable(bookings.past, 'past')}
+                    </div>
+                `;
                 break;
             case 'cancelled':
-                html = renderBookingsTab(bookings.cancelled, 'Cancelled', 'fa-ban');
+                console.log(`📋 Rendering Cancelled tab with ${bookings.cancelled?.length || 0} bookings`);
+                html = `
+                    <div class="section-card">
+                        <div class="section-title"><i class="fas fa-ban"></i> Cancelled Bookings</div>
+                        ${renderBookingTable(bookings.cancelled, 'cancelled')}
+                    </div>
+                `;
                 break;
             case 'search':
+                console.log('🔍 Rendering Search Flights tab');
                 await loadAirports();
                 const modifyData = sessionStorage.getItem('modifySearchData');
                 let restoreData = null;
@@ -1613,95 +1784,15 @@
                 }, 100);
                 break;
             case 'profile':
-                html = renderProfile(profile);
+                console.log('👤 Rendering Profile tab');
+                html = renderProfile(profile, bookings);
                 break;
             default:
                 await renderDashboard();
                 return;
         }
         document.getElementById('appContainer').innerHTML = html;
-    }
-
-    // ============================================
-    // VIEW BOOKING DETAILS
-    // ============================================
-    async function viewBooking(bookingId) {
-        try {
-            const booking = await fetchAPI(`${API_BASE}/user/api/bookings/${bookingId}`);
-            const modal = document.getElementById('bookingModal');
-            const modalBody = document.getElementById('modalBody');
-            modalBody.innerHTML = `
-                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-                    <strong>PNR:</strong> ${booking.pnrNumber}<br>
-                    <strong>Status:</strong> <span class="status-${booking.status.toLowerCase()}">${booking.status}</span><br>
-                    <strong>Booking Date:</strong> ${new Date(booking.bookingTime).toLocaleString()}
-                </div>
-                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-                    <strong>✈️ Flight Information</strong><br>
-                    ${booking.flightNumber} | ${booking.airlineName}<br>
-                    ${booking.sourceCode} (${booking.sourceCity}) → ${booking.destinationCode} (${booking.destinationCity})<br>
-                    Departure: ${formatDateTime(booking.departureTime)}<br>
-                    Arrival: ${formatDateTime(booking.arrivalTime)}<br>
-                    Duration: ${booking.duration} minutes
-                </div>
-                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-                    <strong>🎫 Fare Details</strong><br>
-                    Fare Class: ${booking.fareClassName} (${booking.fareClassCode})<br>
-                    Base Price: ₹${Math.round(booking.basePrice)}<br>
-                    Fare Multiplier: ${booking.fareMultiplier}x<br>
-                    <strong>Total: ₹${Math.round(booking.finalPrice)}</strong>
-                </div>
-                <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
-                    <strong>🧳 Baggage Allowance</strong><br>
-                    Cabin: ${booking.cabinBaggageKg}kg | Checked: ${booking.checkInBaggageKg}kg
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <strong>👥 Passengers (${booking.passengers.length})</strong><br>
-                    ${booking.passengers.map(p => `<div style="margin-left: 10px; padding: 5px 0;">• ${p.fullName} - Seat ${p.seatNumber}</div>`).join('')}
-                </div>
-                ${booking.cancellationFee > 0 ? `<div style="margin-top: 15px; padding: 12px; background: rgba(244,67,54,0.1); border-radius: 12px;"><strong>⚠️ Cancellation Policy</strong><br>Cancellation Fee: ₹${booking.cancellationFee}<br>Refund Policy: ${booking.cancellationPolicy}</div>` : ''}
-            `;
-            modal.style.display = 'flex';
-        } catch (error) {
-            showToast('Failed to load booking details', true);
-        }
-    }
-
-    // ============================================
-    // CANCEL BOOKING
-    // ============================================
-    function openCancelModal(bookingId, pnr, amount) {
-        currentCancelBookingId = bookingId;
-        document.getElementById('cancelInfo').innerHTML = `Are you sure you want to cancel booking <strong>${pnr}</strong>?<br>Total Amount: ₹${Math.round(amount)}<br><span style="color: #ffd700;">Refund will be calculated based on cancellation policy.</span>`;
-        document.getElementById('cancelModal').style.display = 'flex';
-    }
-
-    async function confirmCancel() {
-        if (!currentCancelBookingId) return;
-        const reason = document.getElementById('cancelReason').value;
-        try {
-            const result = await fetchAPI(`${API_BASE}/user/api/bookings/${currentCancelBookingId}/cancel`, { method: 'POST', body: JSON.stringify({ reason }) });
-            showToast(`✅ Booking cancelled! Refund: ₹${Math.round(result.refundAmount || 0)}`);
-            closeCancelModal();
-            await renderTab(currentTab);
-        } catch (error) {
-            showToast('Failed to cancel booking', true);
-        }
-    }
-
-    function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
-    function closeCancelModal() { document.getElementById('cancelModal').style.display = 'none'; currentCancelBookingId = null; document.getElementById('cancelReason').value = ''; }
-
-    // ============================================
-    // FORMAT FUNCTIONS
-    // ============================================
-    function formatDate(dateStr) {
-        if (!dateStr) return 'N/A';
-        try { const date = new Date(dateStr); return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }); } catch(e) { return dateStr; }
-    }
-    function formatDateTime(dateStr) {
-        if (!dateStr) return 'N/A';
-        try { const date = new Date(dateStr); return date.toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); } catch(e) { return dateStr; }
+        console.log(`✅ Tab ${tabName} rendered successfully`);
     }
 
     // ============================================
@@ -1724,6 +1815,7 @@
     // SWITCH TAB
     // ============================================
     async function switchTab(tabId) {
+        console.log(`🖱️ Tab clicked: ${tabId}`);
         currentTab = tabId;
         document.querySelectorAll('.nav-item').forEach(el => {
             el.classList.remove('active');
@@ -1745,6 +1837,9 @@
         });
     }
 
+    // ============================================
+    // STARS GENERATION
+    // ============================================
     function generateStars() {
         const starsContainer = document.querySelector('.stars');
         if (!starsContainer) return;
@@ -1762,18 +1857,56 @@
         }
     }
 
+    // ============================================
+    // INITIALIZATION
+    // ============================================
     async function init() {
+        console.log('🚀 USER DASHBOARD INITIALIZING...');
+        console.log('📍 API_BASE:', API_BASE);
+        console.log('📍 Current URL:', window.location.href);
+
         generateStars();
+
         try {
+            console.log('🔐 Checking authentication...');
             const profile = await fetchAPI(`${API_BASE}/user/api/profile`);
-            if (!profile) { window.location.href = '/signin'; return; }
-        } catch (error) { window.location.href = '/signin'; return; }
+            if (!profile) {
+                console.error('❌ Authentication failed, redirecting to signin...');
+                window.location.href = '/signin';
+                return;
+            }
+            console.log('✅ Authentication successful, user:', profile.email);
+        } catch (error) {
+            console.error('❌ Authentication error:', error);
+            window.location.href = '/signin';
+            return;
+        }
+
         attachNavListeners();
         await renderDashboard();
         handleModifySearchRedirect();
+
+        console.log('✅ USER DASHBOARD INITIALIZED SUCCESSFULLY');
     }
 
+    // Expose functions globally
+    window.viewBooking = viewBooking;
+    window.openCancelModal = openCancelModal;
+    window.confirmCancel = confirmCancel;
+    window.closeModal = closeModal;
+    window.closeCancelModal = closeCancelModal;
+    window.openEditProfileModal = openEditProfileModal;
+    window.closeEditProfileModal = closeEditProfileModal;
+    window.saveProfileChanges = saveProfileChanges;
+    window.switchTab = switchTab;
+    window.quickSearchDashboard = quickSearchDashboard;
+    window.continuePendingBooking = continuePendingBooking;
+    window.performSearch = performSearch;
+    window.swapLocations = swapLocations;
+    window.logout = logout;
+
     window.addEventListener('load', init);
+
     document.addEventListener('mousemove', (e) => {
         const x = e.clientX / window.innerWidth;
         const y = e.clientY / window.innerHeight;

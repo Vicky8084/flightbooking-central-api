@@ -1,9 +1,13 @@
+// File: central_api/central_api/controller/BookingController.java
+
 package central_api.central_api.controller;
 
 import central_api.central_api.dto.request.BookingRequest;
 import central_api.central_api.service.BookingService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/bookings")
 @RequiredArgsConstructor
+@Slf4j
 public class BookingController {
 
     private final BookingService bookingService;
@@ -22,9 +27,35 @@ public class BookingController {
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Map<String, Object>> createBooking(
             @Valid @RequestBody BookingRequest request,
-            @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(bookingService.createBooking(request, token));
+            HttpServletRequest httpRequest) {
+
+        String token = extractTokenFromCookie(httpRequest);
+
+        if (token == null || token.isEmpty()) {
+            log.error("❌ No token found in cookies");
+            throw new RuntimeException("Authentication required. Please login again.");
+        }
+
+        log.info("✅ Token extracted from cookie, length: {}", token.length());
+        log.info("📋 Booking request received - flightId: {}, flights size: {}",
+                request.getFlightId(),
+                request.getFlights() != null ? request.getFlights().size() : 0);
+
+        return ResponseEntity.ok(bookingService.createBooking(request, "Bearer " + token));
     }
+
+    private String extractTokenFromCookie(HttpServletRequest request) {
+        jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (jakarta.servlet.http.Cookie cookie : cookies) {
+                if ("token".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
+    }
+
 
     @GetMapping("/pnr/{pnr}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'AIRLINE_ADMIN', 'SYSTEM_ADMIN')")
@@ -44,4 +75,6 @@ public class BookingController {
     public ResponseEntity<Map<String, Object>> cancelBooking(@PathVariable Long bookingId) {
         return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
     }
+
+
 }

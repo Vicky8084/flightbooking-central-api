@@ -111,17 +111,6 @@ public class DbProxyController {
         return ResponseEntity.ok(dbApiClient.getUserBookings(userId));
     }
 
-    @GetMapping("/bookings/user/{userId}/list")
-    public ResponseEntity<List<Map<String, Object>>> getUserBookingsList(@PathVariable Long userId) {
-        Map<String, Object> response = dbApiClient.getUserBookings(userId);
-        List<Map<String, Object>> bookings = new ArrayList<>();
-
-        if (response != null && response.get("bookings") != null) {
-            bookings = (List<Map<String, Object>>) response.get("bookings");
-        }
-
-        return ResponseEntity.ok(bookings);
-    }
 
     @GetMapping("/bookings/pnr/{pnr}")
     public ResponseEntity<Map<String, Object>> getBookingByPNR(@PathVariable String pnr) {
@@ -209,6 +198,20 @@ public class DbProxyController {
     @GetMapping("/seats/aircraft/{aircraftId}/map")
     public ResponseEntity<Map<String, Object>> getSeatMapWithCategories(@PathVariable Long aircraftId) {
         return ResponseEntity.ok(dbApiClient.getSeatMapWithCategories(aircraftId));
+    }
+
+
+
+    @GetMapping("/bookings/user/{userId}/list")
+    public ResponseEntity<List<Map<String, Object>>> getUserBookingsList(@PathVariable Long userId) {
+        Map<String, Object> response = dbApiClient.getUserBookings(userId);
+        List<Map<String, Object>> bookings = new ArrayList<>();
+
+        if (response != null && response.get("bookings") != null) {
+            bookings = (List<Map<String, Object>>) response.get("bookings");
+        }
+
+        return ResponseEntity.ok(bookings);
     }
 
 }
