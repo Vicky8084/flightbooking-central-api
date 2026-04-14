@@ -96,6 +96,7 @@ public interface DbApiClient {
                                           @RequestParam("seatClass") String seatClass,
                                           @RequestParam("fareClassCode") String fareClassCode);
 
+
     // ========== FARE CLASS ENDPOINTS ==========
     @GetMapping("/fare-classes")
     List<FareClassDTO> getFareClasses();
@@ -136,9 +137,7 @@ public interface DbApiClient {
     @GetMapping("/bookings/user/{userId}")
     Map<String, Object> getUserBookings(@PathVariable("userId") Long userId);
 
-    // ✅ FIXED: For getting direct list of bookings (NO duplicate /api/db)
-    @GetMapping("/bookings/user/{userId}/list")
-    List<Map<String, Object>> getUserBookingsList(@PathVariable("userId") Long userId);
+
 
     // ========== SEAT ENDPOINTS ==========
     @GetMapping("/seats/aircraft/{aircraftId}")
@@ -153,4 +152,9 @@ public interface DbApiClient {
     // ✅ FIXED: Get seat by ID (NO duplicate /api/db)
     @GetMapping("/seats/{seatId}")
     Map<String, Object> getSeatById(@PathVariable("seatId") Long seatId);
+
+
+    @GetMapping("/bookings/user/{userId}/list")
+    List<Object> getUserBookingsList(@PathVariable("userId") Long userId);
+
 }

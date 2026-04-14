@@ -73,7 +73,25 @@ public class JwtUtil {
     }
 
     public Long extractUserId(String token) {
-        return extractClaim(token, claims -> claims.get("userId", Long.class));
+        try {
+            Claims claims = extractAllClaims(token);
+            Object userIdClaim = claims.get("userId");
+
+            System.out.println("🔍 Claims from token: " + claims.keySet());
+            System.out.println("🔍 userId claim value: " + userIdClaim);
+
+            if (userIdClaim instanceof Integer) {
+                return ((Integer) userIdClaim).longValue();
+            } else if (userIdClaim instanceof Long) {
+                return (Long) userIdClaim;
+            } else if (userIdClaim instanceof String) {
+                return Long.parseLong((String) userIdClaim);
+            }
+            return null;
+        } catch (Exception e) {
+            System.out.println("❌ Error extracting userId: " + e.getMessage());
+            return null;
+        }
     }
 
     public String extractRole(String token) {

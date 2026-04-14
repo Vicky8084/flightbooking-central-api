@@ -30,7 +30,7 @@ public class UserDashboardController {
     private final JwtUtil jwtUtil;
     private final PasswordEncoder passwordEncoder;
 
-    // ✅ FIXED: Java regex pattern for password validation
+    // Java regex pattern for password validation
     private static final Pattern PASSWORD_PATTERN = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d).{6,}$");
 
     @GetMapping("/dashboard")
@@ -48,10 +48,21 @@ public class UserDashboardController {
     @ResponseBody
     public ResponseEntity<UserProfileDTO> getProfile(HttpServletRequest request) {
         String token = getTokenFromCookies(request);
-        if (token == null || !jwtUtil.validateToken(token)) {
+        System.out.println("🔐 TOKEN from cookie: " + (token != null ? token.substring(0, Math.min(50, token.length())) + "..." : "NULL"));
+
+        if (token == null) {
+            System.out.println("❌ No token found!");
             return ResponseEntity.status(401).build();
         }
+
         Long userId = jwtUtil.extractUserId(token);
+        System.out.println("📌 Extracted userId from token: " + userId);
+
+        if (userId == null) {
+            System.out.println("❌ userId is NULL from token!");
+            return ResponseEntity.status(401).build();
+        }
+
         return ResponseEntity.ok(userDashboardService.getUserProfile(userId));
     }
 
@@ -118,14 +129,41 @@ public class UserDashboardController {
             @PathVariable Long bookingId,
             @RequestBody Map<String, String> requestBody,
             HttpServletRequest request) {
+
+        System.out.println("🔍 Cancel booking request received for bookingId: " + bookingId);
+
         String token = getTokenFromCookies(request);
         if (token == null || !jwtUtil.validateToken(token)) {
+            System.out.println("❌ Invalid token");
             return ResponseEntity.status(401).build();
         }
+
         Long userId = jwtUtil.extractUserId(token);
+        System.out.println("📌 User ID from token: " + userId);
+
         String reason = requestBody.getOrDefault("reason", "");
-        Map<String, Object> result = userDashboardService.cancelBooking(bookingId, userId, reason);
-        return ResponseEntity.ok(result);
+        System.out.println("📌 Cancellation reason: " + reason);
+
+        try {
+            Map<String, Object> result = userDashboardService.cancelBooking(bookingId, userId, reason);
+            System.out.println("✅ Cancel result: " + result);
+
+            // Check if email was sent
+            if (result.containsKey("emailSent") && (Boolean) result.get("emailSent")) {
+                System.out.println("📧 Cancellation email sent successfully");
+            } else if (result.containsKey("emailSent")) {
+                System.out.println("⚠️ Email sending failed: " + result.get("emailError"));
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            System.out.println("❌ Cancel error: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, Object> error = new HashMap<>();
+            error.put("success", false);
+            error.put("message", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 
     @PutMapping("/api/profile")
@@ -172,7 +210,6 @@ public class UserDashboardController {
             return ResponseEntity.badRequest().body(error);
         }
 
-        // ✅ FIXED: Java regex pattern matcher
         if (!PASSWORD_PATTERN.matcher(newPassword).matches()) {
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
@@ -181,10 +218,7 @@ public class UserDashboardController {
         }
 
         try {
-            // Encrypt new password
             String encryptedPassword = passwordEncoder.encode(newPassword);
-
-            // Update password via DB API
             Map<String, Object> response = userDashboardService.updateUserPassword(userId, encryptedPassword);
             return ResponseEntity.ok(response);
 
