@@ -76,7 +76,7 @@
 
         .sidebar {
             width: 280px;
-            background: rgba(10, 14, 39, 0.9);
+            background: rgba(10, 14, 39, 0.95);
             backdrop-filter: blur(10px);
             border-right: 1px solid rgba(255,255,255,0.1);
             padding: 28px 20px;
@@ -271,6 +271,11 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
+        }
+
+        .continue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255,215,0,0.3);
         }
 
         .form-grid {
@@ -525,7 +530,7 @@
             color: rgba(255,255,255,0.8);
         }
 
-        .edit-profile-btn {
+        .edit-profile-btn, .change-password-btn {
             background: rgba(255,215,0,0.2);
             border: 1px solid #ffd700;
             padding: 10px 24px;
@@ -534,6 +539,12 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
+            margin-right: 12px;
+        }
+
+        .edit-profile-btn:hover, .change-password-btn:hover {
+            background: rgba(255,215,0,0.4);
+            transform: translateY(-2px);
         }
 
         .booking-table {
@@ -656,7 +667,7 @@
             font-size: 20px;
         }
 
-        .modal-content textarea {
+        .modal-content textarea, .modal-content input {
             width: 100%;
             padding: 12px;
             border-radius: 12px;
@@ -755,10 +766,22 @@
             display: none;
             z-index: 1001;
             font-size: 14px;
+            animation: slideIn 0.3s ease;
         }
 
         .toast.error {
             background: #f44336;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
 
         @media (max-width: 900px) {
@@ -812,6 +835,16 @@
                 flex-direction: column;
                 text-align: center;
             }
+        }
+
+        .stops-badge {
+            background: rgba(255,215,0,0.2);
+            color: #ffd700;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-left: 8px;
         }
     </style>
 </head>
@@ -892,15 +925,39 @@
         <h3><i class="fas fa-user-edit"></i> Edit Profile</h3>
         <div class="form-group" style="margin-bottom: 15px;">
             <label>Full Name</label>
-            <input type="text" id="editFullName" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+            <input type="text" id="editFullName" placeholder="Enter your full name">
         </div>
         <div class="form-group" style="margin-bottom: 15px;">
             <label>Phone Number</label>
-            <input type="tel" id="editPhone" style="width: 100%; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+            <input type="tel" id="editPhone" placeholder="Enter your phone number">
         </div>
         <div class="modal-buttons">
             <button onclick="closeEditProfileModal()" style="background: rgba(255,255,255,0.1); color: white;">Cancel</button>
             <button onclick="saveProfileChanges()" style="background: #ffd700; color: #1a1f2e;">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div id="changePasswordModal" class="modal">
+    <div class="modal-content">
+        <h3><i class="fas fa-lock"></i> Change Password</h3>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>Current Password</label>
+            <input type="password" id="currentPassword" placeholder="Enter current password">
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>New Password</label>
+            <input type="password" id="newPassword" placeholder="Enter new password (min 6 characters)">
+            <small style="color: rgba(255,255,255,0.5);">Must contain at least one letter and one number</small>
+        </div>
+        <div class="form-group" style="margin-bottom: 15px;">
+            <label>Confirm New Password</label>
+            <input type="password" id="confirmNewPassword" placeholder="Confirm new password">
+        </div>
+        <div class="modal-buttons">
+            <button onclick="closeChangePasswordModal()" style="background: rgba(255,255,255,0.1); color: white;">Cancel</button>
+            <button onclick="changePassword()" style="background: #ffd700; color: #1a1f2e;">Update Password</button>
         </div>
     </div>
 </div>
@@ -939,12 +996,17 @@
     // ============================================
     // TOAST NOTIFICATION
     // ============================================
+    let toastTimeout = null;
     function showToast(message, isError = false) {
         const toast = document.getElementById('toast');
         toast.textContent = message;
         toast.className = 'toast' + (isError ? ' error' : '');
         toast.style.display = 'block';
-        setTimeout(() => toast.style.display = 'none', 4000);
+
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 4000);
     }
 
     // ============================================
@@ -976,7 +1038,8 @@
 
             if (response.status === 401) {
                 console.error(`❌ API 401 Unauthorized: ${url}`);
-                window.location.href = '/signin';
+                showToast('Session expired. Please login again.', true);
+                setTimeout(() => window.location.href = '/signin', 1500);
                 return null;
             }
 
@@ -987,7 +1050,7 @@
             }
 
             const data = await response.json();
-            console.log(`✅ API Success: ${url}`, data);
+            console.log(`✅ API Success: ${url}`);
             return data;
         } catch (error) {
             console.error(`❌ API Exception: ${url}`, error);
@@ -1121,24 +1184,20 @@
     async function loadAllBookings() {
         console.log('📋 Loading all bookings...');
         try {
-            console.log('📡 Calling: /user/api/bookings/upcoming');
             const upcoming = await fetchAPI(`${API_BASE}/user/api/bookings/upcoming`).catch(() => []);
-            console.log(`📊 Upcoming bookings: ${upcoming?.length || 0}`, upcoming);
+            console.log(`📊 Upcoming bookings: ${upcoming?.length || 0}`);
 
-            console.log('📡 Calling: /user/api/bookings/past');
             const past = await fetchAPI(`${API_BASE}/user/api/bookings/past`).catch(() => []);
-            console.log(`📊 Past bookings: ${past?.length || 0}`, past);
+            console.log(`📊 Past bookings: ${past?.length || 0}`);
 
-            console.log('📡 Calling: /user/api/bookings/cancelled');
             const cancelled = await fetchAPI(`${API_BASE}/user/api/bookings/cancelled`).catch(() => []);
-            console.log(`📊 Cancelled bookings: ${cancelled?.length || 0}`, cancelled);
+            console.log(`📊 Cancelled bookings: ${cancelled?.length || 0}`);
 
             allBookingsData = { upcoming: upcoming || [], past: past || [], cancelled: cancelled || [] };
             console.log('✅ All bookings loaded:', {
                 upcoming: allBookingsData.upcoming.length,
                 past: allBookingsData.past.length,
-                cancelled: allBookingsData.cancelled.length,
-                total: allBookingsData.upcoming.length + allBookingsData.past.length + allBookingsData.cancelled.length
+                cancelled: allBookingsData.cancelled.length
             });
             return allBookingsData;
         } catch (error) {
@@ -1187,6 +1246,8 @@
         const defaultFrom = restoreData?.sourceCity ? `${restoreData.sourceCity} (${restoreData.sourceCode})` : '';
         const defaultTo = restoreData?.destinationCity ? `${restoreData.destinationCity} (${restoreData.destinationCode})` : '';
         const defaultDate = restoreData?.travelDate || '';
+        const defaultPassengers = restoreData?.passengers || 1;
+        const defaultSeatClass = restoreData?.seatClass || 'ECONOMY';
 
         return `
             <div class="section-card">
@@ -1222,6 +1283,41 @@
                             </div>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label>👥 Passengers</label>
+                        <div class="input-icon">
+                            <i class="fas fa-users"></i>
+                            <select id="passengersSearch">
+                                <option value="1" ${defaultPassengers == 1 ? 'selected' : ''}>1 Passenger</option>
+                                <option value="2" ${defaultPassengers == 2 ? 'selected' : ''}>2 Passengers</option>
+                                <option value="3" ${defaultPassengers == 3 ? 'selected' : ''}>3 Passengers</option>
+                                <option value="4" ${defaultPassengers == 4 ? 'selected' : ''}>4 Passengers</option>
+                                <option value="5" ${defaultPassengers == 5 ? 'selected' : ''}>5 Passengers</option>
+                                <option value="6" ${defaultPassengers == 6 ? 'selected' : ''}>6+ Passengers</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>💺 Class</label>
+                        <div class="input-icon">
+                            <i class="fas fa-chair"></i>
+                            <select id="seatClassSearch">
+                                <option value="ECONOMY" ${defaultSeatClass == 'ECONOMY' ? 'selected' : ''}>Economy</option>
+                                <option value="BUSINESS" ${defaultSeatClass == 'BUSINESS' ? 'selected' : ''}>Business</option>
+                                <option value="FIRST" ${defaultSeatClass == 'FIRST' ? 'selected' : ''}>First Class</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>💰 Max Price (₹)</label>
+                        <div class="input-icon">
+                            <i class="fas fa-rupee-sign"></i>
+                            <input type="number" id="maxPriceSearch" placeholder="Any" min="0">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="checkbox-group">
@@ -1250,6 +1346,9 @@
         const from = document.getElementById('fromSearch')?.value;
         const to = document.getElementById('toSearch')?.value;
         const departDate = document.getElementById('departDateSearch')?.value;
+        const passengers = document.getElementById('passengersSearch')?.value || 1;
+        const seatClass = document.getElementById('seatClassSearch')?.value || 'ECONOMY';
+        const maxPrice = document.getElementById('maxPriceSearch')?.value;
         const includeConnecting = document.getElementById('connectingFlightsSearch')?.checked;
 
         if (!from || !to || !departDate) {
@@ -1268,8 +1367,14 @@
             travelDate: departDate,
             sourceCity: sourceCity,
             destinationCity: destCity,
+            passengers: passengers,
+            seatClass: seatClass,
             includeConnecting: includeConnecting
         });
+
+        if (maxPrice && maxPrice > 0) {
+            params.append('maxPrice', maxPrice);
+        }
 
         console.log('🔍 Searching flights with params:', params.toString());
         window.location.href = `/flights/results?${params.toString()}`;
@@ -1292,9 +1397,12 @@
                         <i class="fas fa-user"></i>
                     </div>
                     <div class="profile-info">
-                        <h2>${profile.fullName || 'User'}</h2>
-                        <p>${profile.email || 'N/A'} • Member since ${memberDate}</p>
-                        <button class="edit-profile-btn" onclick="openEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>
+                        <h2>${escapeHtml(profile.fullName || 'User')}</h2>
+                        <p>${escapeHtml(profile.email || 'N/A')} • Member since ${memberDate}</p>
+                        <div>
+                            <button class="edit-profile-btn" onclick="openEditProfileModal()"><i class="fas fa-edit"></i> Edit Profile</button>
+                            <button class="change-password-btn" onclick="openChangePasswordModal()"><i class="fas fa-key"></i> Change Password</button>
+                        </div>
                     </div>
                 </div>
 
@@ -1320,15 +1428,15 @@
                 <div class="profile-details">
                     <div class="detail-row">
                         <div class="detail-label">Full Name</div>
-                        <div class="detail-value">${profile.fullName || 'N/A'}</div>
+                        <div class="detail-value">${escapeHtml(profile.fullName || 'N/A')}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Email Address</div>
-                        <div class="detail-value">${profile.email || 'N/A'}</div>
+                        <div class="detail-value">${escapeHtml(profile.email || 'N/A')}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Phone Number</div>
-                        <div class="detail-value">${profile.phoneNumber || 'Not provided'}</div>
+                        <div class="detail-value">${escapeHtml(profile.phoneNumber || 'Not provided')}</div>
                     </div>
                     <div class="detail-row">
                         <div class="detail-label">Account Status</div>
@@ -1341,6 +1449,16 @@
                 </div>
             </div>
         `;
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        });
     }
 
     function openEditProfileModal() {
@@ -1364,6 +1482,11 @@
             return;
         }
 
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Saving...';
+        btn.disabled = true;
+
         try {
             const response = await fetch(`${API_BASE}/user/api/profile`, {
                 method: 'PUT',
@@ -1373,15 +1496,85 @@
             });
 
             if (response.ok) {
-                showToast('Profile updated successfully!');
+                showToast('✅ Profile updated successfully!');
                 closeEditProfileModal();
                 await loadUserProfile();
                 await renderTab('profile');
             } else {
-                showToast('Failed to update profile', true);
+                const error = await response.json();
+                showToast(error.message || 'Failed to update profile', true);
             }
         } catch (error) {
             showToast('Network error', true);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    function openChangePasswordModal() {
+        document.getElementById('currentPassword').value = '';
+        document.getElementById('newPassword').value = '';
+        document.getElementById('confirmNewPassword').value = '';
+        document.getElementById('changePasswordModal').style.display = 'flex';
+    }
+
+    function closeChangePasswordModal() {
+        document.getElementById('changePasswordModal').style.display = 'none';
+    }
+
+    async function changePassword() {
+        const currentPassword = document.getElementById('currentPassword').value;
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmPassword = document.getElementById('confirmNewPassword').value;
+
+        if (!currentPassword || !newPassword || !confirmPassword) {
+            showToast('Please fill all fields', true);
+            return;
+        }
+
+        if (newPassword.length < 6) {
+            showToast('New password must be at least 6 characters', true);
+            return;
+        }
+
+        if (!/(?=.*[A-Za-z])(?=.*\d)/.test(newPassword)) {
+            showToast('Password must contain at least one letter and one number', true);
+            return;
+        }
+
+        if (newPassword !== confirmPassword) {
+            showToast('New passwords do not match', true);
+            return;
+        }
+
+        const btn = event.target;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<span class="spinner"></span> Updating...';
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${API_BASE}/api/auth/change-password`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ currentPassword, newPassword })
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                showToast('✅ Password changed successfully! Please login again.');
+                closeChangePasswordModal();
+                setTimeout(() => logout(), 2000);
+            } else {
+                showToast(data.message || 'Failed to change password', true);
+            }
+        } catch (error) {
+            showToast('Network error', true);
+        } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
         }
     }
 
@@ -1427,7 +1620,7 @@
                     for (const ps of passengerSeats) {
                         const seatNum = await getSeatNumber(ps.seat.id);
                         seatNumbersHtml += `<div style="display: flex; justify-content: space-between; padding: 5px 0;">
-                            <span>${ps.passenger.fullName}</span>
+                            <span>${escapeHtml(ps.passenger.fullName)}</span>
                             <span style="font-weight: 700; color: #ffd700;">${seatNum}</span>
                         </div>`;
                     }
@@ -1435,8 +1628,8 @@
                     flightsHtml += `
                         <div class="modal-segment">
                             <div class="modal-segment-header">
-                                <span class="modal-segment-airline">✈️ ${flight.aircraft?.airline?.name || 'Airline'}</span>
-                                <span>Flight ${flight.flightNumber}</span>
+                                <span class="modal-segment-airline">✈️ ${escapeHtml(flight.aircraft?.airline?.name || 'Airline')}</span>
+                                <span>Flight ${escapeHtml(flight.flightNumber)}</span>
                                 <span>Segment ${i+1} of ${bookingFlights.length}</span>
                             </div>
                             <div class="modal-segment-route">
@@ -1458,7 +1651,7 @@
                 for (const ps of passengerSeats) {
                     const seatNum = await getSeatNumber(ps.seat.id);
                     seatNumbersHtml += `<div style="display: flex; justify-content: space-between; padding: 5px 0;">
-                        <span>${ps.passenger.fullName}</span>
+                        <span>${escapeHtml(ps.passenger.fullName)}</span>
                         <span style="font-weight: 700; color: #ffd700;">${seatNum}</span>
                     </div>`;
                 }
@@ -1466,8 +1659,8 @@
                 flightsHtml = `
                     <div class="modal-segment">
                         <div class="modal-segment-header">
-                            <span class="modal-segment-airline">✈️ ${flight?.aircraft?.airline?.name || 'Airline'}</span>
-                            <span>Flight ${flight?.flightNumber || 'N/A'}</span>
+                            <span class="modal-segment-airline">✈️ ${escapeHtml(flight?.aircraft?.airline?.name || 'Airline')}</span>
+                            <span>Flight ${escapeHtml(flight?.flightNumber || 'N/A')}</span>
                         </div>
                         <div class="modal-segment-route">
                             <div><strong>${flight?.sourceAirport?.code || 'N/A'}</strong><br>${flight?.sourceAirport?.city || ''}<br>${formatDateTime(flight?.departureTime)}</div>
@@ -1482,11 +1675,15 @@
                 `;
             }
 
+            const stopsCount = booking.numberOfStops || (bookingFlights.length - 1);
+            const stopsText = stopsCount === 0 ? 'Non-stop' : (stopsCount === 1 ? '1 Stop' : `${stopsCount} Stops`);
+
             modalBody.innerHTML = `
                 <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
                     <strong>PNR:</strong> ${booking.pnrNumber}<br>
                     <strong>Status:</strong> <span class="status-${booking.status.toLowerCase()}">${booking.status}</span><br>
-                    <strong>Booking Date:</strong> ${new Date(booking.bookingTime).toLocaleString()}
+                    <strong>Booking Date:</strong> ${new Date(booking.bookingTime).toLocaleString()}<br>
+                    <strong>Stops:</strong> ${stopsText}
                 </div>
                 ${flightsHtml}
                 <div style="margin-bottom: 15px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px;">
@@ -1500,7 +1697,7 @@
                 </div>
                 <div style="margin-bottom: 15px;">
                     <strong>👥 Passengers (${booking.passengers.length})</strong><br>
-                    ${booking.passengers.map(p => `<div style="margin-left: 10px; padding: 5px 0;">• ${p.fullName}</div>`).join('')}
+                    ${booking.passengers.map(p => `<div style="margin-left: 10px; padding: 5px 0;">• ${escapeHtml(p.fullName)}</div>`).join('')}
                 </div>
                 ${booking.cancellationFee > 0 ? `<div style="margin-top: 15px; padding: 12px; background: rgba(244,67,54,0.1); border-radius: 12px;"><strong>⚠️ Cancellation Policy</strong><br>Cancellation Fee: ₹${booking.cancellationFee}<br>Refund Policy: ${booking.cancellationPolicy}</div>` : ''}
             `;
@@ -1530,7 +1727,16 @@
         return `
             <table class="booking-table">
                 <thead>
-                    <tr><th>PNR</th><th>Flight</th><th>Route</th><th>Date</th><th>Fare</th><th>Status</th><th>Actions</th></tr>
+                    <tr>
+                        <th>PNR</th>
+                        <th>Flight</th>
+                        <th>Route</th>
+                        <th>Date</th>
+                        <th>Stops</th>
+                        <th>Fare</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
                     ${bookings.map(b => `
@@ -1539,6 +1745,7 @@
                             <td>${b.flightNumber || 'N/A'}</td>
                             <td>${b.sourceCode || 'N/A'} → ${b.destinationCode || 'N/A'}</td>
                             <td>${formatDate(b.departureTime)}</td>
+                            <td><span class="stops-badge">${b.numberOfStops === 0 ? 'Non-stop' : (b.numberOfStops === 1 ? '1 Stop' : b.numberOfStops + ' Stops')}</span></td>
                             <td>₹${Math.round(b.totalAmount || 0)}</td>
                             <td><span class="status-${(b.status || '').toLowerCase()}">${b.status || 'N/A'}</span></td>
                             <td>
@@ -1557,14 +1764,6 @@
         try {
             const date = new Date(dateStr);
             return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
-        } catch(e) { return dateStr; }
-    }
-
-    function formatTime(dateStr) {
-        if (!dateStr) return 'N/A';
-        try {
-            const date = new Date(dateStr);
-            return date.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
         } catch(e) { return dateStr; }
     }
 
@@ -1599,10 +1798,10 @@
                         <div class="section-title"><i class="fas fa-clock"></i> Complete Your Booking</div>
                         <div class="pending-booking-card">
                             <div class="pending-info">
-                                <h4><i class="fas fa-plane"></i> ${airline} • ${flightNumber}</h4>
+                                <h4><i class="fas fa-plane"></i> ${escapeHtml(airline)} • ${flightNumber}</h4>
                                 <div class="pending-flight-route">${sourceCode} → ${destCode}</div>
                                 <div class="pending-flight-details">
-                                    <i class="fas fa-calendar-alt"></i> ${formatDate(departureTime)} at ${formatTime(departureTime)}<br>
+                                    <i class="fas fa-calendar-alt"></i> ${formatDateTime(departureTime)}<br>
                                     <i class="fas fa-tag"></i> ${fareDisplay} • ₹${Math.round(price)} per adult
                                 </div>
                             </div>
@@ -1631,9 +1830,22 @@
             <div class="section-card">
                 <div class="section-title"><i class="fas fa-search"></i> Quick Flight Search</div>
                 <div class="quick-search" style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <input type="text" id="quickFrom" placeholder="From (City or Airport)" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
-                    <input type="text" id="quickTo" placeholder="To (City or Airport)" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
-                    <input type="date" id="quickDate" style="flex: 0.5; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <input type="text" id="quickFrom" placeholder="From (City or Airport)" style="flex: 2; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <input type="text" id="quickTo" placeholder="To (City or Airport)" style="flex: 2; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <input type="date" id="quickDate" style="flex: 1.5; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                    <select id="quickPassengers" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                        <option value="1">1 Passenger</option>
+                        <option value="2" selected>2 Passengers</option>
+                        <option value="3">3 Passengers</option>
+                        <option value="4">4 Passengers</option>
+                        <option value="5">5 Passengers</option>
+                        <option value="6">6+ Passengers</option>
+                    </select>
+                    <select id="quickClass" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; color: white;">
+                        <option value="ECONOMY">Economy</option>
+                        <option value="BUSINESS">Business</option>
+                        <option value="FIRST">First Class</option>
+                    </select>
                     <button onclick="quickSearchDashboard()" style="padding: 12px 24px; background: linear-gradient(135deg, #ffd700, #ffb700); border: none; border-radius: 30px; color: #1a1f2e; font-weight: 700; cursor: pointer;">Search</button>
                 </div>
             </div>
@@ -1655,6 +1867,9 @@
 
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('quickDate').value = today;
+        document.getElementById('quickPassengers').value = '2';
+        document.getElementById('quickClass').value = 'ECONOMY';
+
         setupAirportInput('quickFrom');
         setupAirportInput('quickTo');
 
@@ -1665,22 +1880,34 @@
         const from = document.getElementById('quickFrom')?.value;
         const to = document.getElementById('quickTo')?.value;
         const date = document.getElementById('quickDate')?.value;
+        const passengers = document.getElementById('quickPassengers')?.value || 2;
+        const seatClass = document.getElementById('quickClass')?.value || 'ECONOMY';
+
         if (!from || !to || !date) {
             showToast('Please fill all search fields', true);
             return;
         }
+
         const sourceCode = extractCode(from);
         const destCode = extractCode(to);
         const sourceCity = from.split('(')[0].trim();
         const destCity = to.split('(')[0].trim();
+
         const params = new URLSearchParams({
-            sourceCode: sourceCode, destinationCode: destCode, travelDate: date,
-            sourceCity: sourceCity, destinationCity: destCity, includeConnecting: true
+            sourceCode: sourceCode,
+            destinationCode: destCode,
+            travelDate: date,
+            sourceCity: sourceCity,
+            destinationCity: destCity,
+            passengers: passengers,
+            seatClass: seatClass,
+            includeConnecting: true
         });
         window.location.href = `/flights/results?${params.toString()}`;
     }
 
     function continuePendingBooking(flightId, fareCode) {
+        sessionStorage.removeItem('pendingBooking');
         window.location.href = `/booking?flightId=${flightId}&fareCode=${fareCode}`;
     }
 
@@ -1697,10 +1924,14 @@
         if (!currentCancelBookingId) return;
         const reason = document.getElementById('cancelReason').value;
 
-        document.getElementById('loadingOverlay')?.remove();
+        const modal = document.getElementById('cancelModal');
+        modal.style.display = 'none';
+
+        showToast('Processing cancellation...');
+
         const loadingDiv = document.createElement('div');
         loadingDiv.id = 'loadingOverlay';
-        loadingDiv.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000;';
+        loadingDiv.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 10000; flex-direction: column;';
         loadingDiv.innerHTML = '<div class="spinner"></div><p style="color: white; margin-top: 20px;">Cancelling booking...</p>';
         document.body.appendChild(loadingDiv);
 
@@ -1709,18 +1940,32 @@
                 method: 'POST',
                 body: JSON.stringify({ reason })
             });
-            showToast(`✅ Booking cancelled! Refund: ₹${Math.round(result.refundAmount || 0)}`);
-            closeCancelModal();
-            await renderTab(currentTab);
+
+            if (result && result.success !== false) {
+                const refundMsg = result.refundAmount ? ` Refund: ₹${Math.round(result.refundAmount)}` : '';
+                showToast(`✅ Booking cancelled successfully!${refundMsg}`);
+
+                // Reload current tab data
+                await loadAllBookings();
+                await renderTab(currentTab);
+            } else {
+                showToast(result?.message || 'Failed to cancel booking', true);
+            }
         } catch (error) {
             showToast('Failed to cancel booking', true);
         } finally {
             document.getElementById('loadingOverlay')?.remove();
+            document.getElementById('cancelReason').value = '';
+            currentCancelBookingId = null;
         }
     }
 
     function closeModal() { document.getElementById('bookingModal').style.display = 'none'; }
-    function closeCancelModal() { document.getElementById('cancelModal').style.display = 'none'; currentCancelBookingId = null; document.getElementById('cancelReason').value = ''; }
+    function closeCancelModal() {
+        document.getElementById('cancelModal').style.display = 'none';
+        currentCancelBookingId = null;
+        document.getElementById('cancelReason').value = '';
+    }
 
     // ============================================
     // RENDER SPECIFIC TAB
@@ -1898,6 +2143,9 @@
     window.openEditProfileModal = openEditProfileModal;
     window.closeEditProfileModal = closeEditProfileModal;
     window.saveProfileChanges = saveProfileChanges;
+    window.openChangePasswordModal = openChangePasswordModal;
+    window.closeChangePasswordModal = closeChangePasswordModal;
+    window.changePassword = changePassword;
     window.switchTab = switchTab;
     window.quickSearchDashboard = quickSearchDashboard;
     window.continuePendingBooking = continuePendingBooking;

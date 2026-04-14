@@ -25,4 +25,5 @@ public class BookingSummaryDTO {
     private Integer checkInBaggageKg;
     private Boolean canCancel;
     private LocalDateTime bookingTime;
+    private Integer numberOfStops;
 }

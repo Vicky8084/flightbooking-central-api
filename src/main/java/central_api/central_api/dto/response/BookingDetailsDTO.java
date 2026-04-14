@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @Builder
@@ -25,6 +24,7 @@ public class BookingDetailsDTO {
     // Flight details
     private Long flightId;
     private String flightNumber;
+    private String flightNumbers;  // ✅ For connecting flights - multiple flight numbers
     private String airlineName;
     private String sourceCode;
     private String sourceCity;
@@ -64,6 +64,10 @@ public class BookingDetailsDTO {
     private Double refundAmount;
     private String cancellationPolicy;
 
+    // ✅ NEW FIELDS
+    private Integer numberOfStops;
+    private List<FlightSegmentDTO> flightSegments;
+
     @Data
     @Builder
     @NoArgsConstructor
@@ -75,5 +79,35 @@ public class BookingDetailsDTO {
         private String mealPreference;
         private Integer extraBaggageKg;
         private Double extraBaggagePrice;
+    }
+
+    // ✅ NEW INNER CLASS - FlightSegmentDTO for connecting flights
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class FlightSegmentDTO {
+        private Long flightId;
+        private String flightNumber;
+        private String airlineName;
+        private String sourceCode;
+        private String sourceCity;
+        private String destinationCode;
+        private String destinationCity;
+        private LocalDateTime departureTime;
+        private LocalDateTime arrivalTime;
+        private Integer duration;
+        private List<PassengerSeatInfoDTO> passengerSeats;
+    }
+
+    // ✅ NEW INNER CLASS - PassengerSeatInfoDTO
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class PassengerSeatInfoDTO {
+        private String passengerName;
+        private String seatNumber;
+        private Double seatPrice;
     }
 }

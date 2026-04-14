@@ -20,22 +20,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Slf4j
 public class BookingController {
-
     private final BookingService bookingService;
-
     @PostMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public ResponseEntity<Map<String, Object>> createBooking(
             @Valid @RequestBody BookingRequest request,
             HttpServletRequest httpRequest) {
-
         String token = extractTokenFromCookie(httpRequest);
-
         if (token == null || token.isEmpty()) {
             log.error("❌ No token found in cookies");
             throw new RuntimeException("Authentication required. Please login again.");
         }
-
         log.info("✅ Token extracted from cookie, length: {}", token.length());
         log.info("📋 Booking request received - flightId: {}, flights size: {}",
                 request.getFlightId(),
@@ -43,7 +38,6 @@ public class BookingController {
 
         return ResponseEntity.ok(bookingService.createBooking(request, "Bearer " + token));
     }
-
     private String extractTokenFromCookie(HttpServletRequest request) {
         jakarta.servlet.http.Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -55,8 +49,6 @@ public class BookingController {
         }
         return null;
     }
-
-
     @GetMapping("/pnr/{pnr}")
     @PreAuthorize("hasAnyRole('CUSTOMER', 'AIRLINE_ADMIN', 'SYSTEM_ADMIN')")
     public ResponseEntity<Map<String, Object>> getBookingByPNR(@PathVariable String pnr) {
@@ -75,6 +67,4 @@ public class BookingController {
     public ResponseEntity<Map<String, Object>> cancelBooking(@PathVariable Long bookingId) {
         return ResponseEntity.ok(bookingService.cancelBooking(bookingId));
     }
-
-
 }
