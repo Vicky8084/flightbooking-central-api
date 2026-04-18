@@ -2,6 +2,7 @@ package central_api.central_api.client;
 
 import central_api.central_api.dto.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -115,9 +116,6 @@ public interface DbApiClient {
     @PostMapping("/bookings")
     Map<String, Object> createBooking(@RequestBody Map<String, Object> bookingRequest);
 
-    @GetMapping("/bookings/pnr/{pnr}")
-    Map<String, Object> getBookingByPNR(@PathVariable("pnr") String pnr);
-
     @GetMapping("/bookings/{bookingId}")
     Map<String, Object> getBookingById(@PathVariable("bookingId") Long bookingId);
 
@@ -156,5 +154,9 @@ public interface DbApiClient {
 
     @GetMapping("/bookings/user/{userId}/list")
     List<Object> getUserBookingsList(@PathVariable("userId") Long userId);
+
+    @GetMapping("/bookings/pnr/{pnr}")
+    Object getBookingByPNR(@PathVariable("pnr") String pnr);
+
 
 }

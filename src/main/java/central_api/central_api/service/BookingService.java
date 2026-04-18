@@ -469,7 +469,14 @@ public class BookingService {
 
     public Map<String, Object> getBookingByPNR(String pnr) {
         try {
-            return dbApiClient.getBookingByPNR(pnr);
+            Object response = dbApiClient.getBookingByPNR(pnr);
+
+            // Convert Object to Map using Jackson
+            com.fasterxml.jackson.databind.ObjectMapper mapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            Map<String, Object> result = mapper.convertValue(response,
+                    new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
+
+            return result;
         } catch (Exception e) {
             throw new CustomExceptions.BookingException("Booking not found with PNR: " + pnr);
         }

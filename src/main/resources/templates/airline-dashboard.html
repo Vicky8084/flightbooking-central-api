@@ -51,6 +51,7 @@
         .btn-delay { background: #ff9800; padding: 6px 12px; font-size: 12px; margin-left: 8px; }
         .btn-reschedule { background: #2196f3; padding: 6px 12px; font-size: 12px; margin-left: 5px; }
         .btn-cancel { background: #f44336; padding: 6px 12px; font-size: 12px; margin-left: 5px; }
+        .btn-search { background: #2196f3; padding: 12px 24px; font-size: 14px; }
         .flex-btns { display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; }
         .loading { text-align: center; padding: 40px; color: #888; }
         .toast { position: fixed; bottom: 20px; right: 20px; background: #4caf50; color: white; padding: 12px 24px; border-radius: 8px; display: none; z-index: 1001; max-width: 350px; }
@@ -58,12 +59,49 @@
         .spinner { display: inline-block; width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; margin-right: 8px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); align-items: center; justify-content: center; z-index: 1000; }
-        .modal-content { background: #1a1a2e; border-radius: 20px; padding: 30px; width: 400px; }
+        .modal-content { background: #1a1a2e; border-radius: 20px; padding: 30px; width: 500px; max-width: 90%; max-height: 80vh; overflow-y: auto; }
         .delay-info { font-size: 12px; color: #ff9800; margin-top: 5px; }
         small { color: #6e7a9e; font-size: 11px; }
         .warning-text { color: #ff9800; font-size: 12px; margin-top: 5px; }
         .validation-error { border-color: #f44336 !important; }
-        @media (max-width: 800px) { .sidebar { width: 80px; padding: 20px 8px; } .sidebar .nav-item span:not(.logo-area span) { display: none; } .main-content { padding: 20px; } .form-grid { grid-template-columns: 1fr; } }
+
+        /* PNR Search Styles */
+        .pnr-search-box { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .pnr-search-box input { flex: 1; min-width: 250px; }
+        .pnr-search-box button { background: linear-gradient(135deg, #2196f3, #1976d2); }
+
+        .booking-detail-card { background: rgba(0,0,0,0.4); border-radius: 20px; padding: 20px; margin-top: 20px; }
+        .booking-detail-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; gap: 10px; }
+        .pnr-badge { background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; padding: 8px 20px; border-radius: 30px; font-weight: 700; font-size: 18px; letter-spacing: 2px; }
+        .status-badge { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .status-CONFIRMED { background: rgba(76, 175, 80, 0.2); color: #4CAF50; }
+        .status-CANCELLED { background: rgba(244, 67, 54, 0.2); color: #f44336; }
+        .status-COMPLETED { background: rgba(33, 150, 243, 0.2); color: #2196F3; }
+        .info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px; }
+        .info-item { background: rgba(255,255,255,0.05); border-radius: 12px; padding: 15px; }
+        .info-label { font-size: 11px; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 5px; }
+        .info-value { font-size: 16px; font-weight: 600; color: white; }
+        .passenger-table { width: 100%; margin-top: 15px; }
+        .passenger-table th, .passenger-table td { padding: 10px; font-size: 13px; }
+        .flight-segment { background: rgba(255,215,0,0.1); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 3px solid #ffd700; }
+
+        @media (max-width: 800px) {
+            .sidebar { width: 80px; padding: 20px 8px; }
+            .sidebar .nav-item span:not(.logo-area span) { display: none; }
+            .main-content { padding: 20px; }
+            .form-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Pagination Styles */
+        .pagination { display: flex; justify-content: center; align-items: center; gap: 8px; margin-top: 20px; padding: 15px; flex-wrap: wrap; }
+        .page-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 8px 14px; border-radius: 8px; color: white; cursor: pointer; transition: all 0.3s; font-size: 14px; }
+        .page-btn:hover:not(:disabled) { background: rgba(255,215,0,0.3); border-color: #ffd700; }
+        .page-btn.active { background: linear-gradient(135deg, #ffd700, #ffb700); color: #1a1f2e; border-color: #ffd700; }
+        .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .page-info { color: white; font-size: 14px; margin: 0 5px; }
+        .items-per-page { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); padding: 6px 12px; border-radius: 8px; color: white; cursor: pointer; }
+        .items-per-page option { background: #1a1a2e; }
     </style>
 </head>
 <body>
@@ -77,7 +115,6 @@
             <div class="nav-item" data-tab="aircraft"><i class="fas fa-fan"></i> <span>Aircraft</span></div>
             <div class="nav-item" data-tab="create-aircraft"><i class="fas fa-plus"></i> <span>Add Aircraft</span></div>
             <div class="nav-item" data-tab="bookings"><i class="fas fa-ticket-alt"></i> <span>Bookings</span></div>
-            <div class="nav-item" data-tab="reviews"><i class="fas fa-star"></i> <span>Reviews</span></div>
             <div class="nav-item" data-tab="logout"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
         </div>
     </div>
@@ -111,15 +148,32 @@
     </div>
 </div>
 
+<!-- Booking Details Modal -->
+<div id="bookingDetailsModal" class="modal">
+    <div class="modal-content" id="bookingModalContent">
+        <h3><i class="fas fa-ticket-alt"></i> Booking Details</h3>
+        <div id="bookingDetailsBody">Loading...</div>
+        <div class="flex-btns" style="margin-top: 20px;">
+            <button onclick="closeBookingModal()">Close</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ============================================
     // CONFIGURATION
     // ============================================
     const API_BASE = 'http://localhost:8081';
+    const DB_API_BASE = 'http://localhost:8082';
 
     let user = JSON.parse(sessionStorage.getItem('user') || '{}');
     let airlineId = user.airlineId;
     let currentRescheduleFlightId = null;
+
+    // Pagination variables for flights
+    let allFlights = [];
+    let flightsCurrentPage = 1;
+    let flightsItemsPerPage = 6;
 
     // ============================================
     // AUTHENTICATION CHECK
@@ -174,15 +228,20 @@
             const response = await fetch(`${API_BASE}/api/auth/me`, { credentials: 'include' });
             if (response.ok) {
                 const userData = await response.json();
+                console.log("🔍 User data from /api/auth/me:", userData);
                 if (userData && userData.airlineId) {
                     airlineId = userData.airlineId;
                     user.airlineId = airlineId;
                     sessionStorage.setItem('user', JSON.stringify(user));
+                    console.log("✅ Airline ID set to:", airlineId);
                     return airlineId;
+                } else {
+                    console.warn("⚠️ No airlineId found in user data:", userData);
                 }
             }
             return null;
         } catch (error) {
+            console.error("Error fetching airline ID:", error);
             return null;
         }
     }
@@ -208,7 +267,7 @@
         try {
             const flights = await fetchAPI(`/api/db/flights/airline/${airlineId}`);
             if (!Array.isArray(flights)) return [];
-            return flights.map(f => ({
+            allFlights = flights.map(f => ({
                 ...f,
                 sourceCode: f.sourceAirport?.code || f.sourceAirportCode || 'N/A',
                 destCode: f.destinationAirport?.code || f.destinationAirportCode || 'N/A',
@@ -219,6 +278,7 @@
                 delayCount: f.delayCount || 0,
                 totalDelayMinutes: f.totalDelayMinutes || 0
             }));
+            return allFlights;
         } catch (error) {
             return [];
         }
@@ -241,6 +301,63 @@
         } catch (error) {
             return [];
         }
+    }
+
+    // ============================================
+    // PAGINATION FUNCTIONS FOR FLIGHTS
+    // ============================================
+    function getPaginatedFlights() {
+        const start = (flightsCurrentPage - 1) * flightsItemsPerPage;
+        const end = start + flightsItemsPerPage;
+        return allFlights.slice(start, end);
+    }
+
+    function renderFlightsPagination() {
+        const totalPages = Math.ceil(allFlights.length / flightsItemsPerPage);
+        const container = document.getElementById('flightsPagination');
+        if (!container) return;
+
+        if (totalPages <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '<div class="pagination">';
+        html += `<button class="page-btn" onclick="goToFlightsPage(${flightsCurrentPage - 1})" ${flightsCurrentPage === 1 ? 'disabled' : ''}>← Prev</button>`;
+
+        let startPage = Math.max(1, flightsCurrentPage - 2);
+        let endPage = Math.min(totalPages, flightsCurrentPage + 2);
+
+        if (startPage > 1) {
+            html += `<button class="page-btn" onclick="goToFlightsPage(1)">1</button>`;
+            if (startPage > 2) html += `<span class="page-info">...</span>`;
+        }
+
+        for (let i = startPage; i <= endPage; i++) {
+            html += `<button class="page-btn ${i === flightsCurrentPage ? 'active' : ''}" onclick="goToFlightsPage(${i})">${i}</button>`;
+        }
+
+        if (endPage < totalPages) {
+            if (endPage < totalPages - 1) html += `<span class="page-info">...</span>`;
+            html += `<button class="page-btn" onclick="goToFlightsPage(${totalPages})">${totalPages}</button>`;
+        }
+
+        html += `<button class="page-btn" onclick="goToFlightsPage(${flightsCurrentPage + 1})" ${flightsCurrentPage === totalPages ? 'disabled' : ''}>Next →</button>`;
+        html += `<span class="page-info" style="margin-left: 15px;">Page ${flightsCurrentPage} of ${totalPages}</span>`;
+        html += `</div>`;
+
+        container.innerHTML = html;
+    }
+
+    function goToFlightsPage(page) {
+        flightsCurrentPage = page;
+        renderFlightsList();
+    }
+
+    function changeFlightsItemsPerPage() {
+        flightsItemsPerPage = parseInt(document.getElementById('flightsItemsPerPage').value);
+        flightsCurrentPage = 1;
+        renderFlightsList();
     }
 
     // ============================================
@@ -277,7 +394,7 @@
                                     <td>${f.delayCount > 0 ? `Delayed ${f.delayCount} time(s) (${f.totalDelayMinutes} min total)` : '-'}</td>
                                 </tr>
                             `).join('')}
-                            ${todayFlights.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No flights scheduled today</td></tr>' : ''}
+                            ${todayFlights.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No flights scheduled today</td>' : ''}
                         </tbody>
                     </table>
                 </div>
@@ -287,13 +404,25 @@
     }
 
     // ============================================
-    // FLIGHTS LIST WITH ACTIONS
+    // FLIGHTS LIST WITH PAGINATION
     // ============================================
     async function renderFlightsList() {
-        const flights = await loadFlights();
+        await loadFlights();
+        const paginatedFlights = getPaginatedFlights();
+
         const html = `
             <div class="card-section">
-                <div class="section-title"><i class="fas fa-list"></i> All Flights</div>
+                <div class="section-title">
+                    <i class="fas fa-list"></i> All Flights
+                    <div>
+                        <select id="flightsItemsPerPage" class="items-per-page" onchange="changeFlightsItemsPerPage()">
+                            <option value="6" selected>6 per page</option>
+                            <option value="12">12 per page</option>
+                            <option value="24">24 per page</option>
+                            <option value="50">50 per page</option>
+                        </select>
+                    </div>
+                </div>
                 <div class="table-container">
                     <table>
                         <thead>
@@ -303,7 +432,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            ${flights.map(f => `
+                            ${paginatedFlights.map(f => `
                                 <tr>
                                     <td>${f.flightNumber}</td>
                                     <td>${f.aircraftModel}</td>
@@ -321,13 +450,15 @@
                                     </td>
                                 </tr>
                             `).join('')}
-                            ${flights.length === 0 ? '<tr><td colspan="10" style="text-align:center;">No flights found. Create your first flight!</td></tr>' : ''}
+                            ${paginatedFlights.length === 0 ? '<tr><td colspan="10" style="text-align:center;">No flights found. Create your first flight!</td>' : ''}
                         </tbody>
                     </table>
                 </div>
+                <div id="flightsPagination"></div>
             </div>
         `;
         document.getElementById('appContainer').innerHTML = html;
+        renderFlightsPagination();
     }
 
     // ============================================
@@ -346,7 +477,7 @@
         try {
             const result = await fetchAPI(`/api/db/flights/${flightId}/delay?minutes=${minutes}`, { method: 'PUT' });
             showToast(`✅ Flight delayed by ${minutes} minutes! Total delays: ${result.delayCount}`);
-            renderFlightsList();
+            await renderFlightsList();
         } catch (error) {
             showToast(error.message, true);
         }
@@ -392,7 +523,7 @@
             );
             showToast(`✅ Flight rescheduled to ${new Date(newDeparture).toLocaleString()}`);
             closeRescheduleModal();
-            renderFlightsList();
+            await renderFlightsList();
         } catch (error) {
             showToast(error.message, true);
         }
@@ -405,7 +536,7 @@
         try {
             await fetchAPI(`/api/db/flights/${flightId}/cancel`, { method: 'PUT' });
             showToast('❌ Flight cancelled successfully');
-            renderFlightsList();
+            await renderFlightsList();
         } catch (error) {
             showToast(error.message, true);
         }
@@ -537,7 +668,6 @@
     // ============================================
     function updateSeatRecommendations() {
         const totalSeats = parseInt(document.getElementById('totalSeats').value) || 0;
-
         if (totalSeats === 0) return;
 
         let minEco, maxEco, minBus, maxBus, minFirst, maxFirst;
@@ -614,7 +744,6 @@
         }
 
         const total = parseInt(totalInput.value) || 0;
-
         if (total === 0) return;
 
         let windowVal, aisleVal, middleVal;
@@ -639,7 +768,7 @@
     }
 
     // ============================================
-    // CREATE AIRCRAFT FORM - NO PRICE FIELDS
+    // CREATE AIRCRAFT FORM
     // ============================================
     async function renderCreateAircraft() {
         const html = `
@@ -647,7 +776,6 @@
                 <div class="section-title"><i class="fas fa-plus-circle"></i> Add New Aircraft</div>
                 <form id="createAircraftForm">
                     <div class="form-grid">
-                        <!-- Basic Information -->
                         <div class="input-group">
                             <label>Registration Number *</label>
                             <input type="text" id="registrationNumber" placeholder="VT-ABC" required>
@@ -661,15 +789,11 @@
                             <label>Manufacturer *</label>
                             <input type="text" id="manufacturer" placeholder="Airbus" required>
                         </div>
-
-                        <!-- Total Seats -->
                         <div class="input-group">
                             <label>Total Seats *</label>
                             <input type="number" id="totalSeats" required min="50" max="600" value="180">
                             <small id="totalSeatsHint">Enter total aircraft capacity</small>
                         </div>
-
-                        <!-- Economy Class -->
                         <div class="input-group"><label class="section-label">✈️ ECONOMY CLASS</label></div>
                         <div class="input-group">
                             <label>Economy Seats *</label>
@@ -690,8 +814,6 @@
                             <input type="number" id="economyMiddleSeats" value="50" min="0" readonly>
                             <small>Middle seats (5% discount) - Auto-calculated</small>
                         </div>
-
-                        <!-- Business Class -->
                         <div class="input-group"><label class="section-label">💼 BUSINESS CLASS</label></div>
                         <div class="input-group">
                             <label>Business Seats</label>
@@ -710,8 +832,6 @@
                             <input type="number" id="businessMiddleSeats" value="0" min="0" readonly>
                             <small>Business class has no middle seats</small>
                         </div>
-
-                        <!-- First Class -->
                         <div class="input-group"><label class="section-label">👑 FIRST CLASS</label></div>
                         <div class="input-group">
                             <label>First Class Seats</label>
@@ -730,10 +850,6 @@
                             <label>Middle Seats</label>
                             <input type="number" id="firstClassMiddleSeats" value="0" min="0" readonly>
                         </div>
-
-                        <!-- ❌ PRICE FIELDS REMOVED - Prices will be set at Flight creation -->
-
-                        <!-- Premium Configuration -->
                         <div class="input-group"><label class="section-label">✨ PREMIUM CONFIGURATION</label></div>
                         <div class="input-group">
                             <label>Window Seat Premium (%)</label>
@@ -764,7 +880,6 @@
         `;
         document.getElementById('appContainer').innerHTML = html;
 
-        // Add event listeners
         const totalSeatsInput = document.getElementById('totalSeats');
         const economyInput = document.getElementById('economySeats');
         const businessInput = document.getElementById('businessSeats');
@@ -774,26 +889,17 @@
             updateSeatRecommendations();
             const total = parseInt(this.value) || 0;
             const currentEco = parseInt(economyInput.value) || 0;
-            if (currentEco > total) {
-                economyInput.value = total;
-            }
+            if (currentEco > total) economyInput.value = total;
         });
 
         economyInput.addEventListener('input', function() {
             const total = parseInt(totalSeatsInput.value) || 0;
             const eco = parseInt(this.value) || 0;
             const remaining = total - eco;
-
             businessInput.max = remaining;
             firstInput.max = remaining;
-
-            if (parseInt(businessInput.value) > remaining) {
-                businessInput.value = remaining;
-            }
-            if (parseInt(firstInput.value) > remaining) {
-                firstInput.value = remaining;
-            }
-
+            if (parseInt(businessInput.value) > remaining) businessInput.value = remaining;
+            if (parseInt(firstInput.value) > remaining) firstInput.value = remaining;
             autoDistributeSeats('economy');
         });
 
@@ -802,20 +908,13 @@
             const eco = parseInt(economyInput.value) || 0;
             const bus = parseInt(this.value) || 0;
             const remaining = total - eco - bus;
-
             firstInput.max = remaining;
-            if (parseInt(firstInput.value) > remaining) {
-                firstInput.value = remaining;
-            }
-
+            if (parseInt(firstInput.value) > remaining) firstInput.value = remaining;
             autoDistributeSeats('business');
         });
 
-        firstInput.addEventListener('input', function() {
-            autoDistributeSeats('first');
-        });
+        firstInput.addEventListener('input', function() { autoDistributeSeats('first'); });
 
-        // Initialize
         updateSeatRecommendations();
         autoDistributeSeats('economy');
         autoDistributeSeats('business');
@@ -839,34 +938,26 @@
                 model: document.getElementById('model').value.trim(),
                 manufacturer: document.getElementById('manufacturer').value.trim(),
                 totalSeats: totalSeats,
-
                 economySeats: economySeats,
                 economyWindowSeats: parseInt(document.getElementById('economyWindowSeats').value) || 0,
                 economyAisleSeats: parseInt(document.getElementById('economyAisleSeats').value) || 0,
                 economyMiddleSeats: parseInt(document.getElementById('economyMiddleSeats').value) || 0,
-
                 businessSeats: businessSeats,
                 businessWindowSeats: parseInt(document.getElementById('businessWindowSeats').value) || 0,
                 businessAisleSeats: parseInt(document.getElementById('businessAisleSeats').value) || 0,
                 businessMiddleSeats: parseInt(document.getElementById('businessMiddleSeats').value) || 0,
-
                 firstClassSeats: firstClassSeats,
                 firstClassWindowSeats: parseInt(document.getElementById('firstClassWindowSeats').value) || 0,
                 firstClassAisleSeats: parseInt(document.getElementById('firstClassAisleSeats').value) || 0,
                 firstClassMiddleSeats: parseInt(document.getElementById('firstClassMiddleSeats').value) || 0,
-
-                // ❌ NO PRICE FIELDS
-
                 windowSeatPremiumPercent: parseInt(document.getElementById('windowSeatPremiumPercent').value),
                 aisleSeatPremiumPercent: parseInt(document.getElementById('aisleSeatPremiumPercent').value),
                 middleSeatDiscountPercent: parseInt(document.getElementById('middleSeatDiscountPercent').value),
                 extraLegroomPremium: parseFloat(document.getElementById('extraLegroomPremium').value),
                 exitRowPremium: parseFloat(document.getElementById('exitRowPremium').value),
-
                 airline: { id: airlineId }
             };
 
-            // Validate distributions
             const ecoDist = aircraftData.economyWindowSeats + aircraftData.economyAisleSeats + aircraftData.economyMiddleSeats;
             if (ecoDist !== economySeats) {
                 showToast(`Economy seat distribution error: ${ecoDist} != ${economySeats}`, true);
@@ -925,7 +1016,7 @@
                                     <td>Eco: ${a.economySeats || 0} | Bus: ${a.businessSeats || 0} | First: ${a.firstClassSeats || 0}</td>
                                 </tr>
                             `).join('')}
-                            ${aircrafts.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No aircraft found. Add your first aircraft!</td></tr>' : ''}
+                            ${aircrafts.length === 0 ? '<tr><td colspan="5" style="text-align:center;">No aircraft found. Add your first aircraft!</td>' : ''}
                         </tbody>
                     </table>
                 </div>
@@ -934,62 +1025,317 @@
         document.getElementById('appContainer').innerHTML = html;
     }
 
+    // ============================================
+    // BOOKINGS SECTION WITH PNR SEARCH (FULLY FIXED)
+    // ============================================
     async function renderBookings() {
-        document.getElementById('appContainer').innerHTML = `
+        const html = `
             <div class="card-section">
-                <div class="section-title"><i class="fas fa-ticket-alt"></i> Bookings</div>
-                <p>Loading bookings...</p>
+                <div class="section-title"><i class="fas fa-ticket-alt"></i> Search Booking by PNR</div>
+                <div class="pnr-search-box">
+                    <input type="text" id="pnrSearchInput" placeholder="Enter PNR Number (e.g., 2D7I4D)" maxlength="6" style="text-transform: uppercase;">
+                    <button class="btn-search" onclick="searchBookingByPNR()">
+                        <i class="fas fa-search"></i> Search Booking
+                    </button>
+                </div>
+                <div id="bookingSearchResult"></div>
             </div>
         `;
-        try {
-            const bookings = await fetchAPI(`/api/db/bookings/airline/${airlineId}`);
-            if (bookings && bookings.length > 0) {
-                // Render bookings table
-            } else {
-                document.getElementById('appContainer').innerHTML = `
-                    <div class="card-section">
-                        <div class="section-title"><i class="fas fa-ticket-alt"></i> Bookings</div>
-                        <p>No bookings yet. Bookings will appear here once customers book your flights.</p>
-                    </div>
-                `;
-            }
-        } catch (error) {
-            document.getElementById('appContainer').innerHTML = `
-                <div class="card-section">
-                    <div class="section-title"><i class="fas fa-ticket-alt"></i> Bookings</div>
-                    <p>No bookings found.</p>
-                </div>
-            `;
-        }
+        document.getElementById('appContainer').innerHTML = html;
     }
 
-    async function renderReviews() {
-        document.getElementById('appContainer').innerHTML = `
-            <div class="card-section">
-                <div class="section-title"><i class="fas fa-star"></i> Reviews</div>
-                <p>Loading reviews...</p>
-            </div>
-        `;
+    // Search booking by PNR - COMPLETELY FIXED VERSION
+    window.searchBookingByPNR = async function() {
+        const pnr = document.getElementById('pnrSearchInput').value.trim().toUpperCase();
+
+        if (!pnr || pnr.length !== 6) {
+            showToast('Please enter a valid 6-character PNR', true);
+            return;
+        }
+
+        showToast('Searching for booking...');
+
         try {
-            const reviews = await fetchAPI(`/api/db/reviews/airline/${airlineId}`);
-            if (reviews && reviews.reviews && reviews.reviews.length > 0) {
-                // Render reviews
-            } else {
-                document.getElementById('appContainer').innerHTML = `
-                    <div class="card-section">
-                        <div class="section-title"><i class="fas fa-star"></i> Reviews</div>
-                        <p>No reviews yet. Customer reviews will appear here.</p>
+            // Call Central API which forwards to DB API
+            const response = await fetch(`${API_BASE}/api/db/bookings/pnr/${pnr}`, {
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+
+            console.log("🔍 API Response:", data);
+
+            // Check if booking exists in response
+            if (!data.success || !data.booking) {
+                showToast(`Booking not found with PNR: ${pnr}`, true);
+                document.getElementById('bookingSearchResult').innerHTML = `
+                    <div class="booking-detail-card" style="text-align: center; color: #f44336;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 48px;"></i>
+                        <h3>Booking Not Found</h3>
+                        <p>No booking found with PNR: ${pnr}</p>
                     </div>
                 `;
+                return;
             }
+
+            const booking = data.booking;
+
+            console.log("🔍 Booking object:", booking);
+            console.log("🔍 Booking flights:", booking.bookingFlights);
+
+            // Check if booking belongs to this airline
+            let belongsToAirline = false;
+            let foundAirlineId = null;
+            let flightNumbers = [];
+
+            if (booking.bookingFlights && booking.bookingFlights.length > 0) {
+                for (const bf of booking.bookingFlights) {
+                    const flight = bf.flight;
+                    if (flight) {
+                        flightNumbers.push(flight.flightNumber);
+                        console.log("🔍 Processing flight:", flight.flightNumber);
+                        console.log("🔍 Flight object:", flight);
+                        console.log("🔍 Flight aircraft:", flight.aircraft);
+                        console.log("🔍 Flight airline:", flight.aircraft?.airline);
+
+                        if (flight.aircraft && flight.aircraft.airline && flight.aircraft.airline.id) {
+                            foundAirlineId = flight.aircraft.airline.id;
+                            console.log("✅ Found airline ID:", foundAirlineId);
+
+                            if (foundAirlineId === airlineId) {
+                                belongsToAirline = true;
+                                console.log("✅✅ MATCH! Booking belongs to this airline");
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (!belongsToAirline) {
+                showToast('This booking does not belong to your airline', true);
+                document.getElementById('bookingSearchResult').innerHTML = `
+                    <div class="booking-detail-card" style="text-align: center; color: #f44336;">
+                        <i class="fas fa-lock" style="font-size: 48px;"></i>
+                        <h3>Access Denied</h3>
+                        <p>This booking does not belong to your airline.</p>
+                        <p style="font-size: 12px; margin-top: 10px;">Your Airline ID: ${airlineId}</p>
+                        <p style="font-size: 12px;">Flight(s) in booking: ${flightNumbers.join(', ') || 'None found'}</p>
+                        <p style="font-size: 12px;">Booking Airline ID: ${foundAirlineId || 'Not found'}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Display booking details
+            displayBookingDetails(booking);
+
         } catch (error) {
-            document.getElementById('appContainer').innerHTML = `
-                <div class="card-section">
-                    <div class="section-title"><i class="fas fa-star"></i> Reviews</div>
-                    <p>No reviews available.</p>
+            console.error('Error searching booking:', error);
+            showToast('Error searching booking: ' + error.message, true);
+            document.getElementById('bookingSearchResult').innerHTML = `
+                <div class="booking-detail-card" style="text-align: center; color: #f44336;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 48px;"></i>
+                    <h3>Error</h3>
+                    <p>${error.message}</p>
+                    <p style="font-size: 12px; margin-top: 10px;">Please check if all services are running.</p>
                 </div>
             `;
         }
+    };
+
+    function displayBookingDetails(booking) {
+        const bookingFlights = booking.bookingFlights || [];
+        const isConnecting = bookingFlights.length > 1;
+
+        let flightsHtml = '';
+
+        for (let i = 0; i < bookingFlights.length; i++) {
+            const bf = bookingFlights[i];
+            const flight = bf.flight;
+
+            let sourceCode = 'N/A', sourceCity = 'N/A';
+            let destCode = 'N/A', destCity = 'N/A';
+            let airlineName = 'N/A';
+            let flightNumber = flight?.flightNumber || 'N/A';
+            let departureTime = flight?.departureTime || 'N/A';
+            let arrivalTime = flight?.arrivalTime || 'N/A';
+            let duration = flight?.duration || 0;
+            let flightStatus = flight?.status || 'N/A';
+
+            if (flight) {
+                if (flight.sourceAirport) {
+                    sourceCode = flight.sourceAirport.code || 'N/A';
+                    sourceCity = flight.sourceAirport.city || 'N/A';
+                }
+                if (flight.destinationAirport) {
+                    destCode = flight.destinationAirport.code || 'N/A';
+                    destCity = flight.destinationAirport.city || 'N/A';
+                }
+                if (flight.aircraft && flight.aircraft.airline) {
+                    airlineName = flight.aircraft.airline.name || 'N/A';
+                }
+            }
+
+            let seatsHtml = '';
+            const passengerSeats = bf.passengerSeats || [];
+            for (const ps of passengerSeats) {
+                const passenger = ps.passenger || {};
+                const seat = ps.seat || {};
+                seatsHtml += `
+                    <tr>
+                        <td>${passenger.fullName || 'N/A'}</td>
+                        <td>${seat.seatNumber || 'N/A'}</td>
+                        <td>${ps.seatPrice ? '₹' + ps.seatPrice : 'N/A'}</td>
+                    </tr>
+                `;
+            }
+
+            flightsHtml += `
+                <div class="flight-segment">
+                    <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px;">
+                        <strong style="color: #ffd700;">✈️ Segment ${i+1} of ${bookingFlights.length}</strong>
+                        <span>Flight: ${flightNumber}</span>
+                        <span>Airline: ${airlineName}</span>
+                    </div>
+                    <div class="info-grid" style="margin-bottom: 0;">
+                        <div class="info-item">
+                            <div class="info-label">From</div>
+                            <div class="info-value">${sourceCode} - ${sourceCity}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">To</div>
+                            <div class="info-value">${destCode} - ${destCity}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Departure</div>
+                            <div class="info-value">${new Date(departureTime).toLocaleString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Arrival</div>
+                            <div class="info-value">${new Date(arrivalTime).toLocaleString()}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Duration</div>
+                            <div class="info-value">${duration} minutes</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Status</div>
+                            <div class="info-value">${flightStatus}</div>
+                        </div>
+                    </div>
+                    ${seatsHtml ? `
+                        <div style="margin-top: 15px;">
+                            <strong>🎫 Passengers & Seats:</strong>
+                            <table class="passenger-table">
+                                <thead>
+                                    <tr><th>Passenger Name</th><th>Seat Number</th><th>Seat Price</th></tr>
+                                </thead>
+                                <tbody>${seatsHtml}</tbody>
+                            </table>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        let allPassengersHtml = '';
+        const passengers = booking.passengers || [];
+        for (const passenger of passengers) {
+            allPassengersHtml += `
+                <tr>
+                    <td>${passenger.fullName || 'N/A'}</td>
+                    <td>${passenger.age || 'N/A'}</td>
+                    <td>${passenger.gender || 'N/A'}</td>
+                    <td>${passenger.email || 'N/A'}</td>
+                    <td>${passenger.phoneNumber || 'N/A'}</td>
+                </tr>
+            `;
+        }
+
+        const statusClass = `status-${booking.status || 'CONFIRMED'}`;
+
+        const html = `
+            <div class="booking-detail-card">
+                <div class="booking-detail-header">
+                    <div class="pnr-badge">PNR: ${booking.pnrNumber}</div>
+                    <div>
+                        <span class="status-badge ${statusClass}">${booking.status || 'CONFIRMED'}</span>
+                    </div>
+                </div>
+
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">Booking Date</div>
+                        <div class="info-value">${new Date(booking.bookingTime).toLocaleString()}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Total Amount</div>
+                        <div class="info-value">₹${booking.totalAmount || 0}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Fare Class</div>
+                        <div class="info-value">${booking.fareClassCode || 'STANDARD'}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Passengers</div>
+                        <div class="info-value">${passengers.length} passenger(s)</div>
+                    </div>
+                </div>
+
+                ${isConnecting ? `<div style="margin-bottom: 15px;"><strong style="color: #ffd700;">🔗 Connecting Flight (${bookingFlights.length} Segments)</strong></div>` : ''}
+
+                ${flightsHtml}
+
+                <div style="margin-top: 20px;">
+                    <strong>👥 All Passengers Details:</strong>
+                    <table class="passenger-table">
+                        <thead>
+                            <tr>
+                                <th>Full Name</th>
+                                <th>Age</th>
+                                <th>Gender</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${allPassengersHtml}
+                            ${passengers.length === 0 ? '<tr><td colspan="5" style="text-align: center;">No passenger details available</td>' : ''}
+                        </tbody>
+                    </table>
+                </div>
+
+                ${booking.payment ? `
+                    <div class="info-grid" style="margin-top: 20px;">
+                        <div class="info-item">
+                            <div class="info-label">Payment Method</div>
+                            <div class="info-value">${booking.payment.paymentMethod || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Transaction ID</div>
+                            <div class="info-value">${booking.payment.transactionId || 'N/A'}</div>
+                        </div>
+                        <div class="info-item">
+                            <div class="info-label">Payment Status</div>
+                            <div class="info-value">${booking.payment.status || 'N/A'}</div>
+                        </div>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        document.getElementById('bookingSearchResult').innerHTML = html;
+        showToast('✅ Booking found successfully!');
+    }
+
+    function closeBookingModal() {
+        document.getElementById('bookingDetailsModal').style.display = 'none';
     }
 
     // ============================================
@@ -1022,8 +1368,7 @@
             'create-flight': '✈️ Create New Flight',
             aircraft: '🛠️ Aircraft Fleet',
             'create-aircraft': '🆕 Add New Aircraft',
-            bookings: '🎟️ Booking Hub',
-            reviews: '📝 Customer Reviews',
+            bookings: '🎟️ Booking Management',
             logout: 'Logout'
         };
         document.getElementById('mainTitle').innerHTML = titles[tabId] || 'Airline Dashboard';
@@ -1039,7 +1384,6 @@
         else if (tabId === 'aircraft') await renderAircraftList();
         else if (tabId === 'create-aircraft') await renderCreateAircraft();
         else if (tabId === 'bookings') await renderBookings();
-        else if (tabId === 'reviews') await renderReviews();
     }
 
     // ============================================
@@ -1067,6 +1411,10 @@
     window.confirmReschedule = confirmReschedule;
     window.cancelFlight = cancelFlight;
     window.autoDistributeSeats = autoDistributeSeats;
+    window.searchBookingByPNR = searchBookingByPNR;
+    window.closeBookingModal = closeBookingModal;
+    window.goToFlightsPage = goToFlightsPage;
+    window.changeFlightsItemsPerPage = changeFlightsItemsPerPage;
 
     // ============================================
     // INITIALIZATION
@@ -1088,6 +1436,5 @@
         }
     })();
 </script>
-
 </body>
 </html>
